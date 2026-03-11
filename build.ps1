@@ -11,7 +11,11 @@ $exeSize = (Get-Item "$publishDir\WindowsHotSpot.exe").Length / 1MB
 Write-Host "Exe size: $([math]::Round($exeSize, 1)) MB" -ForegroundColor Green
 
 # Build installer (requires Inno Setup)
+# Check both default system install and user-local install locations
 $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+if (-not (Test-Path $iscc)) {
+    $iscc = "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
+}
 if (Test-Path $iscc) {
     Write-Host "Building installer..." -ForegroundColor Cyan
     & $iscc "installer\WindowsHotSpot.iss"
