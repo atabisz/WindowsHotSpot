@@ -1,6 +1,8 @@
 # Claude Code local settings (machine-specific)
 .claude/
 .superpowers/
+.planning/
+docs/
 CLAUDE.md
 
 # .NET build output
@@ -25,3 +27,6 @@ packages/
 # OS
 Thumbs.db
 .DS_Store
+
+# Logs
+*.log
