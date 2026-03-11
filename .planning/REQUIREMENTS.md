@@ -24,12 +24,12 @@
 
 ### System Tray
 
-- [ ] **TRAY-01**: Application runs with no taskbar button (hidden from taskbar)
-- [ ] **TRAY-02**: System tray icon is present while the app is running
-- [ ] **TRAY-03**: Tray context menu has "Settings", "About", and "Quit" items
-- [ ] **TRAY-04**: "Settings" opens the settings dialog
-- [ ] **TRAY-05**: "About" shows app name, version, and brief description
-- [ ] **TRAY-06**: "Quit" cleanly exits the application and removes the tray icon
+- [x] **TRAY-01**: Application runs with no taskbar button (hidden from taskbar)
+- [x] **TRAY-02**: System tray icon is present while the app is running
+- [x] **TRAY-03**: Tray context menu has "Settings", "About", and "Quit" items
+- [x] **TRAY-04**: "Settings" opens the settings dialog
+- [x] **TRAY-05**: "About" shows app name, version, and brief description
+- [x] **TRAY-06**: "Quit" cleanly exits the application and removes the tray icon
 
 ### Settings Dialog
 
@@ -78,12 +78,12 @@
 | CORE-04 | Phase 1 | Complete |
 | CORE-05 | Phase 1 | Complete |
 | CORE-06 | Phase 1 | Complete |
-| TRAY-01 | Phase 1 | Pending |
-| TRAY-02 | Phase 1 | Pending |
-| TRAY-03 | Phase 1 | Pending |
-| TRAY-04 | Phase 1 | Pending |
-| TRAY-05 | Phase 1 | Pending |
-| TRAY-06 | Phase 1 | Pending |
+| TRAY-01 | Phase 1 | Complete |
+| TRAY-02 | Phase 1 | Complete |
+| TRAY-03 | Phase 1 | Complete |
+| TRAY-04 | Phase 1 | Complete |
+| TRAY-05 | Phase 1 | Complete |
+| TRAY-06 | Phase 1 | Complete |
 | CONF-01 | Phase 2 | Pending |
 | CONF-02 | Phase 2 | Pending |
 | CONF-03 | Phase 2 | Pending |
