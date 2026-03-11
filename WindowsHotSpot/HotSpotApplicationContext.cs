@@ -43,9 +43,13 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         // Create system tray icon (TRAY-02) — loaded from embedded resource.
         // Icon(Stream, int, int) selects the closest size frame from the ICO.
         // PNG-compressed ICO frames are supported natively on .NET 10 / Windows Vista+.
-        using var iconStream = typeof(HotSpotApplicationContext).Assembly
+        // Stream is intentionally not disposed — manifest resource streams are backed by
+        // process-mapped assembly memory and the Icon reads lazily on first Handle access.
+        var iconStream = typeof(HotSpotApplicationContext).Assembly
             .GetManifestResourceStream("WindowsHotSpot.Resources.app.ico")
-            ?? throw new InvalidOperationException("Embedded icon resource not found. Verify EmbeddedResource in csproj and resource name.");
+            ?? throw new InvalidOperationException(
+                "Embedded icon resource 'WindowsHotSpot.Resources.app.ico' not found. " +
+                "Verify <EmbeddedResource Include=\"Resources\\app.ico\" /> in WindowsHotSpot.csproj.");
         _trayIcon = new NotifyIcon
         {
             Icon = new Icon(iconStream, 16, 16),
