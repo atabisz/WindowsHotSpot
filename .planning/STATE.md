@@ -35,6 +35,7 @@ Progress: [███░░░░░░░] 33%
 
 *Updated after each plan completion*
 | Phase 02 P01 | 1min | 2 tasks | 5 files |
+| Phase 02 P02 | 1min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -52,6 +53,7 @@ Recent decisions affecting current work:
 - [01-02]: SystemIcons.Application used as tray icon fallback (ImageMagick not available); custom icon is Phase 3 polish
 - [01-02]: DisposeComponents() private helper prevents double-dispose in both Dispose(bool) and ApplicationExit paths
 - [Phase 02]: HotCorner enum moved to Config namespace to avoid circular dependency — Config->Core would be wrong direction; Config is a peer namespace
+- [Phase 02]: Startup checkbox reads live registry state (StartupManager.IsEnabled) not cached settings value — Actual registry state is source of truth; avoids showing stale value if registry was modified externally
 
 ### Pending Todos
 

@@ -33,10 +33,10 @@
 
 ### Settings Dialog
 
-- [ ] **SETT-01**: Settings dialog allows changing the active corner (dropdown/radio)
-- [ ] **SETT-02**: Settings dialog allows changing zone size in pixels (numeric input)
-- [ ] **SETT-03**: Settings dialog allows changing dwell delay in milliseconds (numeric input)
-- [ ] **SETT-04**: Settings dialog has "Start with Windows" checkbox
+- [x] **SETT-01**: Settings dialog allows changing the active corner (dropdown/radio)
+- [x] **SETT-02**: Settings dialog allows changing zone size in pixels (numeric input)
+- [x] **SETT-03**: Settings dialog allows changing dwell delay in milliseconds (numeric input)
+- [x] **SETT-04**: Settings dialog has "Start with Windows" checkbox
 - [x] **SETT-05**: Settings changes take effect immediately on save without restarting the app
 
 ### Distribution
@@ -89,10 +89,10 @@
 | CONF-03 | Phase 2 | Complete |
 | CONF-04 | Phase 2 | Complete |
 | CONF-05 | Phase 2 | Complete |
-| SETT-01 | Phase 2 | Pending |
-| SETT-02 | Phase 2 | Pending |
-| SETT-03 | Phase 2 | Pending |
-| SETT-04 | Phase 2 | Pending |
+| SETT-01 | Phase 2 | Complete |
+| SETT-02 | Phase 2 | Complete |
+| SETT-03 | Phase 2 | Complete |
+| SETT-04 | Phase 2 | Complete |
 | SETT-05 | Phase 2 | Complete |
 | DIST-01 | Phase 3 | Pending |
 | DIST-02 | Phase 3 | Pending |
