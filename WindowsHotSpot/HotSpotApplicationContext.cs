@@ -40,11 +40,15 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _contextMenu.Items.Add(new ToolStripSeparator());
         _contextMenu.Items.Add(quitItem);
 
-        // Create system tray icon (TRAY-02)
-        // No app.ico available (ImageMagick not present); using SystemIcons.Application as fallback.
+        // Create system tray icon (TRAY-02) — loaded from embedded resource.
+        // Icon(Stream, int, int) selects the closest size frame from the ICO.
+        // PNG-compressed ICO frames are supported natively on .NET 10 / Windows Vista+.
+        using var iconStream = typeof(HotSpotApplicationContext).Assembly
+            .GetManifestResourceStream("WindowsHotSpot.Resources.app.ico")
+            ?? throw new InvalidOperationException("Embedded icon resource not found. Verify EmbeddedResource in csproj and resource name.");
         _trayIcon = new NotifyIcon
         {
-            Icon = SystemIcons.Application,
+            Icon = new Icon(iconStream, 16, 16),
             Text = "WindowsHotSpot",
             ContextMenuStrip = _contextMenu,
             Visible = true
