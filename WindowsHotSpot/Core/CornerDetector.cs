@@ -2,22 +2,21 @@
 // 3-state machine: Idle -> Dwelling -> Triggered (Cooldown omitted: Triggered prevents
 // re-fire until mouse leaves zone, making a separate Cooldown state redundant).
 // Uses System.Windows.Forms.Timer (fires on UI thread) -- NOT System.Timers.Timer.
+// Phase 2: HotCorner enum moved to Config/AppSettings.cs. Constructor now takes settings params.
 
 using System.Drawing;
 using System.Windows.Forms;
+using WindowsHotSpot.Config;
 
 namespace WindowsHotSpot.Core;
-
-internal enum HotCorner { TopLeft, TopRight, BottomLeft, BottomRight }
 
 internal enum DetectorState { Idle, Dwelling, Triggered }
 
 internal sealed class CornerDetector : IDisposable
 {
-    // Hard-coded for Phase 1; extracted to config in Phase 2
-    private readonly HotCorner _activeCorner = HotCorner.TopLeft;
-    private readonly int _zoneSize = 10;   // pixels from corner
-    private readonly int _dwellDelay = 300; // milliseconds
+    private HotCorner _activeCorner;
+    private int _zoneSize;
+    private int _dwellDelay;
 
     private DetectorState _state = DetectorState.Idle;
     private bool _isButtonDown;
@@ -26,10 +25,28 @@ internal sealed class CornerDetector : IDisposable
     // Do NOT use System.Timers.Timer or System.Threading.Timer (fire on threadpool).
     private readonly System.Windows.Forms.Timer _dwellTimer;
 
-    public CornerDetector()
+    public CornerDetector(HotCorner corner, int zoneSize, int dwellDelay)
     {
+        _activeCorner = corner;
+        _zoneSize = zoneSize;
+        _dwellDelay = dwellDelay;
+
         _dwellTimer = new System.Windows.Forms.Timer { Interval = _dwellDelay };
         _dwellTimer.Tick += OnDwellComplete;
+    }
+
+    /// <summary>
+    /// Updates detection settings at runtime. Resets state to Idle to prevent stale triggers
+    /// if the corner changes mid-dwell.
+    /// </summary>
+    public void UpdateSettings(HotCorner corner, int zoneSize, int dwellDelay)
+    {
+        _activeCorner = corner;
+        _zoneSize = zoneSize;
+        _dwellDelay = dwellDelay;
+        _dwellTimer.Interval = dwellDelay;
+        _dwellTimer.Stop();
+        _state = DetectorState.Idle;
     }
 
     /// <summary>

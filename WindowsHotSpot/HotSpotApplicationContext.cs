@@ -1,13 +1,16 @@
 // HotSpotApplicationContext: owns all component lifetimes and provides the system tray interface.
 // Pattern: ApplicationContext with no MainForm -> no taskbar button (TRAY-01).
 // Wires HookManager -> CornerDetector for hot corner detection.
+// Phase 2: ConfigManager loaded on startup; SettingsChanged wired to CornerDetector.UpdateSettings.
 
+using WindowsHotSpot.Config;
 using WindowsHotSpot.Core;
 
 namespace WindowsHotSpot;
 
 internal sealed class HotSpotApplicationContext : ApplicationContext
 {
+    private readonly ConfigManager _configManager;
     private readonly HookManager _hookManager;
     private readonly CornerDetector _cornerDetector;
     private readonly NotifyIcon _trayIcon;
@@ -15,6 +18,10 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
 
     public HotSpotApplicationContext()
     {
+        // Load settings (or defaults if settings.json missing/corrupt)
+        _configManager = new ConfigManager();
+        _configManager.Load();
+
         // Build context menu (TRAY-03)
         _contextMenu = new ContextMenuStrip();
 
@@ -42,12 +49,22 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
             Visible = true
         };
 
-        // Create detection components and wire events
-        _cornerDetector = new CornerDetector();
+        // Create detection components using loaded settings
+        _cornerDetector = new CornerDetector(
+            _configManager.Settings.Corner,
+            _configManager.Settings.ZoneSize,
+            _configManager.Settings.DwellDelayMs);
+
         _hookManager = new HookManager();
 
         _hookManager.MouseMoved += _cornerDetector.OnMouseMoved;
         _hookManager.MouseButtonChanged += _cornerDetector.OnMouseButtonChanged;
+
+        // Live settings propagation: SettingsChanged -> UpdateSettings (SETT-05)
+        _configManager.SettingsChanged += () => _cornerDetector.UpdateSettings(
+            _configManager.Settings.Corner,
+            _configManager.Settings.ZoneSize,
+            _configManager.Settings.DwellDelayMs);
 
         // Belt-and-suspenders cleanup on application exit (CORE-06)
         Application.ApplicationExit += OnApplicationExit;
@@ -56,7 +73,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _hookManager.Install();
     }
 
-    // TRAY-04: Settings placeholder (Phase 2 will show SettingsForm)
+    // TRAY-04: Settings placeholder replaced by Plan 02-02 (SettingsForm)
     private void OnSettingsClick(object? sender, EventArgs e)
     {
         MessageBox.Show(
