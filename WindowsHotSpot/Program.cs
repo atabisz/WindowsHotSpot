@@ -18,8 +18,6 @@ static class Program
             Environment.Exit(1);
         };
 
-        // TODO(plan-02): Replace Application.Run() with Application.Run(new HotSpotApplicationContext())
-        // HotSpotApplicationContext wires HookManager, CornerDetector, and tray icon.
-        Application.Run();
+        Application.Run(new HotSpotApplicationContext());
     }
 }
