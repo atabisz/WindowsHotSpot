@@ -43,10 +43,11 @@ Plans:
   2. User can adjust zone size and dwell delay, and those values persist across app restarts via the JSON config file
   3. User can toggle "Start with Windows" and the app correctly appears or disappears from Windows startup
   4. All settings changes apply immediately on save -- no app restart required
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md — Config infrastructure (AppSettings, ConfigManager, StartupManager) and CornerDetector refactor for mutable settings
+- [ ] 02-02-PLAN.md — Settings dialog UI (SettingsForm) and tray menu wiring
 
 ### Phase 3: Distribution
 **Goal**: End users can install WindowsHotSpot from a single setup.exe without needing .NET installed or admin privileges
@@ -68,5 +69,5 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Detection and System Tray | 0/2 | Planned | - |
-| 2. Settings and Configuration | 0/0 | Not started | - |
+| 2. Settings and Configuration | 0/2 | Planned | - |
 | 3. Distribution | 0/0 | Not started | - |
