@@ -1,0 +1,91 @@
+// All P/Invoke declarations, structs, and constants for WindowsHotSpot.
+// Sources: Microsoft Learn - Win32 API documentation
+
+using System.Runtime.InteropServices;
+
+namespace WindowsHotSpot.Native;
+
+internal static class NativeMethods
+{
+    // Hook constants
+    public const int WH_MOUSE_LL = 14;
+
+    // Mouse messages
+    public const int WM_MOUSEMOVE   = 0x0200;
+    public const int WM_LBUTTONDOWN = 0x0201;
+    public const int WM_LBUTTONUP   = 0x0202;
+    public const int WM_RBUTTONDOWN = 0x0204;
+    public const int WM_RBUTTONUP   = 0x0205;
+
+    // Input constants
+    public const uint INPUT_KEYBOARD  = 1;
+    public const uint KEYEVENTF_KEYUP = 0x0002;
+    public const ushort VK_LWIN       = 0x5B;
+    public const ushort VK_TAB        = 0x09;
+
+    // Delegate for low-level mouse hook callback
+    public delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+    // Hook structs
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT
+    {
+        public int X;
+        public int Y;
+
+        public static implicit operator System.Drawing.Point(POINT p) => new(p.X, p.Y);
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MSLLHOOKSTRUCT
+    {
+        public POINT pt;
+        public uint mouseData;
+        public uint flags;
+        public uint time;
+        public IntPtr dwExtraInfo;
+    }
+
+    // SendInput structs
+    [StructLayout(LayoutKind.Sequential)]
+    public struct INPUT
+    {
+        public uint type;
+        public InputUnion u;
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct InputUnion
+    {
+        [FieldOffset(0)] public KEYBDINPUT ki;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct KEYBDINPUT
+    {
+        public ushort wVk;
+        public ushort wScan;
+        public uint dwFlags;
+        public uint time;
+        public IntPtr dwExtraInfo;
+    }
+
+    // P/Invoke declarations
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern IntPtr SetWindowsHookEx(int idHook,
+        LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr CallNextHookEx(IntPtr hhk,
+        int nCode, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern IntPtr GetModuleHandle(string lpModuleName);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern uint SendInput(uint nInputs,
+        [MarshalAs(UnmanagedType.LPArray)] INPUT[] pInputs, int cbSize);
+}
