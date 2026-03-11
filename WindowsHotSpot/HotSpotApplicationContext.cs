@@ -100,8 +100,10 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
     // TRAY-05: About dialog with app name, version, description
     private void OnAboutClick(object? sender, EventArgs e)
     {
+        var version = typeof(HotSpotApplicationContext).Assembly
+            .GetName().Version?.ToString(3) ?? "unknown";
         MessageBox.Show(
-            "WindowsHotSpot v0.1.0\n\nMacOS-style hot corners for Windows.\nMove your mouse to a screen corner to trigger Task View.",
+            $"WindowsHotSpot v{version}\n\nMacOS-style hot corners for Windows.\nMove your mouse to a screen corner to trigger Task View.",
             "About WindowsHotSpot",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
