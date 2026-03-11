@@ -56,10 +56,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. The published executable runs on a clean Windows 10/11 machine without requiring a separate .NET runtime installation
   2. The Inno Setup installer produces a single setup.exe that installs and runs the app without requesting admin elevation
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md — Self-contained single-file publish setup (csproj properties, app icon, build script)
+- [ ] 03-02-PLAN.md — Inno Setup installer script and compiled setup.exe
 
 ## Progress
 
@@ -70,4 +71,4 @@ Phases execute in numeric order: 1 -> 2 -> 3
 |-------|----------------|--------|-----------|
 | 1. Core Detection and System Tray | 0/2 | Planned | - |
 | 2. Settings and Configuration | 0/2 | Planned | - |
-| 3. Distribution | 0/0 | Not started | - |
+| 3. Distribution | 0/2 | Planned | - |
