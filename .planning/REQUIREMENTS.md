@@ -41,7 +41,7 @@
 
 ### Distribution
 
-- [ ] **DIST-01**: App is published as a self-contained single executable (no .NET runtime required on target machine)
+- [x] **DIST-01**: App is published as a self-contained single executable (no .NET runtime required on target machine)
 - [ ] **DIST-02**: Installer (Inno Setup) produces a single setup.exe that installs without requiring admin elevation
 
 ## v2 Requirements
@@ -94,7 +94,7 @@
 | SETT-03 | Phase 2 | Complete |
 | SETT-04 | Phase 2 | Complete |
 | SETT-05 | Phase 2 | Complete |
-| DIST-01 | Phase 3 | Pending |
+| DIST-01 | Phase 3 | Complete |
 | DIST-02 | Phase 3 | Pending |
 
 **Coverage:**
