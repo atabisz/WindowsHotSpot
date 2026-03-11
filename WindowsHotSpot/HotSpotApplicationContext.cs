@@ -5,6 +5,7 @@
 
 using WindowsHotSpot.Config;
 using WindowsHotSpot.Core;
+using WindowsHotSpot.UI;
 
 namespace WindowsHotSpot;
 
@@ -73,14 +74,19 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _hookManager.Install();
     }
 
-    // TRAY-04: Settings placeholder replaced by Plan 02-02 (SettingsForm)
+    // TRAY-04: Opens SettingsForm modal; on OK, persists changes and applies them live (SETT-01..04)
     private void OnSettingsClick(object? sender, EventArgs e)
     {
-        MessageBox.Show(
-            "Settings will be available in a future update.",
-            "Settings",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
+        using var form = new SettingsForm(_configManager.Settings);
+        if (form.ShowDialog() == DialogResult.OK)
+        {
+            _configManager.Settings.Corner = form.SelectedCorner;
+            _configManager.Settings.ZoneSize = form.SelectedZoneSize;
+            _configManager.Settings.DwellDelayMs = form.SelectedDwellDelay;
+            _configManager.Settings.StartWithWindows = form.SelectedStartWithWindows;
+            StartupManager.SetEnabled(form.SelectedStartWithWindows);
+            _configManager.Save(); // Fires SettingsChanged -> CornerDetector.UpdateSettings
+        }
     }
 
     // TRAY-05: About dialog with app name, version, description
