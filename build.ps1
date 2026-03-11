@@ -1,5 +1,18 @@
 $ErrorActionPreference = "Stop"
 
+# Read version from csproj (single source of truth)
+$csprojContent = Get-Content "WindowsHotSpot\WindowsHotSpot.csproj" -Raw
+if ($csprojContent -match '<Version>(.+?)</Version>') {
+    $version = $Matches[1]
+} else {
+    throw "Could not find <Version> in WindowsHotSpot.csproj"
+}
+Write-Host "Building version $version..." -ForegroundColor Cyan
+
+# Patch AppVersion in installer script
+$issPath = "installer\WindowsHotSpot.iss"
+(Get-Content $issPath) -replace '^AppVersion=.*', "AppVersion=$version" | Set-Content $issPath
+
 $publishDir = "WindowsHotSpot\bin\Release\net10.0-windows\win-x64\publish"
 
 Write-Host "Publishing self-contained single-file..." -ForegroundColor Cyan

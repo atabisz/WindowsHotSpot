@@ -1,5 +1,6 @@
 # Claude Code local settings (machine-specific)
 .claude/
+.superpowers/
 CLAUDE.md
 
 # .NET build output

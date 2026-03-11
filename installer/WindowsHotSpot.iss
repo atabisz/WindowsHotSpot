@@ -2,6 +2,7 @@
 ; Requires: dotnet publish output in WindowsHotSpot\bin\Release\net10.0-windows\win-x64\publish\
 
 [Setup]
+AppId={{F3A2B1C4-8E5D-4F9A-B2C7-1D3E6F8A0B5C}
 AppName=WindowsHotSpot
 AppVersion=1.0.0
 AppPublisher=WindowsHotSpot

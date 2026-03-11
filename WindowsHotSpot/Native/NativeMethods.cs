@@ -54,10 +54,25 @@ internal static class NativeMethods
         public InputUnion u;
     }
 
+    // InputUnion must include MOUSEINPUT so the union is 32 bytes on 64-bit.
+    // Without it, Marshal.SizeOf<INPUT>() = 28, but Windows expects 40.
+    // SendInput silently fails (returns 0) when cbSize doesn't match.
     [StructLayout(LayoutKind.Explicit)]
     public struct InputUnion
     {
-        [FieldOffset(0)] public KEYBDINPUT ki;
+        [FieldOffset(0)] public MOUSEINPUT mi;   // 32 bytes — determines union size
+        [FieldOffset(0)] public KEYBDINPUT ki;   // 20 bytes
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MOUSEINPUT
+    {
+        public int dx;
+        public int dy;
+        public uint mouseData;
+        public uint dwFlags;
+        public uint time;
+        public IntPtr dwExtraInfo;   // 8 bytes on 64-bit; pads struct to 32 bytes total
     }
 
     [StructLayout(LayoutKind.Sequential)]
