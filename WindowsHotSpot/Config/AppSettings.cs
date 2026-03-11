@@ -12,6 +12,6 @@ internal sealed class AppSettings
 {
     public HotCorner Corner { get; set; } = HotCorner.TopLeft;
     public int ZoneSize { get; set; } = 10;
-    public int DwellDelayMs { get; set; } = 300;
+    public int DwellDelayMs { get; set; } = 150;
     public bool StartWithWindows { get; set; } = false;
 }
