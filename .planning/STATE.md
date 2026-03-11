@@ -37,6 +37,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 02 P01 | 1min | 2 tasks | 5 files |
 | Phase 02 P02 | 1min | 2 tasks | 2 files |
 | Phase 03 P01 | 2min | 2 tasks | 3 files |
+| Phase 03 P02 | 7min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -57,6 +58,7 @@ Recent decisions affecting current work:
 - [Phase 02]: Startup checkbox reads live registry state (StartupManager.IsEnabled) not cached settings value — Actual registry state is source of truth; avoids showing stale value if registry was modified externally
 - [Phase 03]: No PublishTrimmed for WinForms — reflection-heavy, compression alone sufficient — Per research recommendation: trimming is risky for WinForms
 - [Phase 03]: ICO uses all-PNG format (modern ICO) for all sizes (16/32/48/256) — Avoids complex BMP DIB format; modern Windows supports PNG-in-ICO
+- [Phase 03]: Inno Setup installed to user-local path (LocalAppData/Programs) — admin unavailable for system-wide install — Chocolatey and winget both failed; direct installer ran without admin to user-local path; functionally identical for building
 
 ### Pending Todos
 
