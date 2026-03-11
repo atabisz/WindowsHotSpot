@@ -16,11 +16,11 @@
 
 ### Configuration
 
-- [ ] **CONF-01**: User can configure which corner is active: Top-Left, Top-Right, Bottom-Left, Bottom-Right
-- [ ] **CONF-02**: User can configure the zone size in pixels (default 10px)
-- [ ] **CONF-03**: User can configure the dwell delay in milliseconds (default 300ms)
-- [ ] **CONF-04**: Settings are persisted to a JSON file next to the executable and loaded on startup
-- [ ] **CONF-05**: User can enable or disable "Start with Windows" (writes/removes HKCU Run registry key)
+- [x] **CONF-01**: User can configure which corner is active: Top-Left, Top-Right, Bottom-Left, Bottom-Right
+- [x] **CONF-02**: User can configure the zone size in pixels (default 10px)
+- [x] **CONF-03**: User can configure the dwell delay in milliseconds (default 300ms)
+- [x] **CONF-04**: Settings are persisted to a JSON file next to the executable and loaded on startup
+- [x] **CONF-05**: User can enable or disable "Start with Windows" (writes/removes HKCU Run registry key)
 
 ### System Tray
 
@@ -37,7 +37,7 @@
 - [ ] **SETT-02**: Settings dialog allows changing zone size in pixels (numeric input)
 - [ ] **SETT-03**: Settings dialog allows changing dwell delay in milliseconds (numeric input)
 - [ ] **SETT-04**: Settings dialog has "Start with Windows" checkbox
-- [ ] **SETT-05**: Settings changes take effect immediately on save without restarting the app
+- [x] **SETT-05**: Settings changes take effect immediately on save without restarting the app
 
 ### Distribution
 
@@ -84,16 +84,16 @@
 | TRAY-04 | Phase 1 | Complete |
 | TRAY-05 | Phase 1 | Complete |
 | TRAY-06 | Phase 1 | Complete |
-| CONF-01 | Phase 2 | Pending |
-| CONF-02 | Phase 2 | Pending |
-| CONF-03 | Phase 2 | Pending |
-| CONF-04 | Phase 2 | Pending |
-| CONF-05 | Phase 2 | Pending |
+| CONF-01 | Phase 2 | Complete |
+| CONF-02 | Phase 2 | Complete |
+| CONF-03 | Phase 2 | Complete |
+| CONF-04 | Phase 2 | Complete |
+| CONF-05 | Phase 2 | Complete |
 | SETT-01 | Phase 2 | Pending |
 | SETT-02 | Phase 2 | Pending |
 | SETT-03 | Phase 2 | Pending |
 | SETT-04 | Phase 2 | Pending |
-| SETT-05 | Phase 2 | Pending |
+| SETT-05 | Phase 2 | Complete |
 | DIST-01 | Phase 3 | Pending |
 | DIST-02 | Phase 3 | Pending |
 
