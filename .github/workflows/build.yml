@@ -6,16 +6,13 @@ on:
     tags: ["v*"]
   pull_request:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.x"
 
@@ -23,7 +20,7 @@ jobs:
         run: dotnet publish WindowsHotSpot/WindowsHotSpot.csproj -c Release
 
       - name: Upload exe artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: WindowsHotSpot.exe
           path: WindowsHotSpot/bin/Release/net10.0-windows/win-x64/publish/WindowsHotSpot.exe
@@ -35,9 +32,9 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.x"
 
