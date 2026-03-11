@@ -7,12 +7,12 @@
 
 ### Core Detection
 
-- [ ] **CORE-01**: When mouse cursor dwells in the configured corner zone of any connected screen, Task View (Win+Tab) is triggered
-- [ ] **CORE-02**: Corner detection works correctly on all connected monitors including secondary monitors at different DPI scaling
-- [ ] **CORE-03**: Dwell timer is configurable (default 300ms); Task View fires only after cursor remains in zone for the configured duration
-- [ ] **CORE-04**: Hot corner does not trigger while a mouse button is held down (drag suppression)
-- [ ] **CORE-05**: After triggering, hot corner re-arms only after cursor leaves the zone (prevents repeated double-trigger)
-- [ ] **CORE-06**: Global low-level mouse hook (WH_MOUSE_LL) is properly unregistered when app exits, including on crash
+- [x] **CORE-01**: When mouse cursor dwells in the configured corner zone of any connected screen, Task View (Win+Tab) is triggered
+- [x] **CORE-02**: Corner detection works correctly on all connected monitors including secondary monitors at different DPI scaling
+- [x] **CORE-03**: Dwell timer is configurable (default 300ms); Task View fires only after cursor remains in zone for the configured duration
+- [x] **CORE-04**: Hot corner does not trigger while a mouse button is held down (drag suppression)
+- [x] **CORE-05**: After triggering, hot corner re-arms only after cursor leaves the zone (prevents repeated double-trigger)
+- [x] **CORE-06**: Global low-level mouse hook (WH_MOUSE_LL) is properly unregistered when app exits, including on crash
 
 ### Configuration
 
@@ -72,12 +72,12 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CORE-01 | Phase 1 | Pending |
-| CORE-02 | Phase 1 | Pending |
-| CORE-03 | Phase 1 | Pending |
-| CORE-04 | Phase 1 | Pending |
-| CORE-05 | Phase 1 | Pending |
-| CORE-06 | Phase 1 | Pending |
+| CORE-01 | Phase 1 | Complete |
+| CORE-02 | Phase 1 | Complete |
+| CORE-03 | Phase 1 | Complete |
+| CORE-04 | Phase 1 | Complete |
+| CORE-05 | Phase 1 | Complete |
+| CORE-06 | Phase 1 | Complete |
 | TRAY-01 | Phase 1 | Pending |
 | TRAY-02 | Phase 1 | Pending |
 | TRAY-03 | Phase 1 | Pending |
