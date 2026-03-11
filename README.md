@@ -20,6 +20,12 @@ Download `WindowsHotSpot-Setup.exe` from the [releases page](../../releases) and
 
 The installer does not require admin elevation. The app installs to `%LocalAppData%\WindowsHotSpot\`.
 
+### Windows security warnings
+
+Windows and browsers will likely warn you when downloading or running the installer — SmartScreen may say "Windows protected your PC" and browsers may flag it as untrusted. This is expected: the executable is not code-signed (certificates cost money and this is a free project).
+
+If you're not comfortable dismissing those warnings, download the source and build it yourself — instructions are in the [Building from source](#building-from-source) section below.
+
 ## Usage
 
 The app starts in the system tray. Right-click the tray icon to access:
