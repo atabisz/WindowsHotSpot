@@ -1,0 +1,107 @@
+# Requirements: WindowsHotSpot
+
+**Defined:** 2026-03-11
+**Core Value:** The mouse hot corner must reliably trigger Task View on any screen without accidental activations.
+
+## v1 Requirements
+
+### Core Detection
+
+- [ ] **CORE-01**: When mouse cursor dwells in the configured corner zone of any connected screen, Task View (Win+Tab) is triggered
+- [ ] **CORE-02**: Corner detection works correctly on all connected monitors including secondary monitors at different DPI scaling
+- [ ] **CORE-03**: Dwell timer is configurable (default 300ms); Task View fires only after cursor remains in zone for the configured duration
+- [ ] **CORE-04**: Hot corner does not trigger while a mouse button is held down (drag suppression)
+- [ ] **CORE-05**: After triggering, hot corner re-arms only after cursor leaves the zone (prevents repeated double-trigger)
+- [ ] **CORE-06**: Global low-level mouse hook (WH_MOUSE_LL) is properly unregistered when app exits, including on crash
+
+### Configuration
+
+- [ ] **CONF-01**: User can configure which corner is active: Top-Left, Top-Right, Bottom-Left, Bottom-Right
+- [ ] **CONF-02**: User can configure the zone size in pixels (default 10px)
+- [ ] **CONF-03**: User can configure the dwell delay in milliseconds (default 300ms)
+- [ ] **CONF-04**: Settings are persisted to a JSON file next to the executable and loaded on startup
+- [ ] **CONF-05**: User can enable or disable "Start with Windows" (writes/removes HKCU Run registry key)
+
+### System Tray
+
+- [ ] **TRAY-01**: Application runs with no taskbar button (hidden from taskbar)
+- [ ] **TRAY-02**: System tray icon is present while the app is running
+- [ ] **TRAY-03**: Tray context menu has "Settings", "About", and "Quit" items
+- [ ] **TRAY-04**: "Settings" opens the settings dialog
+- [ ] **TRAY-05**: "About" shows app name, version, and brief description
+- [ ] **TRAY-06**: "Quit" cleanly exits the application and removes the tray icon
+
+### Settings Dialog
+
+- [ ] **SETT-01**: Settings dialog allows changing the active corner (dropdown/radio)
+- [ ] **SETT-02**: Settings dialog allows changing zone size in pixels (numeric input)
+- [ ] **SETT-03**: Settings dialog allows changing dwell delay in milliseconds (numeric input)
+- [ ] **SETT-04**: Settings dialog has "Start with Windows" checkbox
+- [ ] **SETT-05**: Settings changes take effect immediately on save without restarting the app
+
+### Distribution
+
+- [ ] **DIST-01**: App is published as a self-contained single executable (no .NET runtime required on target machine)
+- [ ] **DIST-02**: Installer (Inno Setup) produces a single setup.exe that installs without requiring admin elevation
+
+## v2 Requirements
+
+### Enhanced Usability
+
+- **V2-01**: Quick enable/disable toggle via tray icon click or context menu
+- **V2-02**: Visual indicator during dwell countdown (optional tooltip/animation)
+- **V2-03**: Auto-disable hot corner when a full-screen application is in the foreground (gaming/video)
+
+### Extended Configuration
+
+- **V2-04**: Support multiple simultaneous hot corners (each with independent action)
+- **V2-05**: Configurable trigger action (beyond Task View — e.g., Show Desktop, custom shortcut)
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Multiple simultaneous hot corners | Deferred to v2 — single corner covers the core use case |
+| Configurable trigger action | Always Task View for v1 — scope control |
+| Mac-style Mission Control grid | Different UX paradigm, not the target |
+| Per-monitor corner configuration | Global corner setting is sufficient for v1 |
+| Custom action / command execution | Security risk surface, deferred |
+| Dark/light theme matching | WinForms theming is experimental |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| CORE-01 | Phase 1 | Pending |
+| CORE-02 | Phase 1 | Pending |
+| CORE-03 | Phase 1 | Pending |
+| CORE-04 | Phase 1 | Pending |
+| CORE-05 | Phase 1 | Pending |
+| CORE-06 | Phase 1 | Pending |
+| TRAY-01 | Phase 1 | Pending |
+| TRAY-02 | Phase 1 | Pending |
+| TRAY-03 | Phase 1 | Pending |
+| TRAY-04 | Phase 1 | Pending |
+| TRAY-05 | Phase 1 | Pending |
+| TRAY-06 | Phase 1 | Pending |
+| CONF-01 | Phase 2 | Pending |
+| CONF-02 | Phase 2 | Pending |
+| CONF-03 | Phase 2 | Pending |
+| CONF-04 | Phase 2 | Pending |
+| CONF-05 | Phase 2 | Pending |
+| SETT-01 | Phase 2 | Pending |
+| SETT-02 | Phase 2 | Pending |
+| SETT-03 | Phase 2 | Pending |
+| SETT-04 | Phase 2 | Pending |
+| SETT-05 | Phase 2 | Pending |
+| DIST-01 | Phase 3 | Pending |
+| DIST-02 | Phase 3 | Pending |
+
+**Coverage:**
+- v1 requirements: 24 total
+- Mapped to phases: 24
+- Unmapped: 0 ✓
+
+---
+*Requirements defined: 2026-03-11*
+*Last updated: 2026-03-11 after initial definition*
