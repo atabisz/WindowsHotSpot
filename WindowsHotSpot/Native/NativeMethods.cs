@@ -103,4 +103,22 @@ internal static class NativeMethods
     [DllImport("user32.dll", SetLastError = true)]
     public static extern uint SendInput(uint nInputs,
         [MarshalAs(UnmanagedType.LPArray)] INPUT[] pInputs, int cbSize);
+
+    // Single-instance IPC (SINST-01, SINST-02, SINST-03)
+    public const int WM_COPYDATA = 0x004A;
+    public const int SINST_SHOW_SETTINGS = 1; // lParam for WM_COPYDATA.dwData
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = false)]
+    public static extern IntPtr FindWindow(string? lpClassName, string lpWindowName);
+
+    [DllImport("user32.dll", SetLastError = false)]
+    public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, ref COPYDATASTRUCT lParam);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct COPYDATASTRUCT
+    {
+        public IntPtr dwData;   // message identifier (use SINST_SHOW_SETTINGS)
+        public int    cbData;   // byte count of lpData (0 — we send no payload)
+        public IntPtr lpData;   // pointer to data (IntPtr.Zero)
+    }
 }
