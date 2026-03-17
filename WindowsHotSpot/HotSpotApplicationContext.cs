@@ -4,6 +4,7 @@
 // Phase 2: ConfigManager loaded on startup; SettingsChanged wired to CornerDetector.UpdateSettings.
 // Phase 1.1: IpcWindow hidden message-only window receives WM_COPYDATA for single-instance guard.
 
+using System.Linq;
 using System.Runtime.InteropServices;
 using WindowsHotSpot.Config;
 using WindowsHotSpot.Core;
@@ -62,11 +63,16 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
             Visible = true
         };
 
-        // Create detection components using loaded settings
+        // Create detection components using loaded settings.
+        // Find the first non-Disabled corner; default to TopLeft (enum value 0) if all are Disabled.
+        HotCorner activeCorner = _configManager.Settings.CornerActions
+            .FirstOrDefault(kv => kv.Value != CornerAction.Disabled).Key;
+
         _cornerDetector = new CornerDetector(
-            _configManager.Settings.Corner,
+            activeCorner,
             _configManager.Settings.ZoneSize,
-            _configManager.Settings.DwellDelayMs);
+            _configManager.Settings.DwellDelayMs,
+            _configManager);
 
         _hookManager = new HookManager();
 
@@ -74,10 +80,15 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _hookManager.MouseButtonChanged += _cornerDetector.OnMouseButtonChanged;
 
         // Live settings propagation: SettingsChanged -> UpdateSettings (SETT-05)
-        _configManager.SettingsChanged += () => _cornerDetector.UpdateSettings(
-            _configManager.Settings.Corner,
-            _configManager.Settings.ZoneSize,
-            _configManager.Settings.DwellDelayMs);
+        _configManager.SettingsChanged += () =>
+        {
+            HotCorner updatedCorner = _configManager.Settings.CornerActions
+                .FirstOrDefault(kv => kv.Value != CornerAction.Disabled).Key;
+            _cornerDetector.UpdateSettings(
+                updatedCorner,
+                _configManager.Settings.ZoneSize,
+                _configManager.Settings.DwellDelayMs);
+        };
 
         // Belt-and-suspenders cleanup on application exit (CORE-06)
         Application.ApplicationExit += OnApplicationExit;
@@ -110,7 +121,8 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         using var form = new SettingsForm(_configManager.Settings);
         if (form.ShowDialog() == DialogResult.OK)
         {
-            _configManager.Settings.Corner = form.SelectedCorner;
+            // Settings.Corner removed in Phase 2 (replaced by CornerActions dict).
+            // SettingsForm will be redesigned in Phase 4 to configure per-corner actions.
             _configManager.Settings.ZoneSize = form.SelectedZoneSize;
             _configManager.Settings.DwellDelayMs = form.SelectedDwellDelay;
             _configManager.Settings.StartWithWindows = form.SelectedStartWithWindows;

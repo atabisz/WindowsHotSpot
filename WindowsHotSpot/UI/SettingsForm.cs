@@ -61,7 +61,9 @@ internal sealed class SettingsForm : Form
         };
         foreach (var (label, _) in CornerItems)
             _cornerCombo.Items.Add(label);
-        _cornerCombo.SelectedIndex = Array.FindIndex(CornerItems, x => x.Value == settings.Corner);
+        // Phase 4 redesigns this form to configure per-corner actions.
+        // For Phase 2, default to index 0 (TopLeft) since Settings.Corner is removed.
+        _cornerCombo.SelectedIndex = 0;
 
         var zoneLabel = MakeLabel("Zone size:", 12, 60);
         _zoneSizeInput = new NumericUpDown
