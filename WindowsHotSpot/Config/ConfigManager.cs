@@ -1,8 +1,10 @@
 // ConfigManager: loads/saves AppSettings as JSON, fires SettingsChanged on save.
-// Pitfall 2: corrupt/missing file falls back to new AppSettings() (never throws to caller).
-// Pitfall 3: on load, if StartWithWindows=true, refreshes registry path via StartupManager.RefreshPath().
+// MigrateV1(): promotes v1 "Corner" field to CornerActions on first load from a v1 file.
+// SaveFile(): writes JSON silently (no event); used by migration to avoid premature SettingsChanged.
+// Fill-missing-keys: after load, ensures all four HotCorner keys are present in CornerActions.
 
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -24,7 +26,8 @@ internal sealed class ConfigManager
     public event Action? SettingsChanged;
 
     /// <summary>
-    /// Loads settings from settings.json. Falls back to defaults on missing or corrupt file.
+    /// Loads settings from settings.json. Migrates v1 "Corner" field if present.
+    /// Falls back to defaults on missing or corrupt file.
     /// If StartWithWindows is true, refreshes the registry path (handles exe move).
     /// </summary>
     public void Load()
@@ -36,16 +39,22 @@ internal sealed class ConfigManager
                 string json = File.ReadAllText(SettingsPath);
                 AppSettings? loaded = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions);
                 if (loaded is not null)
+                {
                     Settings = loaded;
+                    MigrateV1();
+                    // Ensure all four corners are present after migration (partial/corrupt JSON guard)
+                    foreach (HotCorner c in Enum.GetValues<HotCorner>())
+                        Settings.CornerActions.TryAdd(c, CornerAction.Disabled);
+                }
             }
             catch
             {
-                // Corrupt file: silently fall back to defaults (Pitfall 2)
+                // Corrupt file: silently fall back to defaults
                 Settings = new AppSettings();
             }
         }
 
-        // Fix stale registry path after exe was moved (Pitfall 3)
+        // Fix stale registry path after exe was moved
         if (Settings.StartWithWindows)
             StartupManager.RefreshPath();
     }
@@ -55,8 +64,28 @@ internal sealed class ConfigManager
     /// </summary>
     public void Save()
     {
+        SaveFile();
+        SettingsChanged?.Invoke();
+    }
+
+    // Writes JSON to disk without firing SettingsChanged.
+    // Used by MigrateV1() to persist the migrated file before any listeners are attached.
+    private void SaveFile()
+    {
         string json = JsonSerializer.Serialize(Settings, JsonOptions);
         File.WriteAllText(SettingsPath, json);
-        SettingsChanged?.Invoke();
+    }
+
+    // Promotes v1 "Corner" field to CornerActions[corner] = TaskView.
+    // No-op if LegacyCorner is null (already v2) or if any corner is non-Disabled (user set v2 data).
+    private void MigrateV1()
+    {
+        bool allDisabled = Settings.CornerActions.Values.All(a => a == CornerAction.Disabled);
+        if (Settings.LegacyCorner is HotCorner legacy && allDisabled)
+        {
+            Settings.CornerActions[legacy] = CornerAction.TaskView;
+            Settings.LegacyCorner = null;
+            SaveFile();
+        }
     }
 }
