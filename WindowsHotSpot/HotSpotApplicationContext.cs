@@ -1,11 +1,13 @@
 // HotSpotApplicationContext: owns all component lifetimes and provides the system tray interface.
 // Pattern: ApplicationContext with no MainForm -> no taskbar button (TRAY-01).
-// Wires HookManager -> CornerDetector for hot corner detection.
+// Wires HookManager -> CornerRouter for hot corner detection.
 // Phase 2: ConfigManager loaded on startup; SettingsChanged wired to CornerDetector.UpdateSettings.
 // Phase 1.1: IpcWindow hidden message-only window receives WM_COPYDATA for single-instance guard.
+// Phase 3: CornerDetector replaced by CornerRouter; one detector per (monitor, enabled corner) pair.
+//           DisplaySettingsChanged subscription for live monitor change support.
 
-using System.Linq;
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
 using WindowsHotSpot.Config;
 using WindowsHotSpot.Core;
 using WindowsHotSpot.Native;
@@ -17,7 +19,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
 {
     private readonly ConfigManager _configManager;
     private readonly HookManager _hookManager;
-    private readonly CornerDetector _cornerDetector;
+    private readonly CornerRouter _cornerRouter;
     private readonly NotifyIcon _trayIcon;
     private readonly ContextMenuStrip _contextMenu;
     private readonly IpcWindow _ipcWindow;
@@ -63,32 +65,21 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
             Visible = true
         };
 
-        // Create detection components using loaded settings.
-        // Find the first non-Disabled corner; default to TopLeft (enum value 0) if all are Disabled.
-        HotCorner activeCorner = _configManager.Settings.CornerActions
-            .FirstOrDefault(kv => kv.Value != CornerAction.Disabled).Key;
-
-        _cornerDetector = new CornerDetector(
-            activeCorner,
-            _configManager.Settings.ZoneSize,
-            _configManager.Settings.DwellDelayMs,
-            _configManager);
+        // Build detection pipeline. CornerRouter owns one CornerDetector per active (monitor, corner) pair.
+        _cornerRouter = new CornerRouter();
+        _cornerRouter.Rebuild(_configManager.Settings);
 
         _hookManager = new HookManager();
 
-        _hookManager.MouseMoved += _cornerDetector.OnMouseMoved;
-        _hookManager.MouseButtonChanged += _cornerDetector.OnMouseButtonChanged;
+        _hookManager.MouseMoved += _cornerRouter.OnMouseMoved;
+        _hookManager.MouseButtonChanged += _cornerRouter.OnMouseButtonChanged;
 
-        // Live settings propagation: SettingsChanged -> UpdateSettings (SETT-05)
-        _configManager.SettingsChanged += () =>
-        {
-            HotCorner updatedCorner = _configManager.Settings.CornerActions
-                .FirstOrDefault(kv => kv.Value != CornerAction.Disabled).Key;
-            _cornerDetector.UpdateSettings(
-                updatedCorner,
-                _configManager.Settings.ZoneSize,
-                _configManager.Settings.DwellDelayMs);
-        };
+        // Live settings propagation: rebuild detector pool when settings change (SETT-05, MMON-01)
+        _configManager.SettingsChanged += () => _cornerRouter.Rebuild(_configManager.Settings);
+
+        // Monitor plug/unplug: rebuild detector pool to pick up the new display topology (MMON-02).
+        // CRITICAL: static event -- must unsubscribe in DisposeComponents() to prevent memory leak.
+        SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
 
         // Belt-and-suspenders cleanup on application exit (CORE-06)
         Application.ApplicationExit += OnApplicationExit;
@@ -100,6 +91,9 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _ipcWindow = new IpcWindow();
         _ipcWindow.ShowSettingsRequested += ShowSettingsWindow;
     }
+
+    private void OnDisplaySettingsChanged(object? sender, EventArgs e)
+        => _cornerRouter.Rebuild(_configManager.Settings);
 
     // TRAY-04: Opens SettingsForm modal; delegates to ShowSettingsWindow (SETT-01..04, SINST-02)
     private void OnSettingsClick(object? sender, EventArgs e) => ShowSettingsWindow();
@@ -127,7 +121,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
             _configManager.Settings.DwellDelayMs = form.SelectedDwellDelay;
             _configManager.Settings.StartWithWindows = form.SelectedStartWithWindows;
             StartupManager.SetEnabled(form.SelectedStartWithWindows);
-            _configManager.Save(); // Fires SettingsChanged -> CornerDetector.UpdateSettings
+            _configManager.Save(); // Fires SettingsChanged -> CornerRouter.Rebuild
         }
     }
 
@@ -168,11 +162,14 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _ipcWindow.ShowSettingsRequested -= ShowSettingsWindow;
         _ipcWindow.Dispose();
 
-        _hookManager.MouseMoved -= _cornerDetector.OnMouseMoved;
-        _hookManager.MouseButtonChanged -= _cornerDetector.OnMouseButtonChanged;
+        // Unsubscribe static event FIRST to prevent memory leak (Pitfall 3 in research).
+        SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
+
+        _hookManager.MouseMoved -= _cornerRouter.OnMouseMoved;
+        _hookManager.MouseButtonChanged -= _cornerRouter.OnMouseButtonChanged;
 
         _hookManager.Dispose();
-        _cornerDetector.Dispose();
+        _cornerRouter.Dispose();
 
         _trayIcon.Visible = false;
         _trayIcon.Dispose();
