@@ -18,7 +18,7 @@ UninstallDisplayIcon={app}\WindowsHotSpot.exe
 DisableProgramGroupPage=yes
 ArchitecturesInstallIn64BitMode=x64compatible
 CloseApplications=yes
-CloseApplicationsFilter=*.exe
+CloseApplicationsFilter=WindowsHotSpot.exe
 RestartApplications=yes
 
 [Files]
