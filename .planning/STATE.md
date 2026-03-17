@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-17)
 
 **Core value:** The mouse hot corner fires Task View reliably every time, on any screen, with zero friction.
-**Current focus:** Milestone v1.2 — Per-Corner Actions & Multi-Monitor (Phase 2: Config Foundation)
+**Current focus:** Milestone v1.2 — Per-Corner Actions & Multi-Monitor (Phase 3: Detection Pipeline Multi-Monitor)
 
 ## Current Position
 
-Phase: 2 of 4 — Config Foundation
-Plan: 4/4 complete
-Status: Phase Complete
-Last activity: 2026-03-17 — Plan 04 complete: ActionDispatcher wired into CornerDetector; zero build errors
+Phase: 3 of 4 — Detection Pipeline Multi-Monitor
+Plan: 1/3 complete
+Status: In Progress
+Last activity: 2026-03-18 — Plan 01 complete: MonitorCornerConfig data model + CornerDetector screen-scoped refactor
 
-Progress: [######----] 50% (Phase 1 complete; Phase 2 complete)
+Progress: [#######---] 62% (Phase 1 complete; Phase 2 complete; Phase 3 Plan 1/3 complete)
 
 ## Performance Metrics
 
@@ -35,6 +35,7 @@ Progress: [######----] 50% (Phase 1 complete; Phase 2 complete)
 | Phase 02-config-foundation P02 | 2 min | 1 task | 1 file |
 | Phase 02-config-foundation P03 | 4 min | 2 tasks | 2 files |
 | Phase 02-config-foundation P04 | 4 min | 2 tasks | 3 files |
+| Phase 03-detection-pipeline-multi-monitor P01 | 8 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -51,6 +52,8 @@ Recent decisions affecting current work:
 - [Phase 02-config-foundation]: SaveFile() private helper in ConfigManager writes JSON without firing SettingsChanged — migration safe during startup before listeners attached
 - [Phase 02-config-foundation P03]: MakeKeyInput helper intentionally duplicated in ActionDispatcher (two private call sites — not worth shared helper in Phase 2)
 - [Phase 02-config-foundation P04]: CornerDetector stores ConfigManager reference — OnDwellComplete reads CornerActions at dispatch time, ensuring live settings without extra UpdateSettings call
+- [Phase 03-detection-pipeline-multi-monitor P01]: CornerDetector fields made readonly — immutable at construction enforced by compiler; rebuilt by CornerRouter on settings changes, not mutated in-place
+- [Phase 03-detection-pipeline-multi-monitor P01]: MonitorCornerConfig placed in AppSettings.cs (not a new file) — tightly coupled config type kept co-located
 
 ### Blockers/Concerns
 
@@ -59,6 +62,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-17
-Stopped at: Completed 02-config-foundation plan 04 (ActionDispatcher integration — Phase 2 complete)
+Last session: 2026-03-18
+Stopped at: Completed 03-detection-pipeline-multi-monitor plan 01 (MonitorCornerConfig data model + CornerDetector screen-scoped refactor)
 Resume file: None

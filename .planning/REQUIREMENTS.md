@@ -16,10 +16,10 @@
 
 ### Multi-Monitor
 
-- [ ] **MMON-01**: Each connected monitor has its own independent set of 4 corner configurations
+- [x] **MMON-01**: Each connected monitor has its own independent set of 4 corner configurations
 - [ ] **MMON-02**: Adding or removing a monitor updates the active corner set without restart
-- [ ] **MMON-03**: A new unrecognised monitor defaults to all-corners disabled
-- [ ] **MMON-04**: Config for a disconnected monitor is silently retained for when it reconnects
+- [x] **MMON-03**: A new unrecognised monitor defaults to all-corners disabled
+- [x] **MMON-04**: Config for a disconnected monitor is silently retained for when it reconnects
 
 ### Config Migration
 
@@ -57,10 +57,10 @@
 | CRNA-03 | Phase 2 | Complete |
 | CRNA-04 | Phase 2 | Complete |
 | CRNA-06 | Phase 2 | Complete |
-| MMON-01 | Phase 3 | Pending |
+| MMON-01 | Phase 3 | Complete |
 | MMON-02 | Phase 3 | Pending |
-| MMON-03 | Phase 3 | Pending |
-| MMON-04 | Phase 3 | Pending |
+| MMON-03 | Phase 3 | Complete |
+| MMON-04 | Phase 3 | Complete |
 | CRNA-05 | Phase 4 | Pending |
 | UI-01 | Phase 4 | Pending |
 | UI-02 | Phase 4 | Pending |
