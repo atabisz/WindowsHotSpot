@@ -2,9 +2,12 @@
 // Pattern: ApplicationContext with no MainForm -> no taskbar button (TRAY-01).
 // Wires HookManager -> CornerDetector for hot corner detection.
 // Phase 2: ConfigManager loaded on startup; SettingsChanged wired to CornerDetector.UpdateSettings.
+// Phase 1.1: IpcWindow hidden message-only window receives WM_COPYDATA for single-instance guard.
 
+using System.Runtime.InteropServices;
 using WindowsHotSpot.Config;
 using WindowsHotSpot.Core;
+using WindowsHotSpot.Native;
 using WindowsHotSpot.UI;
 
 namespace WindowsHotSpot;
@@ -16,6 +19,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
     private readonly CornerDetector _cornerDetector;
     private readonly NotifyIcon _trayIcon;
     private readonly ContextMenuStrip _contextMenu;
+    private readonly IpcWindow _ipcWindow;
 
     public HotSpotApplicationContext()
     {
@@ -80,11 +84,29 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
 
         // Install the global mouse hook
         _hookManager.Install();
+
+        // Single-instance IPC receiver (SINST-02)
+        _ipcWindow = new IpcWindow();
+        _ipcWindow.ShowSettingsRequested += ShowSettingsWindow;
     }
 
-    // TRAY-04: Opens SettingsForm modal; on OK, persists changes and applies them live (SETT-01..04)
-    private void OnSettingsClick(object? sender, EventArgs e)
+    // TRAY-04: Opens SettingsForm modal; delegates to ShowSettingsWindow (SETT-01..04, SINST-02)
+    private void OnSettingsClick(object? sender, EventArgs e) => ShowSettingsWindow();
+
+    // Shows the Settings window, bringing it to front if already open (SINST-02, TRAY-04)
+    private void ShowSettingsWindow()
     {
+        // If a Settings form is already open, bring it to front instead of opening a second
+        foreach (Form f in Application.OpenForms)
+        {
+            if (f is SettingsForm)
+            {
+                f.BringToFront();
+                f.Activate();
+                return;
+            }
+        }
+
         using var form = new SettingsForm(_configManager.Settings);
         if (form.ShowDialog() == DialogResult.OK)
         {
@@ -131,6 +153,9 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
 
     private void DisposeComponents()
     {
+        _ipcWindow.ShowSettingsRequested -= ShowSettingsWindow;
+        _ipcWindow.Dispose();
+
         _hookManager.MouseMoved -= _cornerDetector.OnMouseMoved;
         _hookManager.MouseButtonChanged -= _cornerDetector.OnMouseButtonChanged;
 
@@ -140,5 +165,46 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _trayIcon.Visible = false;
         _trayIcon.Dispose();
         _contextMenu.Dispose();
+    }
+
+    /// <summary>
+    /// Minimal hidden message-only window used as single-instance IPC target.
+    /// Receives WM_COPYDATA from a second instance and notifies the app context.
+    /// </summary>
+    private sealed class IpcWindow : NativeWindow, IDisposable
+    {
+        public event Action? ShowSettingsRequested;
+
+        public IpcWindow()
+        {
+            // Message-only window: HWND_MESSAGE parent makes it invisible and off the
+            // Alt+Tab/taskbar list. The window title is used by FindWindow in Program.cs.
+            var cp = new CreateParams
+            {
+                Caption = "WindowsHotSpot_IPCTarget",
+                Parent = new IntPtr(-3), // HWND_MESSAGE
+            };
+            CreateHandle(cp);
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == NativeMethods.WM_COPYDATA)
+            {
+                var cds = (NativeMethods.COPYDATASTRUCT)
+                    Marshal.PtrToStructure(
+                        m.LParam, typeof(NativeMethods.COPYDATASTRUCT))!;
+
+                if (cds.dwData.ToInt32() == NativeMethods.SINST_SHOW_SETTINGS)
+                {
+                    ShowSettingsRequested?.Invoke();
+                }
+                m.Result = new IntPtr(1); // tell sender the message was handled
+                return;
+            }
+            base.WndProc(ref m);
+        }
+
+        public void Dispose() => DestroyHandle();
     }
 }
