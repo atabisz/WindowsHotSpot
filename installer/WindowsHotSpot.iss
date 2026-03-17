@@ -17,8 +17,6 @@ SetupIconFile=..\WindowsHotSpot\Resources\app.ico
 UninstallDisplayIcon={app}\WindowsHotSpot.exe
 DisableProgramGroupPage=yes
 ArchitecturesInstallIn64BitMode=x64compatible
-CloseApplications=yes
-CloseApplicationsFilter=WindowsHotSpot.exe
 RestartApplications=yes
 
 [Files]
@@ -30,6 +28,15 @@ Name: "{userdesktop}\WindowsHotSpot"; Filename: "{app}\WindowsHotSpot.exe"; Task
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons:"
+
+[Code]
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  ResultCode: Integer;
+begin
+  Exec('taskkill.exe', '/F /IM WindowsHotSpot.exe /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Result := '';
+end;
 
 [UninstallDelete]
 Type: files; Name: "{app}\settings.json"
