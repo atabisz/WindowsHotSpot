@@ -23,7 +23,7 @@
 
 ### Config Migration
 
-- [ ] **CONF-01**: Existing v1.x settings.json is migrated to the new schema without data loss
+- [x] **CONF-01**: Existing v1.x settings.json is migrated to the new schema without data loss
 
 ### Settings UI
 
@@ -51,7 +51,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONF-01 | Phase 2 | Pending |
+| CONF-01 | Phase 2 | Complete |
 | CRNA-01 | Phase 2 | Complete |
 | CRNA-02 | Phase 2 | Complete |
 | CRNA-03 | Phase 2 | Complete |
