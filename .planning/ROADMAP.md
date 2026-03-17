@@ -18,7 +18,7 @@
 
 **Milestone Goal:** Each corner on each monitor can independently trigger a different action (Win+Tab, Show Desktop, Action Center, custom shortcut, or disabled).
 
-- [ ] **Phase 2: Config Foundation** - New AppSettings schema, CornerAction enum, per-corner data model, ActionDispatcher, and v1.x migration
+- [x] **Phase 2: Config Foundation** - New AppSettings schema, CornerAction enum, per-corner data model, ActionDispatcher, and v1.x migration
 - [ ] **Phase 3: Detection Pipeline & Multi-Monitor** - CornerRouter (one detector per active corner per monitor), WM_DISPLAYCHANGE handling, and live settings rebuild
 - [ ] **Phase 4: Custom Shortcut & Settings UI** - Hotkey recorder, tabbed settings form with 2×2 corner layout and monitor selector
 
@@ -36,10 +36,10 @@
 **Plans**: 4 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — AppSettings v2 schema: CornerAction enum + CornerActions dict + LegacyCorner migration hook
-- [ ] 02-02-PLAN.md — ConfigManager: MigrateV1, SaveFile, fill-missing-keys
-- [ ] 02-03-PLAN.md — ActionDispatcher + NativeMethods VK_D/VK_A constants
-- [ ] 02-04-PLAN.md — Wiring: CornerDetector + HotSpotApplicationContext updated for v2
+- [x] 02-01-PLAN.md — AppSettings v2 schema: CornerAction enum + CornerActions dict + LegacyCorner migration hook
+- [x] 02-02-PLAN.md — ConfigManager: MigrateV1, SaveFile, fill-missing-keys
+- [x] 02-03-PLAN.md — ActionDispatcher + NativeMethods VK_D/VK_A constants
+- [x] 02-04-PLAN.md — Wiring: CornerDetector + HotSpotApplicationContext updated for v2
 
 ### Phase 3: Detection Pipeline & Multi-Monitor
 **Goal**: Every active corner on every connected monitor detects dwell independently and fires the correct action
@@ -50,7 +50,12 @@ Plans:
   2. Plugging in a second monitor while the app is running activates its corners immediately — no restart required
   3. A newly connected monitor that has no saved config defaults to all corners disabled
   4. Unplugging a monitor and plugging it back in restores its previously saved corner configuration
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — AppSettings MonitorCornerConfig + CornerDetector screen-scoped refactor
+- [ ] 03-02-PLAN.md — CornerRouter: per-monitor detector pool with Rebuild() and hot-path routing
+- [ ] 03-03-PLAN.md — HotSpotApplicationContext wiring: CornerRouter + DisplaySettingsChanged subscription
 
 ### Phase 4: Custom Shortcut & Settings UI
 **Goal**: Users can assign any recorded keystroke to a corner and configure all corners visually in a redesigned settings dialog
@@ -68,10 +73,10 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Single-Instance Guard | v1.1 | 2/2 | Complete | 2026-03-17 |
-| 2. Config Foundation | 3/4 | In Progress|  | - |
-| 3. Detection Pipeline & Multi-Monitor | v1.2 | 0/? | Not started | - |
+| 2. Config Foundation | v1.2 | 4/4 | Complete | 2026-03-17 |
+| 3. Detection Pipeline & Multi-Monitor | v1.2 | 0/3 | Planned | - |
 | 4. Custom Shortcut & Settings UI | v1.2 | 0/? | Not started | - |
 
 ---
 
-*Last updated: 2026-03-17 — Phase 2 planned (4 plans, 3 waves)*
+*Last updated: 2026-03-18 — Phase 3 planned (3 plans); ready to execute*

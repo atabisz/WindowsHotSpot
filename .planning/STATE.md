@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-17)
 ## Current Position
 
 Phase: 2 of 4 — Config Foundation
-Plan: 3/4 complete
-Status: In Progress
-Last activity: 2026-03-17 — Plan 03 complete: ActionDispatcher routing CornerAction to SendInput
+Plan: 4/4 complete
+Status: Phase Complete
+Last activity: 2026-03-17 — Plan 04 complete: ActionDispatcher wired into CornerDetector; zero build errors
 
-Progress: [#####-----] 40% (Phase 1 complete; Phase 2 Plan 3/4 done)
+Progress: [######----] 50% (Phase 1 complete; Phase 2 complete)
 
 ## Performance Metrics
 
@@ -34,6 +34,7 @@ Progress: [#####-----] 40% (Phase 1 complete; Phase 2 Plan 3/4 done)
 | Phase 02-config-foundation P01 | 3 min | 1 task | 1 file |
 | Phase 02-config-foundation P02 | 2 min | 1 task | 1 file |
 | Phase 02-config-foundation P03 | 4 min | 2 tasks | 2 files |
+| Phase 02-config-foundation P04 | 4 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -49,6 +50,7 @@ Recent decisions affecting current work:
 - [Phase 02-config-foundation]: LegacyCorner with [JsonPropertyName(Corner)] and WhenWritingNull enables zero-downtime v1 settings.json migration
 - [Phase 02-config-foundation]: SaveFile() private helper in ConfigManager writes JSON without firing SettingsChanged — migration safe during startup before listeners attached
 - [Phase 02-config-foundation P03]: MakeKeyInput helper intentionally duplicated in ActionDispatcher (two private call sites — not worth shared helper in Phase 2)
+- [Phase 02-config-foundation P04]: CornerDetector stores ConfigManager reference — OnDwellComplete reads CornerActions at dispatch time, ensuring live settings without extra UpdateSettings call
 
 ### Blockers/Concerns
 
@@ -58,5 +60,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 02-config-foundation plan 03 (ActionDispatcher)
+Stopped at: Completed 02-config-foundation plan 04 (ActionDispatcher integration — Phase 2 complete)
 Resume file: None
