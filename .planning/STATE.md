@@ -1,0 +1,58 @@
+# State: WindowsHotSpot
+
+## Project Reference
+
+See: .planning/PROJECT.md (updated 2026-03-17)
+
+**Core value:** The mouse hot corner fires Task View reliably every time, on any screen, with zero friction.
+**Current focus:** Milestone v1.2 — Per-Corner Actions & Multi-Monitor (Phase 2: Config Foundation)
+
+## Current Position
+
+Phase: 2 of 4 — Config Foundation
+Plan: 1/4 complete
+Status: In Progress
+Last activity: 2026-03-17 — Plan 01 complete: AppSettings v2 data model
+
+Progress: [###-------] 30% (Phase 1 complete; Phase 2 Plan 1/4 done)
+
+## Performance Metrics
+
+**Velocity:**
+- Total plans completed: 2 (v1.1)
+- Average duration: unknown
+- Total execution time: unknown
+
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 1. Single-Instance Guard | 2/2 | - | - |
+
+*Updated after each plan completion*
+
+| Phase 02-config-foundation P01 | 3 min | 1 task | 1 file |
+
+## Accumulated Context
+
+### Decisions
+
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
+
+- [v1.1]: Use Local\ mutex scope — separate Windows sessions don't block each other
+- [v1.1]: Use SendMessage (not PostMessage) for WM_COPYDATA — ensures reliable Settings focus
+- [v1.1]: Use NativeWindow + HWND_MESSAGE for IPC target — completely invisible
+- [Phase 02-config-foundation]: CornerAction enum and CornerActions dictionary in AppSettings.cs replace single Corner property as v2 data model foundation
+- [Phase 02-config-foundation]: LegacyCorner with [JsonPropertyName(Corner)] and WhenWritingNull enables zero-downtime v1 settings.json migration
+
+### Blockers/Concerns
+
+- [Phase 3]: Screen.DeviceName stability as monitor identity key is MEDIUM confidence — GDI device string can change on driver re-enumeration. Validate early in Phase 3 implementation; fall back to best-match list-of-pairs if needed.
+- [Phase 4]: Hotkey recorder edge cases (Win key as modifier, single-key-no-modifier, Ctrl+Alt+Del rejection) need design decisions before Phase 4 coding. Review PowerToys Keyboard Manager for precedent.
+
+## Session Continuity
+
+Last session: 2026-03-17
+Stopped at: Completed 02-config-foundation plan 01 (AppSettings v2 data model)
+Resume file: None
