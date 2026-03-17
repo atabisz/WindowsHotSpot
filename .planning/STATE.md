@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-17)
 ## Current Position
 
 Phase: 3 of 4 — Detection Pipeline Multi-Monitor
-Plan: 2/3 complete
-Status: In Progress
-Last activity: 2026-03-18 — Plan 02 complete: CornerRouter pool manager with per-(monitor,corner) detector routing
+Plan: 3/3 complete
+Status: Phase Complete
+Last activity: 2026-03-18 — Plan 03 complete: CornerRouter wired into HotSpotApplicationContext; Phase 3 fully verified end-to-end
 
-Progress: [########--] 69% (Phase 1 complete; Phase 2 complete; Phase 3 Plan 2/3 complete)
+Progress: [##########] 100% (Phase 1 complete; Phase 2 complete; Phase 3 complete)
 
 ## Performance Metrics
 
@@ -37,6 +37,7 @@ Progress: [########--] 69% (Phase 1 complete; Phase 2 complete; Phase 3 Plan 2/3
 | Phase 02-config-foundation P04 | 4 min | 2 tasks | 3 files |
 | Phase 03-detection-pipeline-multi-monitor P01 | 8 min | 2 tasks | 2 files |
 | Phase 03-detection-pipeline-multi-monitor P02 | 2 | 1 tasks | 1 files |
+| Phase 03-detection-pipeline-multi-monitor P03 | 10 min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -56,6 +57,7 @@ Recent decisions affecting current work:
 - [Phase 03-detection-pipeline-multi-monitor P01]: CornerDetector fields made readonly — immutable at construction enforced by compiler; rebuilt by CornerRouter on settings changes, not mutated in-place
 - [Phase 03-detection-pipeline-multi-monitor P01]: MonitorCornerConfig placed in AppSettings.cs (not a new file) — tightly coupled config type kept co-located
 - [Phase 03-detection-pipeline-multi-monitor]: CornerRouter uses record struct ScreenDetectors for named screen+detector-list pairing; pre-caches Screen.AllScreens in Rebuild() to keep OnMouseMoved hot-path P/Invoke-free
+- [Phase 03-detection-pipeline-multi-monitor P03]: SystemEvents.DisplaySettingsChanged unsubscribed first in DisposeComponents() before component disposal — static events hold strong references and must be released to prevent memory leak
 
 ### Blockers/Concerns
 
@@ -65,5 +67,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-18
-Stopped at: Completed 03-detection-pipeline-multi-monitor plan 02 (CornerRouter pool manager)
+Stopped at: Completed 03-detection-pipeline-multi-monitor plan 03 (CornerRouter wired; Phase 3 complete)
 Resume file: None

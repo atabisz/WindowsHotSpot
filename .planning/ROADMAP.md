@@ -19,7 +19,7 @@
 **Milestone Goal:** Each corner on each monitor can independently trigger a different action (Win+Tab, Show Desktop, Action Center, custom shortcut, or disabled).
 
 - [x] **Phase 2: Config Foundation** - New AppSettings schema, CornerAction enum, per-corner data model, ActionDispatcher, and v1.x migration
-- [ ] **Phase 3: Detection Pipeline & Multi-Monitor** - CornerRouter (one detector per active corner per monitor), WM_DISPLAYCHANGE handling, and live settings rebuild
+- [x] **Phase 3: Detection Pipeline & Multi-Monitor** - CornerRouter (one detector per active corner per monitor), WM_DISPLAYCHANGE handling, and live settings rebuild (completed 2026-03-17)
 - [ ] **Phase 4: Custom Shortcut & Settings UI** - Hotkey recorder, tabbed settings form with 2×2 corner layout and monitor selector
 
 ## Phase Details
@@ -74,7 +74,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1. Single-Instance Guard | v1.1 | 2/2 | Complete | 2026-03-17 |
 | 2. Config Foundation | v1.2 | 4/4 | Complete | 2026-03-17 |
-| 3. Detection Pipeline & Multi-Monitor | 2/3 | In Progress|  | - |
+| 3. Detection Pipeline & Multi-Monitor | 3/3 | Complete   | 2026-03-17 | - |
 | 4. Custom Shortcut & Settings UI | v1.2 | 0/? | Not started | - |
 
 ---
