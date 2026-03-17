@@ -68,7 +68,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Single-Instance Guard | v1.1 | 2/2 | Complete | 2026-03-17 |
-| 2. Config Foundation | 1/4 | In Progress|  | - |
+| 2. Config Foundation | 3/4 | In Progress|  | - |
 | 3. Detection Pipeline & Multi-Monitor | v1.2 | 0/? | Not started | - |
 | 4. Custom Shortcut & Settings UI | v1.2 | 0/? | Not started | - |
 

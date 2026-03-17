@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-17)
 ## Current Position
 
 Phase: 2 of 4 — Config Foundation
-Plan: 1/4 complete
+Plan: 3/4 complete
 Status: In Progress
-Last activity: 2026-03-17 — Plan 01 complete: AppSettings v2 data model
+Last activity: 2026-03-17 — Plan 03 complete: ActionDispatcher routing CornerAction to SendInput
 
-Progress: [###-------] 30% (Phase 1 complete; Phase 2 Plan 1/4 done)
+Progress: [#####-----] 40% (Phase 1 complete; Phase 2 Plan 3/4 done)
 
 ## Performance Metrics
 
@@ -32,6 +32,8 @@ Progress: [###-------] 30% (Phase 1 complete; Phase 2 Plan 1/4 done)
 *Updated after each plan completion*
 
 | Phase 02-config-foundation P01 | 3 min | 1 task | 1 file |
+| Phase 02-config-foundation P02 | 2 min | 1 task | 1 file |
+| Phase 02-config-foundation P03 | 4 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -45,6 +47,8 @@ Recent decisions affecting current work:
 - [v1.1]: Use NativeWindow + HWND_MESSAGE for IPC target — completely invisible
 - [Phase 02-config-foundation]: CornerAction enum and CornerActions dictionary in AppSettings.cs replace single Corner property as v2 data model foundation
 - [Phase 02-config-foundation]: LegacyCorner with [JsonPropertyName(Corner)] and WhenWritingNull enables zero-downtime v1 settings.json migration
+- [Phase 02-config-foundation]: SaveFile() private helper in ConfigManager writes JSON without firing SettingsChanged — migration safe during startup before listeners attached
+- [Phase 02-config-foundation P03]: MakeKeyInput helper intentionally duplicated in ActionDispatcher (two private call sites — not worth shared helper in Phase 2)
 
 ### Blockers/Concerns
 
@@ -54,5 +58,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 02-config-foundation plan 01 (AppSettings v2 data model)
+Stopped at: Completed 02-config-foundation plan 03 (ActionDispatcher)
 Resume file: None
