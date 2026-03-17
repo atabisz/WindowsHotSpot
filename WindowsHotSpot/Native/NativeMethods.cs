@@ -22,6 +22,8 @@ internal static class NativeMethods
     public const uint KEYEVENTF_KEYUP = 0x0002;
     public const ushort VK_LWIN       = 0x5B;
     public const ushort VK_TAB        = 0x09;
+    public const ushort VK_D          = 0x44;   // Win+D → Show Desktop (Windows 11: hides all windows)
+    public const ushort VK_A          = 0x41;   // Win+A → Action Center / Quick Settings (Windows 11)
 
     // Delegate for low-level mouse hook callback
     public delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
