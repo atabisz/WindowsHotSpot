@@ -1,8 +1,9 @@
-// CornerDetector: detects mouse dwell in a screen corner zone and triggers ActionTrigger.
+// CornerDetector: detects mouse dwell in a screen corner zone and dispatches via ActionDispatcher.
 // 3-state machine: Idle -> Dwelling -> Triggered (Cooldown omitted: Triggered prevents
 // re-fire until mouse leaves zone, making a separate Cooldown state redundant).
 // Uses System.Windows.Forms.Timer (fires on UI thread) -- NOT System.Timers.Timer.
 // Phase 2: HotCorner enum moved to Config/AppSettings.cs. Constructor now takes settings params.
+// Phase 2 (Plan 04): OnDwellComplete calls ActionDispatcher.Dispatch() -- not ActionTrigger directly.
 
 using System.Drawing;
 using System.Windows.Forms;
@@ -17,6 +18,7 @@ internal sealed class CornerDetector : IDisposable
     private HotCorner _activeCorner;
     private int _zoneSize;
     private int _dwellDelay;
+    private readonly ConfigManager _configManager;   // for CornerActions lookup only
 
     private DetectorState _state = DetectorState.Idle;
     private bool _isButtonDown;
@@ -25,11 +27,12 @@ internal sealed class CornerDetector : IDisposable
     // Do NOT use System.Timers.Timer or System.Threading.Timer (fire on threadpool).
     private readonly System.Windows.Forms.Timer _dwellTimer;
 
-    public CornerDetector(HotCorner corner, int zoneSize, int dwellDelay)
+    public CornerDetector(HotCorner corner, int zoneSize, int dwellDelay, ConfigManager configManager)
     {
         _activeCorner = corner;
         _zoneSize = zoneSize;
         _dwellDelay = dwellDelay;
+        _configManager = configManager;
 
         _dwellTimer = new System.Windows.Forms.Timer { Interval = _dwellDelay };
         _dwellTimer.Tick += OnDwellComplete;
@@ -107,11 +110,12 @@ internal sealed class CornerDetector : IDisposable
     }
 
     // Timer Tick fires on UI thread (System.Windows.Forms.Timer).
-    // This is where SendTaskView() is safe to call -- NOT in OnMouseMoved.
+    // This is where Dispatch() is safe to call -- NOT in OnMouseMoved.
     private void OnDwellComplete(object? sender, EventArgs e)
     {
         _dwellTimer.Stop();
-        ActionTrigger.SendTaskView();
+        CornerAction action = _configManager.Settings.CornerActions[_activeCorner];
+        ActionDispatcher.Dispatch(action);
         _state = DetectorState.Triggered;
     }
 
