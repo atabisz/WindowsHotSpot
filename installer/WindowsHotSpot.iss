@@ -17,6 +17,9 @@ SetupIconFile=..\WindowsHotSpot\Resources\app.ico
 UninstallDisplayIcon={app}\WindowsHotSpot.exe
 DisableProgramGroupPage=yes
 ArchitecturesInstallIn64BitMode=x64compatible
+CloseApplications=yes
+CloseApplicationsFilter=*.exe
+RestartApplications=yes
 
 [Files]
 Source: "..\WindowsHotSpot\bin\Release\net10.0-windows\win-x64\publish\WindowsHotSpot.exe"; DestDir: "{app}"; Flags: ignoreversion
