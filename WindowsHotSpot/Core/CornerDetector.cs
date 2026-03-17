@@ -4,6 +4,9 @@
 // Uses System.Windows.Forms.Timer (fires on UI thread) -- NOT System.Timers.Timer.
 // Phase 2: HotCorner enum moved to Config/AppSettings.cs. Constructor now takes settings params.
 // Phase 2 (Plan 04): OnDwellComplete calls ActionDispatcher.Dispatch() -- not ActionTrigger directly.
+// Phase 3: Constructor now takes Rectangle screenBounds + CornerAction; ConfigManager dependency
+// removed. Zone check scoped to _screenBounds only (not Screen.AllScreens). UpdateSettings()
+// removed -- CornerRouter rebuilds the detector pool on changes.
 
 using System.Drawing;
 using System.Windows.Forms;
@@ -15,10 +18,11 @@ internal enum DetectorState { Idle, Dwelling, Triggered }
 
 internal sealed class CornerDetector : IDisposable
 {
-    private HotCorner _activeCorner;
-    private int _zoneSize;
-    private int _dwellDelay;
-    private readonly ConfigManager _configManager;   // for CornerActions lookup only
+    private readonly HotCorner _activeCorner;
+    private readonly Rectangle _screenBounds;
+    private readonly int _zoneSize;
+    private readonly int _dwellDelay;
+    private readonly CornerAction _action;
 
     private DetectorState _state = DetectorState.Idle;
     private bool _isButtonDown;
@@ -27,29 +31,16 @@ internal sealed class CornerDetector : IDisposable
     // Do NOT use System.Timers.Timer or System.Threading.Timer (fire on threadpool).
     private readonly System.Windows.Forms.Timer _dwellTimer;
 
-    public CornerDetector(HotCorner corner, int zoneSize, int dwellDelay, ConfigManager configManager)
+    public CornerDetector(HotCorner corner, Rectangle screenBounds, int zoneSize, int dwellDelay, CornerAction action)
     {
         _activeCorner = corner;
+        _screenBounds = screenBounds;
         _zoneSize = zoneSize;
         _dwellDelay = dwellDelay;
-        _configManager = configManager;
+        _action = action;
 
         _dwellTimer = new System.Windows.Forms.Timer { Interval = _dwellDelay };
         _dwellTimer.Tick += OnDwellComplete;
-    }
-
-    /// <summary>
-    /// Updates detection settings at runtime. Resets state to Idle to prevent stale triggers
-    /// if the corner changes mid-dwell.
-    /// </summary>
-    public void UpdateSettings(HotCorner corner, int zoneSize, int dwellDelay)
-    {
-        _activeCorner = corner;
-        _zoneSize = zoneSize;
-        _dwellDelay = dwellDelay;
-        _dwellTimer.Interval = dwellDelay;
-        _dwellTimer.Stop();
-        _state = DetectorState.Idle;
     }
 
     /// <summary>
@@ -58,7 +49,7 @@ internal sealed class CornerDetector : IDisposable
     /// </summary>
     public void OnMouseMoved(Point pt)
     {
-        bool inZone = IsInAnyCornerZone(pt);
+        bool inZone = IsInCornerZone(pt);
 
         switch (_state)
         {
@@ -114,28 +105,20 @@ internal sealed class CornerDetector : IDisposable
     private void OnDwellComplete(object? sender, EventArgs e)
     {
         _dwellTimer.Stop();
-        CornerAction action = _configManager.Settings.CornerActions[_activeCorner];
-        ActionDispatcher.Dispatch(action);
+        ActionDispatcher.Dispatch(_action);   // _action fixed at construction; no ConfigManager lookup
         _state = DetectorState.Triggered;
     }
 
     /// <summary>
-    /// Checks if pt is within _zoneSize pixels of the active corner on ANY connected screen.
-    /// With Per-Monitor V2 manifest, Screen.AllScreens bounds and hook pt are both in
-    /// unvirtualized physical pixels and agree. (CORE-02)
+    /// Checks if pt is within _zoneSize pixels of the active corner on this detector's screen only.
+    /// With Per-Monitor V2 manifest, _screenBounds and hook pt are both in unvirtualized
+    /// physical pixels and agree. (CORE-02)
     /// </summary>
-    private bool IsInAnyCornerZone(Point pt)
+    private bool IsInCornerZone(Point pt)
     {
-        foreach (var screen in Screen.AllScreens)
-        {
-            Point corner = GetCornerPoint(screen.Bounds, _activeCorner);
-            if (Math.Abs(pt.X - corner.X) <= _zoneSize
-             && Math.Abs(pt.Y - corner.Y) <= _zoneSize)
-            {
-                return true;
-            }
-        }
-        return false;
+        Point corner = GetCornerPoint(_screenBounds, _activeCorner);
+        return Math.Abs(pt.X - corner.X) <= _zoneSize
+            && Math.Abs(pt.Y - corner.Y) <= _zoneSize;
     }
 
     private static Point GetCornerPoint(Rectangle bounds, HotCorner corner) => corner switch
