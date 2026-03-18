@@ -1,8 +1,12 @@
 // CornerRouter: owns the per-(monitor, corner) CornerDetector pool.
 // Rebuild() tears down existing detectors and creates fresh ones for every active
 // (monitor, enabled corner) pair. Called on startup, settings change, and display change.
-// OnMouseMoved routes to detectors for the screen that contains the cursor point.
-// Screen list is pre-cached in Rebuild() — Screen.AllScreens is NOT called in OnMouseMoved.
+// OnMouseMoved broadcasts to ALL detectors — each detector's IsInCornerZone gates itself.
+// Broadcasting (vs. routing only to the containing screen) is required for inner-edge corners:
+// when a corner zone straddles the boundary between two monitors (e.g. TopLeft of a monitor
+// that is to the right of another), half the zone sits on the adjacent monitor's side.
+// Routing only to the containing screen would cut the effective zone to 20 px instead of 40 px
+// and prevent the dwell from starting when the cursor approaches from the adjacent monitor.
 // Phase 3: replaces the single CornerDetector in HotSpotApplicationContext.
 
 using System.Collections.Generic;
@@ -73,23 +77,23 @@ internal sealed class CornerRouter : IDisposable
     }
 
     /// <summary>
-    /// Routes mouse-moved events to detectors for the screen that contains pt.
-    /// Uses the pre-cached screen list from the last Rebuild() call — Screen.AllScreens
-    /// is NOT called here to keep the hot path free of Win32 P/Invoke (Pitfall 4).
-    /// A point at a monitor boundary goes to the first matching screen (GDI Bounds are
-    /// contiguous, non-overlapping — Contains is inclusive left/top, exclusive right/bottom).
+    /// Broadcasts mouse-moved events to every detector in the pool.
+    /// Each detector's IsInCornerZone check (using its own _screenBounds) acts as the gate.
+    ///
+    /// Broadcasting is necessary for inner-edge corners — zones whose centre is on the
+    /// boundary between two monitors. With per-screen routing the effective zone would be
+    /// only half-width (the cursor-side half), making the corner unreliable to hit.
+    /// With broadcasting, the zone covers both sides of the boundary exactly as intended,
+    /// and the dwell correctly cancels whenever the cursor moves far from the corner on
+    /// any monitor.
+    ///
+    /// Screen.AllScreens is NOT called here to keep the hot path free of Win32 P/Invoke (Pitfall 4).
     /// </summary>
     public void OnMouseMoved(Point pt)
     {
         foreach (var entry in _pool)
-        {
-            if (!entry.Screen.Bounds.Contains(pt)) continue;
             foreach (var detector in entry.Detectors)
                 detector.OnMouseMoved(pt);
-            return; // point belongs to at most one screen
-        }
-        // Point outside all known screen bounds (can occur at a junction edge during
-        // display topology change, before Rebuild() fires). Safe to ignore.
     }
 
     /// <summary>
