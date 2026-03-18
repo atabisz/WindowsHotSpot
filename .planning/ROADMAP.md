@@ -69,9 +69,9 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — CustomShortcut data model + dispatch pipeline (AppSettings, ActionDispatcher, CornerDetector, CornerRouter)
-- [ ] 04-02-PLAN.md — KeyRecorderPanel: focusable Panel subclass for click-to-record keystroke capture
-- [ ] 04-03-PLAN.md — SettingsForm redesign (2×2 grid + monitor selector) + HotSpotApplicationContext wiring
+- [x] 04-01-PLAN.md — CustomShortcut data model + dispatch pipeline (AppSettings, ActionDispatcher, CornerDetector, CornerRouter)
+- [x] 04-02-PLAN.md — KeyRecorderPanel: focusable Panel subclass for click-to-record keystroke capture
+- [x] 04-03-PLAN.md — SettingsForm redesign (2×2 grid + monitor selector) + HotSpotApplicationContext wiring
 - [ ] 04-04-PLAN.md — End-to-end verification checkpoint
 
 ## Progress
@@ -81,8 +81,8 @@ Plans:
 | 1. Single-Instance Guard | v1.1 | 2/2 | Complete | 2026-03-17 |
 | 2. Config Foundation | v1.2 | 4/4 | Complete | 2026-03-17 |
 | 3. Detection Pipeline & Multi-Monitor | v1.2 | 3/3 | Complete | 2026-03-17 |
-| 4. Custom Shortcut & Settings UI | 2/4 | In Progress|  | - |
+| 4. Custom Shortcut & Settings UI | v1.2 | 3/4 | In Progress | - |
 
 ---
 
-*Last updated: 2026-03-18 — Phase 4 planned (4 plans); ready to execute*
+*Last updated: 2026-03-18 — Phase 4 plan 03 complete; SettingsForm redesigned with 2x2 grid + monitor selector*

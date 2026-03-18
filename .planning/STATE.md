@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-17)
 ## Current Position
 
 Phase: 4 of 4 — Custom Shortcut Settings UI
-Plan: 2/4 complete
+Plan: 3/4 complete
 Status: In Progress
-Last activity: 2026-03-18 — Plan 02 complete: KeyRecorderPanel Panel subclass with PreviewKeyDown interception for keystroke capture; ShortcutRecorded and RecordingCancelled events
+Last activity: 2026-03-18 — Plan 03 complete: SettingsForm replaced with 2x2 corner grid per monitor, monitor selector, Record buttons wired to KeyRecorderPanel; HotSpotApplicationContext saves per-monitor MonitorCornerConfig on save
 
-Progress: [##########] 100% (Phase 1 complete; Phase 2 complete; Phase 3 complete; Phase 4 in progress 2/4)
+Progress: [##########] 100% (Phase 1 complete; Phase 2 complete; Phase 3 complete; Phase 4 in progress 3/4)
 
 ## Performance Metrics
 
@@ -40,6 +40,7 @@ Progress: [##########] 100% (Phase 1 complete; Phase 2 complete; Phase 3 complet
 | Phase 03-detection-pipeline-multi-monitor P03 | 10 min | 2 tasks | 1 files |
 | Phase 04-custom-shortcut-settings-ui P01 | 5 min | 2 tasks | 4 files |
 | Phase 04-custom-shortcut-settings-ui P02 | 1 min | 1 task | 1 file |
+| Phase 04-custom-shortcut-settings-ui P03 | 2 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,9 @@ Recent decisions affecting current work:
 - [Phase 04-custom-shortcut-settings-ui]: CustomShortcuts lives in MonitorCornerConfig only (not global AppSettings) per research architecture
 - [Phase 04-custom-shortcut-settings-ui P02]: PreviewKeyDown Panel subclass chosen over TextBox subclassing — TextBox absorbs Tab/Backspace/Enter as editing actions
 - [Phase 04-custom-shortcut-settings-ui P02]: Bare alphanumeric keys without modifiers rejected in-place with advisory text; modifier-only keypresses silently ignored — keeps recorder waiting
+- [Phase 04-custom-shortcut-settings-ui P03]: ProcessCmdKey returns false (not true) for Escape-while-recording — false propagates to child KeyRecorderPanel; true would consume it at form level
+- [Phase 04-custom-shortcut-settings-ui P03]: SaveGridToConfig called in OnSaveClick (before DialogResult.OK closes form) to flush current monitor's grid state to _pendingMonitorConfigs
+- [Phase 04-custom-shortcut-settings-ui P03]: Monitor selector Visible=false (not removed) when single monitor — simpler than conditional control creation
 
 ### Blockers/Concerns
 
@@ -73,5 +77,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-18
-Stopped at: Completed 04-custom-shortcut-settings-ui plan 02 (KeyRecorderPanel keystroke capture control)
+Stopped at: Completed 04-custom-shortcut-settings-ui plan 03 (SettingsForm redesign + HotSpotApplicationContext wiring)
 Resume file: None
