@@ -1,9 +1,14 @@
-// SettingsForm: modal settings dialog for WindowsHotSpot.
+// SettingsForm: redesigned modal settings dialog for WindowsHotSpot.
+// Phase 4: 2x2 corner grid per monitor, monitor selector for multi-monitor setups,
+// Record buttons wired to KeyRecorderPanel for custom shortcut capture.
+//
 // Manual layout (no designer file) for diffability.
 // AutoScaleMode.Dpi prevents blurry controls on high-DPI displays (research Pitfall 5).
 // ShowDialog() is safe from the hook thread: it runs its own nested message loop that
 // still dispatches WH_MOUSE_LL callbacks (research Pitfall 4).
 
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using WindowsHotSpot.Config;
@@ -12,20 +17,41 @@ namespace WindowsHotSpot.UI;
 
 internal sealed class SettingsForm : Form
 {
-    private readonly ComboBox _cornerCombo;
+    // ── Public API for HotSpotApplicationContext ──────────────────────────
+    public Dictionary<string, MonitorCornerConfig> GetMonitorConfigs() => _pendingMonitorConfigs;
+    public int SelectedZoneSize => (int)_zoneSizeInput.Value;
+    public int SelectedDwellDelay => (int)_dwellDelayInput.Value;
+    public bool SelectedStartWithWindows => _startupCheckBox.Checked;
+
+    // ── State ─────────────────────────────────────────────────────────────
+    private readonly Screen[] _screens;
+    private string _selectedDeviceName;
+    private readonly Dictionary<string, MonitorCornerConfig> _pendingMonitorConfigs;
+    private bool _anyPanelRecording;
+
+    // ── Global controls ───────────────────────────────────────────────────
+    private readonly ComboBox _monitorCombo;
+    private readonly GroupBox _monitorGroup;
     private readonly NumericUpDown _zoneSizeInput;
     private readonly NumericUpDown _dwellDelayInput;
     private readonly CheckBox _startupCheckBox;
     private readonly Button _saveButton;
     private readonly Button _cancelButton;
 
-    // Maps display text → enum value for the corner ComboBox
-    private static readonly (string Label, HotCorner Value)[] CornerItems =
+    // ── Per-corner controls (indexed by HotCorner int value) ──────────────
+    // Corner order: TopLeft=0, TopRight=1, BottomLeft=2, BottomRight=3
+    private readonly ComboBox[] _actionCombos = new ComboBox[4];
+    private readonly KeyRecorderPanel[] _recorderPanels = new KeyRecorderPanel[4];
+    private readonly Button[] _recordButtons = new Button[4];
+
+    // Maps ComboBox display string to CornerAction enum
+    private static readonly (string Label, CornerAction Action)[] ActionItems =
     [
-        ("Top Left",     HotCorner.TopLeft),
-        ("Top Right",    HotCorner.TopRight),
-        ("Bottom Left",  HotCorner.BottomLeft),
-        ("Bottom Right", HotCorner.BottomRight),
+        ("Disabled",         CornerAction.Disabled),
+        ("Task View",        CornerAction.TaskView),
+        ("Show Desktop",     CornerAction.ShowDesktop),
+        ("Action Center",    CornerAction.ActionCenter),
+        ("Custom Shortcut",  CornerAction.Custom),
     ];
 
     public SettingsForm(AppSettings settings)
@@ -39,75 +65,172 @@ internal sealed class SettingsForm : Form
         StartPosition = FormStartPosition.CenterScreen;
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96F, 96F);
-        ClientSize = new Size(360, 290);
+        ClientSize = new Size(420, 500);
         Padding = new Padding(0);
         BackColor = SystemColors.Window;
 
-        // ── Detection group ──────────────────────────────────────────────
+        // ── Snapshot screens and build pending config dictionary ──────────
+        _screens = Screen.AllScreens;
+
+        _pendingMonitorConfigs = new Dictionary<string, MonitorCornerConfig>();
+        foreach (var screen in _screens)
+        {
+            // Clone existing config or create new defaults — do not mutate caller's object
+            if (settings.MonitorConfigs.TryGetValue(screen.DeviceName, out var existing))
+            {
+                var clone = new MonitorCornerConfig
+                {
+                    CornerActions = new Dictionary<HotCorner, CornerAction>(existing.CornerActions),
+                    CustomShortcuts = new Dictionary<HotCorner, CustomShortcut>(existing.CustomShortcuts),
+                };
+                _pendingMonitorConfigs[screen.DeviceName] = clone;
+            }
+            else
+            {
+                _pendingMonitorConfigs[screen.DeviceName] = new MonitorCornerConfig();
+            }
+        }
+
+        _selectedDeviceName = _screens[0].DeviceName;
+
+        // ── Monitor selector group (hidden when single monitor) ───────────
+        _monitorGroup = new GroupBox
+        {
+            Text = "Monitor",
+            Location = new Point(12, 12),
+            Size = new Size(396, 50),
+        };
+
+        _monitorCombo = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Location = new Point(12, 20),
+            Width = 368,
+        };
+        foreach (var screen in _screens)
+        {
+            string label = screen.Primary
+                ? $"{screen.DeviceName} (primary)"
+                : screen.DeviceName;
+            _monitorCombo.Items.Add(label);
+        }
+        _monitorCombo.SelectedIndex = 0;
+        _monitorCombo.SelectedIndexChanged += OnMonitorChanged;
+
+        _monitorGroup.Controls.Add(_monitorCombo);
+
+        // Hide monitor selector when only one screen — Pitfall 6 prevention
+        _monitorGroup.Visible = _screens.Length > 1;
+
+        // ── Corner grid group ─────────────────────────────────────────────
+        int cornerGroupTop = _monitorGroup.Visible ? 72 : 12;
+
+        var cornerGroup = new GroupBox
+        {
+            Text = "Corner Actions",
+            Location = new Point(12, cornerGroupTop),
+            Size = new Size(396, 240),
+        };
+
+        // 2x2 TableLayoutPanel: columns = Left/Right, rows = Top/Bottom
+        var cornerTable = new TableLayoutPanel
+        {
+            ColumnCount = 2,
+            RowCount = 2,
+            Location = new Point(8, 20),
+            Size = new Size(378, 210),
+            CellBorderStyle = TableLayoutPanelCellBorderStyle.Single,
+        };
+        cornerTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+        cornerTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+        cornerTable.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+        cornerTable.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+
+        // Grid positions: [col, row] maps to HotCorner
+        //   [0,0] = TopLeft     [1,0] = TopRight
+        //   [0,1] = BottomLeft  [1,1] = BottomRight
+        var cornerLayout = new[]
+        {
+            (Corner: HotCorner.TopLeft,     Col: 0, Row: 0, Title: "Top Left"),
+            (Corner: HotCorner.TopRight,    Col: 1, Row: 0, Title: "Top Right"),
+            (Corner: HotCorner.BottomLeft,  Col: 0, Row: 1, Title: "Bottom Left"),
+            (Corner: HotCorner.BottomRight, Col: 1, Row: 1, Title: "Bottom Right"),
+        };
+
+        foreach (var (corner, col, row, title) in cornerLayout)
+        {
+            var cell = BuildCornerCell(corner, title);
+            cornerTable.Controls.Add(cell, col, row);
+        }
+
+        cornerGroup.Controls.Add(cornerTable);
+
+        // Win key advisory label below the grid
+        var winKeyNote = new Label
+        {
+            Text = "Win key shortcuts (Win+Tab, Win+D, etc.) use the built-in actions above.",
+            Location = new Point(12, cornerGroupTop + 248),
+            Size = new Size(396, 20),
+            Font = new Font(SystemFonts.DefaultFont.FontFamily,
+                SystemFonts.DefaultFont.SizeInPoints - 0.5f,
+                FontStyle.Italic),
+            ForeColor = SystemColors.GrayText,
+        };
+
+        // ── Detection group ───────────────────────────────────────────────
+        int detectionGroupTop = cornerGroupTop + 276;
+
         var detectionGroup = new GroupBox
         {
             Text = "Detection",
-            Location = new Point(12, 12),
-            Size = new Size(336, 118),
-            ForeColor = SystemColors.ControlText,
+            Location = new Point(12, detectionGroupTop),
+            Size = new Size(396, 82),
         };
 
-        var cornerLabel = MakeLabel("Active corner:", 12, 24);
-        _cornerCombo = new ComboBox
-        {
-            DropDownStyle = ComboBoxStyle.DropDownList,
-            Location = new Point(130, 21),
-            Width = 140,
-        };
-        foreach (var (label, _) in CornerItems)
-            _cornerCombo.Items.Add(label);
-        // Phase 4 redesigns this form to configure per-corner actions.
-        // For Phase 2, default to index 0 (TopLeft) since Settings.Corner is removed.
-        _cornerCombo.SelectedIndex = 0;
-
-        var zoneLabel = MakeLabel("Zone size:", 12, 60);
+        var zoneLabel = MakeLabel("Zone size:", 12, 24);
         _zoneSizeInput = new NumericUpDown
         {
             Minimum = 1,
             Maximum = 50,
             Increment = 1,
             Value = settings.ZoneSize,
-            Location = new Point(130, 57),
+            Location = new Point(130, 21),
             Width = 65,
         };
-        var zonePxLabel = MakeLabel("px", 203, 60);
+        var zonePxLabel = MakeLabel("px", 203, 24);
 
-        var dwellLabel = MakeLabel("Dwell delay:", 12, 96);
+        var dwellLabel = MakeLabel("Dwell delay:", 12, 54);
         _dwellDelayInput = new NumericUpDown
         {
             Minimum = 50,
             Maximum = 2000,
             Increment = 50,
             Value = settings.DwellDelayMs,
-            Location = new Point(130, 93),
+            Location = new Point(130, 51),
             Width = 65,
         };
-        var dwellMsLabel = MakeLabel("ms", 203, 96);
+        var dwellMsLabel = MakeLabel("ms", 203, 54);
 
         detectionGroup.Controls.AddRange(
         [
-            cornerLabel, _cornerCombo,
             zoneLabel, _zoneSizeInput, zonePxLabel,
             dwellLabel, _dwellDelayInput, dwellMsLabel,
         ]);
 
-        // ── System group ─────────────────────────────────────────────────
+        // ── System group ──────────────────────────────────────────────────
+        int systemGroupTop = detectionGroupTop + 90;
+
         var systemGroup = new GroupBox
         {
             Text = "System",
-            Location = new Point(12, 140),
-            Size = new Size(336, 54),
+            Location = new Point(12, systemGroupTop),
+            Size = new Size(396, 48),
         };
 
         _startupCheckBox = new CheckBox
         {
             Text = "Start with Windows",
-            Location = new Point(12, 22),
+            Location = new Point(12, 18),
             AutoSize = true,
             // Read live from registry (not settings.StartWithWindows) to reflect actual state
             Checked = StartupManager.IsEnabled,
@@ -116,11 +239,13 @@ internal sealed class SettingsForm : Form
         systemGroup.Controls.Add(_startupCheckBox);
 
         // ── Buttons ───────────────────────────────────────────────────────
+        int buttonPanelTop = systemGroupTop + 56;
+
         var buttonPanel = new FlowLayoutPanel
         {
             FlowDirection = FlowDirection.RightToLeft,
-            Location = new Point(12, 207),
-            Size = new Size(336, 32),
+            Location = new Point(12, buttonPanelTop),
+            Size = new Size(396, 32),
             WrapContents = false,
         };
 
@@ -139,22 +264,210 @@ internal sealed class SettingsForm : Form
             Width = 80,
             Height = 28,
         };
+        _saveButton.Click += OnSaveClick;
 
         buttonPanel.Controls.AddRange([_cancelButton, _saveButton]);
 
         AcceptButton = _saveButton;
         CancelButton = _cancelButton;
 
-        Controls.AddRange([detectionGroup, systemGroup, buttonPanel]);
+        // ── Assemble form ─────────────────────────────────────────────────
+        // Adjust ClientSize based on actual layout
+        ClientSize = new Size(420, buttonPanelTop + 44);
+
+        Controls.AddRange([
+            _monitorGroup,
+            cornerGroup,
+            winKeyNote,
+            detectionGroup,
+            systemGroup,
+            buttonPanel,
+        ]);
+
+        // ── Load first monitor's data into the grid ───────────────────────
+        LoadMonitorIntoGrid(_selectedDeviceName);
 
         ResumeLayout(false);
         PerformLayout();
     }
 
-    public HotCorner SelectedCorner => CornerItems[_cornerCombo.SelectedIndex].Value;
-    public int SelectedZoneSize => (int)_zoneSizeInput.Value;
-    public int SelectedDwellDelay => (int)_dwellDelayInput.Value;
-    public bool SelectedStartWithWindows => _startupCheckBox.Checked;
+    // ── Corner cell builder ───────────────────────────────────────────────
+
+    private GroupBox BuildCornerCell(HotCorner corner, string title)
+    {
+        int idx = (int)corner;
+
+        var box = new GroupBox
+        {
+            Text = title,
+            Dock = DockStyle.Fill,
+            Padding = new Padding(6, 4, 6, 4),
+        };
+
+        // Action row
+        var actionLabel = MakeLabel("Action:", 6, 22);
+
+        var actionCombo = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Location = new Point(62, 19),
+            Width = 110,
+        };
+        foreach (var (label, _) in ActionItems)
+            actionCombo.Items.Add(label);
+        actionCombo.SelectedIndex = 0;
+
+        _actionCombos[idx] = actionCombo;
+
+        // Shortcut row
+        var shortcutLabel = MakeLabel("Shortcut:", 6, 54);
+
+        var recorderPanel = new KeyRecorderPanel
+        {
+            Location = new Point(62, 50),
+            Width = 70,
+            Visible = false,
+        };
+        _recorderPanels[idx] = recorderPanel;
+
+        var recordButton = new Button
+        {
+            Text = "Record",
+            Location = new Point(138, 48),
+            Width = 50,
+            Height = 24,
+            Visible = false,
+        };
+        _recordButtons[idx] = recordButton;
+
+        // Wire action ComboBox: show/hide recorder and button when Custom selected
+        actionCombo.SelectedIndexChanged += (_, _) =>
+        {
+            bool isCustom = SelectedAction(actionCombo) == CornerAction.Custom;
+            recorderPanel.Visible = isCustom;
+            recordButton.Visible = isCustom;
+        };
+
+        // Wire Record button
+        recordButton.Click += (_, _) =>
+        {
+            _anyPanelRecording = true;
+            recorderPanel.StartRecording();
+        };
+
+        // Wire ShortcutRecorded
+        recorderPanel.ShortcutRecorded += (vks, displayText) =>
+        {
+            _anyPanelRecording = false;
+            // Ensure Custom action is selected
+            actionCombo.SelectedIndex = IndexOfAction(CornerAction.Custom);
+            recorderPanel.IdleText = displayText;
+            recorderPanel.Invalidate();
+            UpdatePendingCustomShortcut(corner, vks, displayText);
+        };
+
+        // Wire RecordingCancelled
+        recorderPanel.RecordingCancelled += () =>
+        {
+            _anyPanelRecording = false;
+            recorderPanel.Invalidate();
+        };
+
+        box.Controls.AddRange([actionLabel, actionCombo, shortcutLabel, recorderPanel, recordButton]);
+        return box;
+    }
+
+    // ── ProcessCmdKey: suppress Escape→CancelButton when recording (Pitfall 2) ──
+
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        if (_anyPanelRecording && keyData == Keys.Escape)
+            return false; // let Escape reach the focused KeyRecorderPanel
+        return base.ProcessCmdKey(ref msg, keyData);
+    }
+
+    // ── Monitor switching ─────────────────────────────────────────────────
+
+    private void OnMonitorChanged(object? sender, EventArgs e)
+    {
+        if (_monitorCombo.SelectedIndex < 0) return;
+
+        // Save current grid state back to pending before switching
+        SaveGridToConfig(_selectedDeviceName);
+
+        _selectedDeviceName = _screens[_monitorCombo.SelectedIndex].DeviceName;
+        LoadMonitorIntoGrid(_selectedDeviceName);
+    }
+
+    private void LoadMonitorIntoGrid(string deviceName)
+    {
+        if (!_pendingMonitorConfigs.TryGetValue(deviceName, out var config))
+            return;
+
+        foreach (HotCorner corner in Enum.GetValues<HotCorner>())
+        {
+            int idx = (int)corner;
+
+            // Load action
+            var action = config.CornerActions.TryGetValue(corner, out var a) ? a : CornerAction.Disabled;
+            _actionCombos[idx].SelectedIndex = IndexOfAction(action);
+
+            // Load custom shortcut display text
+            if (config.CustomShortcuts.TryGetValue(corner, out var shortcut))
+                _recorderPanels[idx].IdleText = shortcut.DisplayText;
+            else
+                _recorderPanels[idx].IdleText = "(none)";
+
+            _recorderPanels[idx].Invalidate();
+
+            // Show/hide recorder and record button
+            bool isCustom = action == CornerAction.Custom;
+            _recorderPanels[idx].Visible = isCustom;
+            _recordButtons[idx].Visible = isCustom;
+        }
+    }
+
+    private void SaveGridToConfig(string deviceName)
+    {
+        if (!_pendingMonitorConfigs.TryGetValue(deviceName, out var config))
+            return;
+
+        foreach (HotCorner corner in Enum.GetValues<HotCorner>())
+        {
+            int idx = (int)corner;
+            var action = SelectedAction(_actionCombos[idx]);
+            config.CornerActions[corner] = action;
+            // Custom shortcut data already updated inline via UpdatePendingCustomShortcut
+        }
+    }
+
+    private void OnSaveClick(object? sender, EventArgs e)
+    {
+        // Flush current grid to pending configs before the form closes
+        SaveGridToConfig(_selectedDeviceName);
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    private static CornerAction SelectedAction(ComboBox combo)
+    {
+        int idx = combo.SelectedIndex;
+        if (idx < 0 || idx >= ActionItems.Length) return CornerAction.Disabled;
+        return ActionItems[idx].Action;
+    }
+
+    private static int IndexOfAction(CornerAction action)
+    {
+        for (int i = 0; i < ActionItems.Length; i++)
+            if (ActionItems[i].Action == action) return i;
+        return 0;
+    }
+
+    private void UpdatePendingCustomShortcut(HotCorner corner, ushort[] vks, string displayText)
+    {
+        if (_pendingMonitorConfigs.TryGetValue(_selectedDeviceName, out var config))
+            config.CustomShortcuts[corner] = new CustomShortcut(vks, displayText);
+    }
 
     private static Label MakeLabel(string text, int x, int y) => new()
     {
