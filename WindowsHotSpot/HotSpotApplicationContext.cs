@@ -126,6 +126,8 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
             foreach (var (deviceName, config) in form.GetMonitorConfigs())
                 _configManager.Settings.MonitorConfigs[deviceName] = config;
 
+            _configManager.Settings.SameOnAllMonitors = form.SelectedSameOnAllMonitors;
+
             _configManager.Save(); // Fires SettingsChanged -> CornerRouter.Rebuild
         }
     }

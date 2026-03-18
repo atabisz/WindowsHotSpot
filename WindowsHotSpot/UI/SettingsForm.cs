@@ -18,10 +18,31 @@ namespace WindowsHotSpot.UI;
 internal sealed class SettingsForm : Form
 {
     // ── Public API for HotSpotApplicationContext ──────────────────────────
-    public Dictionary<string, MonitorCornerConfig> GetMonitorConfigs() => _pendingMonitorConfigs;
+    public Dictionary<string, MonitorCornerConfig> GetMonitorConfigs()
+    {
+        if (_sameOnAllMonitorsCheckBox?.Checked != true)
+            return _pendingMonitorConfigs;
+
+        // Replicate the current single config to all connected monitors
+        if (!_pendingMonitorConfigs.TryGetValue(_selectedDeviceName, out var baseConfig))
+            return _pendingMonitorConfigs;
+
+        var result = new Dictionary<string, MonitorCornerConfig>();
+        foreach (var screen in _screens)
+        {
+            result[screen.DeviceName] = new MonitorCornerConfig
+            {
+                CornerActions = new Dictionary<HotCorner, CornerAction>(baseConfig.CornerActions),
+                CustomShortcuts = new Dictionary<HotCorner, CustomShortcut>(baseConfig.CustomShortcuts),
+            };
+        }
+        return result;
+    }
+
     public int SelectedZoneSize => (int)_zoneSizeInput.Value;
     public int SelectedDwellDelay => (int)_dwellDelayInput.Value;
     public bool SelectedStartWithWindows => _startupCheckBox.Checked;
+    public bool SelectedSameOnAllMonitors => _sameOnAllMonitorsCheckBox?.Checked ?? false;
 
     // ── State ─────────────────────────────────────────────────────────────
     private readonly Screen[] _screens;
@@ -32,6 +53,7 @@ internal sealed class SettingsForm : Form
     // ── Global controls ───────────────────────────────────────────────────
     private readonly ComboBox _monitorCombo;
     private readonly GroupBox _monitorGroup;
+    private readonly CheckBox? _sameOnAllMonitorsCheckBox;
     private readonly NumericUpDown _zoneSizeInput;
     private readonly NumericUpDown _dwellDelayInput;
     private readonly CheckBox _startupCheckBox;
@@ -98,7 +120,7 @@ internal sealed class SettingsForm : Form
         {
             Text = "Monitor",
             Location = new Point(12, 12),
-            Size = new Size(396, 50),
+            Size = new Size(396, 76),
         };
 
         _monitorCombo = new ComboBox
@@ -119,11 +141,36 @@ internal sealed class SettingsForm : Form
 
         _monitorGroup.Controls.Add(_monitorCombo);
 
+        if (_screens.Length > 1)
+        {
+            _sameOnAllMonitorsCheckBox = new CheckBox
+            {
+                Text = "Same on all monitors",
+                Location = new Point(12, 48),
+                AutoSize = true,
+                Checked = settings.SameOnAllMonitors,
+            };
+            _sameOnAllMonitorsCheckBox.CheckedChanged += (_, _) =>
+            {
+                bool sameForAll = _sameOnAllMonitorsCheckBox.Checked;
+                _monitorCombo.Visible = !sameForAll;
+                if (sameForAll)
+                {
+                    // Flush current grid to the selected device before switching to single-config mode
+                    SaveGridToConfig(_selectedDeviceName);
+                }
+            };
+            _monitorGroup.Controls.Add(_sameOnAllMonitorsCheckBox);
+
+            // Apply initial visibility state
+            _monitorCombo.Visible = !settings.SameOnAllMonitors;
+        }
+
         // Hide monitor selector when only one screen — Pitfall 6 prevention
         _monitorGroup.Visible = _screens.Length > 1;
 
         // ── Corner grid group ─────────────────────────────────────────────
-        int cornerGroupTop = _monitorGroup.Visible ? 72 : 12;
+        int cornerGroupTop = _monitorGroup.Visible ? 96 : 12;
 
         var cornerGroup = new GroupBox
         {

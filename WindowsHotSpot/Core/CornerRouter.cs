@@ -35,9 +35,11 @@ internal sealed class CornerRouter : IDisposable
         foreach (var screen in Screen.AllScreens)
         {
             // Per-monitor override if present; global CornerActions fallback if not (MMON-01, MMON-03).
-            var actions = settings.MonitorConfigs.TryGetValue(screen.DeviceName, out var monitorConfig)
-                ? monitorConfig.CornerActions
-                : settings.CornerActions;
+            settings.MonitorConfigs.TryGetValue(screen.DeviceName, out var monitorConfig);
+            // SameOnAllMonitors: newly connected monitors not yet in MonitorConfigs use any available config
+            if (monitorConfig == null && settings.SameOnAllMonitors && settings.MonitorConfigs.Count > 0)
+                monitorConfig = settings.MonitorConfigs.Values.First();
+            var actions = monitorConfig?.CornerActions ?? settings.CornerActions;
 
             var detectors = new List<CornerDetector>();
             foreach (var (corner, action) in actions)
