@@ -81,7 +81,7 @@ Plans:
 | 1. Single-Instance Guard | v1.1 | 2/2 | Complete | 2026-03-17 |
 | 2. Config Foundation | v1.2 | 4/4 | Complete | 2026-03-17 |
 | 3. Detection Pipeline & Multi-Monitor | v1.2 | 3/3 | Complete | 2026-03-17 |
-| 4. Custom Shortcut & Settings UI | 1/4 | In Progress|  | - |
+| 4. Custom Shortcut & Settings UI | 2/4 | In Progress|  | - |
 
 ---
 

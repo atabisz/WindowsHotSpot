@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-17)
 ## Current Position
 
 Phase: 4 of 4 — Custom Shortcut Settings UI
-Plan: 1/4 complete
+Plan: 2/4 complete
 Status: In Progress
-Last activity: 2026-03-18 — Plan 01 complete: CustomShortcut data model and dispatch pipeline wired; CornerAction.Custom serialises and fires arbitrary key sequences
+Last activity: 2026-03-18 — Plan 02 complete: KeyRecorderPanel Panel subclass with PreviewKeyDown interception for keystroke capture; ShortcutRecorded and RecordingCancelled events
 
-Progress: [##########] 100% (Phase 1 complete; Phase 2 complete; Phase 3 complete; Phase 4 in progress 1/4)
+Progress: [##########] 100% (Phase 1 complete; Phase 2 complete; Phase 3 complete; Phase 4 in progress 2/4)
 
 ## Performance Metrics
 
@@ -39,6 +39,7 @@ Progress: [##########] 100% (Phase 1 complete; Phase 2 complete; Phase 3 complet
 | Phase 03-detection-pipeline-multi-monitor P02 | 2 | 1 tasks | 1 files |
 | Phase 03-detection-pipeline-multi-monitor P03 | 10 min | 2 tasks | 1 files |
 | Phase 04-custom-shortcut-settings-ui P01 | 5 min | 2 tasks | 4 files |
+| Phase 04-custom-shortcut-settings-ui P02 | 1 min | 1 task | 1 file |
 
 ## Accumulated Context
 
@@ -61,6 +62,8 @@ Recent decisions affecting current work:
 - [Phase 03-detection-pipeline-multi-monitor P03]: SystemEvents.DisplaySettingsChanged unsubscribed first in DisposeComponents() before component disposal — static events hold strong references and must be released to prevent memory leak
 - [Phase 04-custom-shortcut-settings-ui]: CustomShortcut uses ushort[] VirtualKeys (not Keys[]) and stores DisplayText to avoid VK-to-Keys remapping on deserialise
 - [Phase 04-custom-shortcut-settings-ui]: CustomShortcuts lives in MonitorCornerConfig only (not global AppSettings) per research architecture
+- [Phase 04-custom-shortcut-settings-ui P02]: PreviewKeyDown Panel subclass chosen over TextBox subclassing — TextBox absorbs Tab/Backspace/Enter as editing actions
+- [Phase 04-custom-shortcut-settings-ui P02]: Bare alphanumeric keys without modifiers rejected in-place with advisory text; modifier-only keypresses silently ignored — keeps recorder waiting
 
 ### Blockers/Concerns
 
@@ -70,5 +73,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-18
-Stopped at: Completed 04-custom-shortcut-settings-ui plan 01 (CustomShortcut data model and dispatch pipeline)
+Stopped at: Completed 04-custom-shortcut-settings-ui plan 02 (KeyRecorderPanel keystroke capture control)
 Resume file: None
