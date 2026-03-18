@@ -4,13 +4,13 @@
 [Setup]
 AppId={{F3A2B1C4-8E5D-4F9A-B2C7-1D3E6F8A0B5C}
 AppName=WindowsHotSpot
-AppVersion=1.0.0
+AppVersion=1.1.2
 AppPublisher=WindowsHotSpot
 DefaultDirName={localappdata}\WindowsHotSpot
 DefaultGroupName=WindowsHotSpot
 PrivilegesRequired=lowest
 OutputDir=..\dist
-OutputBaseFilename=WindowsHotSpot-Setup
+OutputBaseFilename=WindowsHotSpot-Setup-1.1.2
 Compression=lzma2
 SolidCompression=yes
 SetupIconFile=..\WindowsHotSpot\Resources\app.ico

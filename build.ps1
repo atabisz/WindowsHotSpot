@@ -11,7 +11,7 @@ Write-Host "Building version $version..." -ForegroundColor Cyan
 
 # Patch AppVersion in installer script
 $issPath = "installer\WindowsHotSpot.iss"
-(Get-Content $issPath) -replace '^AppVersion=.*', "AppVersion=$version" | Set-Content $issPath
+(Get-Content $issPath) -replace '^AppVersion=.*', "AppVersion=$version" -replace '^OutputBaseFilename=.*', "OutputBaseFilename=WindowsHotSpot-Setup-$version" | Set-Content $issPath
 
 $publishDir = "WindowsHotSpot\bin\Release\net10.0-windows\win-x64\publish"
 
