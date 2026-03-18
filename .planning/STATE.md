@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-17)
 ## Current Position
 
 Phase: 4 of 4 — Custom Shortcut Settings UI
-Plan: 3/4 complete
-Status: In Progress
-Last activity: 2026-03-18 — Plan 03 complete: SettingsForm replaced with 2x2 corner grid per monitor, monitor selector, Record buttons wired to KeyRecorderPanel; HotSpotApplicationContext saves per-monitor MonitorCornerConfig on save
+Plan: 4/4 complete
+Status: Complete
+Last activity: 2026-03-18 — Plan 04 complete: end-to-end verification passed; QA-driven fixes added Same-on-all-monitors toggle, Win key recording via WH_KEYBOARD_LL, Win+letter/digit combo support; all Phase 4 requirements confirmed by user
 
-Progress: [##########] 100% (Phase 1 complete; Phase 2 complete; Phase 3 complete; Phase 4 in progress 3/4)
+Progress: [##########] 100% (Phase 1 complete; Phase 2 complete; Phase 3 complete; Phase 4 complete 4/4)
 
 ## Performance Metrics
 
@@ -41,6 +41,7 @@ Progress: [##########] 100% (Phase 1 complete; Phase 2 complete; Phase 3 complet
 | Phase 04-custom-shortcut-settings-ui P01 | 5 min | 2 tasks | 4 files |
 | Phase 04-custom-shortcut-settings-ui P02 | 1 min | 1 task | 1 file |
 | Phase 04-custom-shortcut-settings-ui P03 | 2 min | 2 tasks | 2 files |
+| Phase 04-custom-shortcut-settings-ui P04 | 15 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,8 @@ Recent decisions affecting current work:
 - [Phase 04-custom-shortcut-settings-ui P03]: ProcessCmdKey returns false (not true) for Escape-while-recording — false propagates to child KeyRecorderPanel; true would consume it at form level
 - [Phase 04-custom-shortcut-settings-ui P03]: SaveGridToConfig called in OnSaveClick (before DialogResult.OK closes form) to flush current monitor's grid state to _pendingMonitorConfigs
 - [Phase 04-custom-shortcut-settings-ui P03]: Monitor selector Visible=false (not removed) when single monitor — simpler than conditional control creation
+- [Phase 04-custom-shortcut-settings-ui P04]: Win key recording requires WH_KEYBOARD_LL hook — PreviewKeyDown never fires for Win key; OS intercepts before WinForms message queue
+- [Phase 04-custom-shortcut-settings-ui P04]: Same-on-all-monitors toggle propagates one MonitorCornerConfig to all screens on save — avoids repeated data entry on symmetric multi-monitor setups
 
 ### Blockers/Concerns
 
@@ -77,5 +80,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-18
-Stopped at: Completed 04-custom-shortcut-settings-ui plan 03 (SettingsForm redesign + HotSpotApplicationContext wiring)
+Stopped at: Completed 04-custom-shortcut-settings-ui plan 04 (end-to-end verification + QA fixes; Phase 4 and v1.2 milestone complete)
 Resume file: None

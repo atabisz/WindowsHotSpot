@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.1 Single-Instance Guard** — Phase 1 (shipped 2026-03-17)
-- 🚧 **v1.2 Per-Corner Actions & Multi-Monitor** — Phases 2-4 (in progress)
+- ✅ **v1.2 Per-Corner Actions & Multi-Monitor** — Phases 2-4 (completed 2026-03-18)
 
 ## Phases
 
@@ -14,13 +14,13 @@
 
 </details>
 
-### 🚧 v1.2 Per-Corner Actions & Multi-Monitor (In Progress)
+### ✅ v1.2 Per-Corner Actions & Multi-Monitor (Complete — 2026-03-18)
 
 **Milestone Goal:** Each corner on each monitor can independently trigger a different action (Win+Tab, Show Desktop, Action Center, custom shortcut, or disabled).
 
 - [x] **Phase 2: Config Foundation** - New AppSettings schema, CornerAction enum, per-corner data model, ActionDispatcher, and v1.x migration
 - [x] **Phase 3: Detection Pipeline & Multi-Monitor** - CornerRouter (one detector per active corner per monitor), WM_DISPLAYCHANGE handling, and live settings rebuild (completed 2026-03-17)
-- [ ] **Phase 4: Custom Shortcut & Settings UI** - Hotkey recorder, 2×2 corner grid settings form with monitor selector
+- [x] **Phase 4: Custom Shortcut & Settings UI** - Hotkey recorder, 2×2 corner grid settings form with monitor selector, Win key recording, same-on-all-monitors toggle (completed 2026-03-18)
 
 ## Phase Details
 
@@ -53,9 +53,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — AppSettings MonitorCornerConfig + CornerDetector screen-scoped refactor
-- [ ] 03-02-PLAN.md — CornerRouter: per-monitor detector pool with Rebuild() and hot-path routing
-- [ ] 03-03-PLAN.md — HotSpotApplicationContext wiring: CornerRouter + DisplaySettingsChanged subscription
+- [x] 03-01-PLAN.md — AppSettings MonitorCornerConfig + CornerDetector screen-scoped refactor
+- [x] 03-02-PLAN.md — CornerRouter: per-monitor detector pool with Rebuild() and hot-path routing
+- [x] 03-03-PLAN.md — HotSpotApplicationContext wiring: CornerRouter + DisplaySettingsChanged subscription
 
 ### Phase 4: Custom Shortcut & Settings UI
 **Goal**: Users can assign any recorded keystroke to a corner and configure all corners visually in a redesigned settings dialog
@@ -72,7 +72,7 @@ Plans:
 - [x] 04-01-PLAN.md — CustomShortcut data model + dispatch pipeline (AppSettings, ActionDispatcher, CornerDetector, CornerRouter)
 - [x] 04-02-PLAN.md — KeyRecorderPanel: focusable Panel subclass for click-to-record keystroke capture
 - [x] 04-03-PLAN.md — SettingsForm redesign (2×2 grid + monitor selector) + HotSpotApplicationContext wiring
-- [ ] 04-04-PLAN.md — End-to-end verification checkpoint
+- [x] 04-04-PLAN.md — End-to-end verification checkpoint
 
 ## Progress
 
@@ -81,8 +81,8 @@ Plans:
 | 1. Single-Instance Guard | v1.1 | 2/2 | Complete | 2026-03-17 |
 | 2. Config Foundation | v1.2 | 4/4 | Complete | 2026-03-17 |
 | 3. Detection Pipeline & Multi-Monitor | v1.2 | 3/3 | Complete | 2026-03-17 |
-| 4. Custom Shortcut & Settings UI | v1.2 | 3/4 | In Progress | - |
+| 4. Custom Shortcut & Settings UI | v1.2 | 4/4 | Complete | 2026-03-18 |
 
 ---
 
-*Last updated: 2026-03-18 — Phase 4 plan 03 complete; SettingsForm redesigned with 2x2 grid + monitor selector*
+*Last updated: 2026-03-18 — Phase 4 complete; v1.2 milestone complete; all per-corner actions + multi-monitor + custom shortcut UI verified end-to-end*
