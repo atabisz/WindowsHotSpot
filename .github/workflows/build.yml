@@ -53,6 +53,6 @@ jobs:
         with:
           name: "WindowsHotSpot v${{ steps.version.outputs.VERSION }}"
           files: |
-            dist/WindowsHotSpot-Setup.exe
+            dist/WindowsHotSpot-Setup-${{ steps.version.outputs.VERSION }}.exe
             WindowsHotSpot/bin/Release/net10.0-windows/win-x64/publish/WindowsHotSpot.exe
           generate_release_notes: true
