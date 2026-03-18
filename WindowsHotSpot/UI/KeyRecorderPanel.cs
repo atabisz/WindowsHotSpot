@@ -1,0 +1,162 @@
+// KeyRecorderPanel: focusable Panel subclass for keystroke recording.
+// Uses PreviewKeyDown to mark all keys as input keys so KeyDown receives Tab, Escape, arrows, Enter.
+// Win key (LWin/RWin) is NOT capturable — absorbed by Windows shell before WM_KEYDOWN.
+// Single-key alphanumeric shortcuts are rejected with a validation message (research Open Question 1).
+
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace WindowsHotSpot.UI;
+
+internal sealed class KeyRecorderPanel : Panel
+{
+    // Fired when user presses a valid shortcut. Provides VK sequence and display text.
+    // VKs: modifier VKs first (VK_LCONTROL/VK_LSHIFT/VK_LMENU), then main key VK.
+    public event Action<ushort[], string>? ShortcutRecorded;
+
+    // Fired when user presses Escape alone (no modifiers) — cancel without saving.
+    public event Action? RecordingCancelled;
+
+    private bool _isRecording;
+
+    // Text to show when idle (not recording). Caller sets this to the current shortcut label.
+    [DefaultValue("(none)")]
+    public string IdleText { get; set; } = "(none)";
+
+    public KeyRecorderPanel()
+    {
+        SetStyle(ControlStyles.Selectable, true);
+        TabStop = true;
+        // Visual styling: look like a read-only text field
+        BorderStyle = BorderStyle.Fixed3D;
+        BackColor = SystemColors.Window;
+        Height = 24;
+        Padding = new Padding(4, 3, 4, 3);
+    }
+
+    /// <summary>
+    /// Enters recording mode: focuses the panel and changes display text to prompt.
+    /// </summary>
+    public void StartRecording()
+    {
+        _isRecording = true;
+        Invalidate(); // trigger repaint with "Press a key..." prompt
+        Focus();
+    }
+
+    /// <summary>
+    /// Cancels recording without firing any event. Used when parent form closes.
+    /// </summary>
+    public void CancelRecording()
+    {
+        _isRecording = false;
+        Invalidate();
+    }
+
+    public bool IsRecording => _isRecording;
+
+    protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
+    {
+        // Force all keys to be treated as input keys so KeyDown fires for Tab (0x09),
+        // Escape (0x1B), arrow keys, Enter — WinForms normally routes these as dialog keys.
+        if (_isRecording)
+            e.IsInputKey = true;
+        base.OnPreviewKeyDown(e);
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        if (!_isRecording)
+        {
+            base.OnKeyDown(e);
+            return;
+        }
+
+        e.Handled = true;
+        e.SuppressKeyPress = true;
+
+        // Escape alone = cancel
+        if (e.KeyCode == Keys.Escape && e.Modifiers == Keys.None)
+        {
+            _isRecording = false;
+            Invalidate();
+            RecordingCancelled?.Invoke();
+            return;
+        }
+
+        // Modifier-only keypress: keep waiting for the main key
+        if (IsModifierOnly(e.KeyCode))
+            return;
+
+        // Reject bare alphanumeric keys (letters A-Z, digits 0-9) without a modifier.
+        // A bare letter fires on every dwell and would interfere with normal typing.
+        if (e.Modifiers == Keys.None && IsBareAlphanumeric(e.KeyCode))
+        {
+            // Flash a validation hint — use the panel text; caller repaints after RecordingCancelled
+            // is not raised here. Instead, keep recording but show a warning in the display.
+            // Simplest approach: fire a brief repaint with advisory text, then stay in recording mode.
+            _validationMessage = "Add Ctrl, Shift, or Alt for letter/number keys";
+            Invalidate();
+            return; // keep _isRecording = true; user can try again
+        }
+
+        _validationMessage = null;
+
+        // Build VK sequence: left-side modifier VKs first, then main key VK
+        ushort[] vks = BuildVkSequence(e);
+
+        // Build display text: use KeysConverter on the full Keys value (modifier flags + key code)
+        string displayText = BuildDisplayText(e);
+
+        _isRecording = false;
+        Invalidate();
+        ShortcutRecorded?.Invoke(vks, displayText);
+    }
+
+    private string? _validationMessage;
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+        string text = _isRecording
+            ? (_validationMessage ?? "Press a key...")
+            : IdleText;
+        Color color = _validationMessage != null
+            ? Color.Firebrick
+            : (_isRecording ? SystemColors.HotTrack : SystemColors.ControlText);
+        using var brush = new SolidBrush(color);
+        var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+        e.Graphics.DrawString(text, Font, brush, new RectangleF(4, 0, Width - 8, Height), format);
+    }
+
+    private static bool IsModifierOnly(Keys key) => key is
+        Keys.ShiftKey or Keys.LShiftKey or Keys.RShiftKey or
+        Keys.ControlKey or Keys.LControlKey or Keys.RControlKey or
+        Keys.Menu or Keys.LMenu or Keys.RMenu;
+
+    private static bool IsBareAlphanumeric(Keys key) =>
+        (key >= Keys.A && key <= Keys.Z) ||
+        (key >= Keys.D0 && key <= Keys.D9);
+
+    private static ushort[] BuildVkSequence(KeyEventArgs e)
+    {
+        // Use left-side specific VK codes for modifiers (VK_LCONTROL 0xA2, VK_LSHIFT 0xA0,
+        // VK_LMENU 0xA4) — consistent with ActionDispatcher.SendWinKey pattern.
+        var vks = new List<ushort>();
+        if ((e.Modifiers & Keys.Control) != 0) vks.Add(0xA2); // VK_LCONTROL
+        if ((e.Modifiers & Keys.Shift)   != 0) vks.Add(0xA0); // VK_LSHIFT
+        if ((e.Modifiers & Keys.Alt)     != 0) vks.Add(0xA4); // VK_LMENU
+        vks.Add((ushort)e.KeyCode);
+        return [.. vks];
+    }
+
+    private static string BuildDisplayText(KeyEventArgs e)
+    {
+        // Build a combined Keys value (modifier flags OR'd with the key code).
+        // KeysConverter produces human-readable labels: "Ctrl+F5", "Alt+Home", "Shift+F1".
+        var combined = e.Modifiers | e.KeyCode;
+        var converter = new KeysConverter();
+        return converter.ConvertToString(combined) ?? combined.ToString();
+    }
+}
