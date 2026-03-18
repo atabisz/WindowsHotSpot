@@ -27,8 +27,8 @@
 
 ### Settings UI
 
-- [ ] **UI-01**: Settings shows a 2×2 corner layout per monitor for visual corner assignment
-- [ ] **UI-02**: Settings shows a monitor selector when more than one monitor is connected
+- [x] **UI-01**: Settings shows a 2×2 corner layout per monitor for visual corner assignment
+- [x] **UI-02**: Settings shows a monitor selector when more than one monitor is connected
 
 ## Future Requirements
 
@@ -62,8 +62,8 @@
 | MMON-03 | Phase 3 | Complete |
 | MMON-04 | Phase 3 | Complete |
 | CRNA-05 | Phase 4 | Complete |
-| UI-01 | Phase 4 | Pending |
-| UI-02 | Phase 4 | Pending |
+| UI-01 | Phase 4 | Complete |
+| UI-02 | Phase 4 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 13 total
