@@ -1,6 +1,6 @@
 // KeyRecorderPanel: focusable Panel subclass for keystroke recording.
 // Uses PreviewKeyDown to mark all keys as input keys so KeyDown receives Tab, Escape, arrows, Enter.
-// Win key (LWin/RWin) is NOT capturable — absorbed by Windows shell before WM_KEYDOWN.
+// Win key (LWin/RWin) captured via WH_KEYBOARD_LL hook installed during recording.
 // Single-key alphanumeric shortcuts are rejected with a validation message (research Open Question 1).
 
 using System.ComponentModel;
@@ -145,9 +145,9 @@ internal sealed class KeyRecorderPanel : Panel
         if (IsModifierOnly(e.KeyCode))
             return;
 
-        // Reject bare alphanumeric keys (letters A-Z, digits 0-9) without a modifier.
-        // A bare letter fires on every dwell and would interfere with normal typing.
-        if (e.Modifiers == Keys.None && IsBareAlphanumeric(e.KeyCode))
+        // Reject bare alphanumeric keys (letters A-Z, digits 0-9) without any modifier.
+        // Win key counts as a modifier here (_winKeyDown tracked via WH_KEYBOARD_LL).
+        if (e.Modifiers == Keys.None && !_winKeyDown && IsBareAlphanumeric(e.KeyCode))
         {
             // Flash a validation hint — use the panel text; caller repaints after RecordingCancelled
             // is not raised here. Instead, keep recording but show a warning in the display.
