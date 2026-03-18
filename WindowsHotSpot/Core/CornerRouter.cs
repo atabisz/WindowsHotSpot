@@ -32,13 +32,19 @@ internal sealed class CornerRouter : IDisposable
         // Always dispose first — no stale detectors running alongside new ones (Pitfall 6).
         DisposePool();
 
+        // SameOnAllMonitors: pick one config up-front and apply it to every screen.
+        // Avoids per-screen DeviceName lookup, which can fail if Windows renumbered
+        // monitors (e.g. DISPLAY22→DISPLAY24) between the settings save and this Rebuild.
+        MonitorCornerConfig? sharedConfig = settings.SameOnAllMonitors
+            ? settings.MonitorConfigs.Values.FirstOrDefault()
+            : null;
+
         foreach (var screen in Screen.AllScreens)
         {
             // Per-monitor override if present; global CornerActions fallback if not (MMON-01, MMON-03).
-            settings.MonitorConfigs.TryGetValue(screen.DeviceName, out var monitorConfig);
-            // SameOnAllMonitors: newly connected monitors not yet in MonitorConfigs use any available config
-            if (monitorConfig == null && settings.SameOnAllMonitors && settings.MonitorConfigs.Count > 0)
-                monitorConfig = settings.MonitorConfigs.Values.First();
+            MonitorCornerConfig? monitorConfig = sharedConfig; // non-null only when SameOnAllMonitors
+            if (monitorConfig == null)
+                settings.MonitorConfigs.TryGetValue(screen.DeviceName, out monitorConfig);
             var actions = monitorConfig?.CornerActions ?? settings.CornerActions;
 
             var detectors = new List<CornerDetector>();
