@@ -115,12 +115,17 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         using var form = new SettingsForm(_configManager.Settings);
         if (form.ShowDialog() == DialogResult.OK)
         {
-            // Settings.Corner removed in Phase 2 (replaced by CornerActions dict).
-            // SettingsForm will be redesigned in Phase 4 to configure per-corner actions.
+            // Apply global detection parameters
             _configManager.Settings.ZoneSize = form.SelectedZoneSize;
             _configManager.Settings.DwellDelayMs = form.SelectedDwellDelay;
             _configManager.Settings.StartWithWindows = form.SelectedStartWithWindows;
             StartupManager.SetEnabled(form.SelectedStartWithWindows);
+
+            // Apply per-monitor corner configs (including custom shortcuts).
+            // Merge into existing MonitorConfigs so disconnected-monitor data is preserved (MMON-04).
+            foreach (var (deviceName, config) in form.GetMonitorConfigs())
+                _configManager.Settings.MonitorConfigs[deviceName] = config;
+
             _configManager.Save(); // Fires SettingsChanged -> CornerRouter.Rebuild
         }
     }
@@ -131,7 +136,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         var version = typeof(HotSpotApplicationContext).Assembly
             .GetName().Version?.ToString(3) ?? "unknown";
         MessageBox.Show(
-            $"WindowsHotSpot v{version}\n\nMacOS-style hot corners for Windows.\nMove your mouse to a screen corner to trigger Task View.",
+            $"WindowsHotSpot v{version}\n\nMacOS-style hot corners for Windows.\nMove your mouse to a configured screen corner to trigger an action.",
             "About WindowsHotSpot",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
