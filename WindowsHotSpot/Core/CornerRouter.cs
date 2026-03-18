@@ -35,20 +35,28 @@ internal sealed class CornerRouter : IDisposable
         foreach (var screen in Screen.AllScreens)
         {
             // Per-monitor override if present; global CornerActions fallback if not (MMON-01, MMON-03).
-            var actions = settings.MonitorConfigs.TryGetValue(screen.DeviceName, out var mc)
-                ? mc.CornerActions
+            var actions = settings.MonitorConfigs.TryGetValue(screen.DeviceName, out var monitorConfig)
+                ? monitorConfig.CornerActions
                 : settings.CornerActions;
 
             var detectors = new List<CornerDetector>();
             foreach (var (corner, action) in actions)
             {
                 if (action == CornerAction.Disabled) continue;
+                CustomShortcut? custom = null;
+                if (action == CornerAction.Custom)
+                {
+                    // monitorConfig is the MonitorCornerConfig for this screen (may be null for fallback path).
+                    // TryGetValue silently leaves custom null if this corner has no recorded shortcut.
+                    monitorConfig?.CustomShortcuts.TryGetValue(corner, out custom);
+                }
                 detectors.Add(new CornerDetector(
                     corner,
                     screen.Bounds,
                     settings.ZoneSize,
                     settings.DwellDelayMs,
-                    action));
+                    action,
+                    custom));
             }
 
             // Add entry even if detectors list is empty — screen is known but all corners Disabled.

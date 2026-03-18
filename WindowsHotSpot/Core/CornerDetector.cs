@@ -23,6 +23,7 @@ internal sealed class CornerDetector : IDisposable
     private readonly int _zoneSize;
     private readonly int _dwellDelay;
     private readonly CornerAction _action;
+    private readonly CustomShortcut? _customShortcut;
 
     private DetectorState _state = DetectorState.Idle;
     private bool _isButtonDown;
@@ -31,13 +32,15 @@ internal sealed class CornerDetector : IDisposable
     // Do NOT use System.Timers.Timer or System.Threading.Timer (fire on threadpool).
     private readonly System.Windows.Forms.Timer _dwellTimer;
 
-    public CornerDetector(HotCorner corner, Rectangle screenBounds, int zoneSize, int dwellDelay, CornerAction action)
+    public CornerDetector(HotCorner corner, Rectangle screenBounds, int zoneSize, int dwellDelay, CornerAction action,
+        CustomShortcut? customShortcut = null)
     {
         _activeCorner = corner;
         _screenBounds = screenBounds;
         _zoneSize = zoneSize;
         _dwellDelay = dwellDelay;
         _action = action;
+        _customShortcut = customShortcut;
 
         _dwellTimer = new System.Windows.Forms.Timer { Interval = _dwellDelay };
         _dwellTimer.Tick += OnDwellComplete;
@@ -105,7 +108,7 @@ internal sealed class CornerDetector : IDisposable
     private void OnDwellComplete(object? sender, EventArgs e)
     {
         _dwellTimer.Stop();
-        ActionDispatcher.Dispatch(_action);   // _action fixed at construction; no ConfigManager lookup
+        ActionDispatcher.Dispatch(_action, _customShortcut);   // _action fixed at construction; no ConfigManager lookup
         _state = DetectorState.Triggered;
     }
 

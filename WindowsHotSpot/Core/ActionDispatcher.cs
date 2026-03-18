@@ -20,7 +20,7 @@ internal static class ActionDispatcher
     /// Dispatches the action for the dwelled corner. No-op for Disabled.
     /// Must be called from the UI thread (WinForms Timer tick, not hook callback).
     /// </summary>
-    public static void Dispatch(CornerAction action)
+    public static void Dispatch(CornerAction action, CustomShortcut? custom = null)
     {
         switch (action)
         {
@@ -33,9 +33,28 @@ internal static class ActionDispatcher
             case CornerAction.ActionCenter:
                 SendWinKey(NativeMethods.VK_A);
                 break;
+            case CornerAction.Custom:
+                if (custom is not null) SendArbitraryKeys(custom.VirtualKeys);
+                break;  // null custom = no-op (per research anti-pattern guidance)
             case CornerAction.Disabled:
                 break;   // intentional no-op
         }
+    }
+
+    // Press all VKs in order, release all in reverse order — atomic SendInput call.
+    // Same press-all/release-all-reverse pattern as existing SendWinKey / ActionTrigger.SendTaskView.
+    private static void SendArbitraryKeys(ushort[] vks)
+    {
+        if (vks.Length == 0) return;
+        var inputs = new NativeMethods.INPUT[vks.Length * 2];
+        for (int i = 0; i < vks.Length; i++)
+            inputs[i] = MakeKeyInput(vks[i], keyUp: false);
+        for (int i = 0; i < vks.Length; i++)
+            inputs[vks.Length + (vks.Length - 1 - i)] = MakeKeyInput(vks[i], keyUp: true);
+        NativeMethods.SendInput(
+            (uint)inputs.Length,
+            inputs,
+            Marshal.SizeOf<NativeMethods.INPUT>());  // MUST be Marshal.SizeOf — see comment above
     }
 
     // Sends Win+<vk> atomically: LWin↓, vk↓, vk↑, LWin↑.
