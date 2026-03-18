@@ -9,6 +9,13 @@ internal static class NativeMethods
 {
     // Hook constants
     public const int WH_MOUSE_LL = 14;
+    public const int WH_KEYBOARD_LL = 13;
+
+    // Keyboard messages (used in WH_KEYBOARD_LL hook wParam)
+    public const int WM_KEYDOWN    = 0x0100;
+    public const int WM_KEYUP      = 0x0101;
+    public const int WM_SYSKEYDOWN = 0x0104;
+    public const int WM_SYSKEYUP   = 0x0105;
 
     // Mouse messages
     public const int WM_MOUSEMOVE   = 0x0200;
@@ -21,12 +28,16 @@ internal static class NativeMethods
     public const uint INPUT_KEYBOARD  = 1;
     public const uint KEYEVENTF_KEYUP = 0x0002;
     public const ushort VK_LWIN       = 0x5B;
+    public const ushort VK_RWIN       = 0x5C;
     public const ushort VK_TAB        = 0x09;
     public const ushort VK_D          = 0x44;   // Win+D → Show Desktop (Windows 11: hides all windows)
     public const ushort VK_A          = 0x41;   // Win+A → Action Center / Quick Settings (Windows 11)
 
     // Delegate for low-level mouse hook callback
     public delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+    // Delegate for low-level keyboard hook callback (same signature as mouse — distinct type for type-safety)
+    public delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
     // Hook structs
     [StructLayout(LayoutKind.Sequential)]
@@ -45,6 +56,16 @@ internal static class NativeMethods
         public uint mouseData;
         public uint flags;
         public uint time;
+        public IntPtr dwExtraInfo;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct KBDLLHOOKSTRUCT
+    {
+        public uint   vkCode;
+        public uint   scanCode;
+        public uint   flags;
+        public uint   time;
         public IntPtr dwExtraInfo;
     }
 
@@ -91,6 +112,10 @@ internal static class NativeMethods
     [DllImport("user32.dll", SetLastError = true)]
     public static extern IntPtr SetWindowsHookEx(int idHook,
         LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern IntPtr SetWindowsHookEx(int idHook,
+        LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool UnhookWindowsHookEx(IntPtr hhk);

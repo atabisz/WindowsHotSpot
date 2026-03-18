@@ -5,7 +5,9 @@
 
 using System.ComponentModel;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using WindowsHotSpot.Native;
 
 namespace WindowsHotSpot.UI;
 
@@ -19,6 +21,12 @@ internal sealed class KeyRecorderPanel : Panel
     public event Action? RecordingCancelled;
 
     private bool _isRecording;
+
+    // Keyboard hook for Win key capture (WH_KEYBOARD_LL)
+    private IntPtr _keyboardHook = IntPtr.Zero;
+    private NativeMethods.LowLevelKeyboardProc? _keyboardHookProc; // pinned — prevent GC during hook lifetime
+    private bool _winKeyDown;
+    private ushort _winVk; // VK_LWIN or VK_RWIN captured by hook
 
     // Text to show when idle (not recording). Caller sets this to the current shortcut label.
     [DefaultValue("(none)")]
@@ -40,6 +48,7 @@ internal sealed class KeyRecorderPanel : Panel
     /// </summary>
     public void StartRecording()
     {
+        InstallKeyboardHook();
         _isRecording = true;
         Invalidate(); // trigger repaint with "Press a key..." prompt
         Focus();
@@ -50,11 +59,57 @@ internal sealed class KeyRecorderPanel : Panel
     /// </summary>
     public void CancelRecording()
     {
+        UninstallKeyboardHook();
         _isRecording = false;
         Invalidate();
     }
 
     public bool IsRecording => _isRecording;
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing) UninstallKeyboardHook();
+        base.Dispose(disposing);
+    }
+
+    private void InstallKeyboardHook()
+    {
+        _keyboardHookProc = KeyboardHookCallback;
+        using var process = System.Diagnostics.Process.GetCurrentProcess();
+        using var module = process.MainModule!;
+        var hMod = NativeMethods.GetModuleHandle(module.ModuleName!);
+        _keyboardHook = NativeMethods.SetWindowsHookEx(NativeMethods.WH_KEYBOARD_LL, _keyboardHookProc, hMod, 0);
+    }
+
+    private void UninstallKeyboardHook()
+    {
+        if (_keyboardHook != IntPtr.Zero)
+        {
+            NativeMethods.UnhookWindowsHookEx(_keyboardHook);
+            _keyboardHook = IntPtr.Zero;
+            _keyboardHookProc = null;
+        }
+        _winKeyDown = false;
+        _winVk = 0;
+    }
+
+    private IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    {
+        if (nCode >= 0 && _isRecording)
+        {
+            var kb = Marshal.PtrToStructure<NativeMethods.KBDLLHOOKSTRUCT>(lParam);
+            bool isDown = wParam == (IntPtr)NativeMethods.WM_KEYDOWN || wParam == (IntPtr)NativeMethods.WM_SYSKEYDOWN;
+            bool isUp   = wParam == (IntPtr)NativeMethods.WM_KEYUP   || wParam == (IntPtr)NativeMethods.WM_SYSKEYUP;
+
+            if (kb.vkCode == NativeMethods.VK_LWIN || kb.vkCode == NativeMethods.VK_RWIN)
+            {
+                if (isDown) { _winKeyDown = true; _winVk = (ushort)kb.vkCode; }
+                if (isUp)   { _winKeyDown = false; }
+                return (IntPtr)1; // Block Win key from reaching Windows shell during recording
+            }
+        }
+        return NativeMethods.CallNextHookEx(_keyboardHook, nCode, wParam, lParam);
+    }
 
     protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
     {
@@ -79,6 +134,7 @@ internal sealed class KeyRecorderPanel : Panel
         // Escape alone = cancel
         if (e.KeyCode == Keys.Escape && e.Modifiers == Keys.None)
         {
+            UninstallKeyboardHook();
             _isRecording = false;
             Invalidate();
             RecordingCancelled?.Invoke();
@@ -103,12 +159,13 @@ internal sealed class KeyRecorderPanel : Panel
 
         _validationMessage = null;
 
-        // Build VK sequence: left-side modifier VKs first, then main key VK
+        // Build VK sequence: Win key first (if held), then left-side modifier VKs, then main key VK
         ushort[] vks = BuildVkSequence(e);
 
         // Build display text: use KeysConverter on the full Keys value (modifier flags + key code)
         string displayText = BuildDisplayText(e);
 
+        UninstallKeyboardHook();
         _isRecording = false;
         Invalidate();
         ShortcutRecorded?.Invoke(vks, displayText);
@@ -139,24 +196,28 @@ internal sealed class KeyRecorderPanel : Panel
         (key >= Keys.A && key <= Keys.Z) ||
         (key >= Keys.D0 && key <= Keys.D9);
 
-    private static ushort[] BuildVkSequence(KeyEventArgs e)
+    private ushort[] BuildVkSequence(KeyEventArgs e)
     {
         // Use left-side specific VK codes for modifiers (VK_LCONTROL 0xA2, VK_LSHIFT 0xA0,
         // VK_LMENU 0xA4) — consistent with ActionDispatcher.SendWinKey pattern.
         var vks = new List<ushort>();
-        if ((e.Modifiers & Keys.Control) != 0) vks.Add(0xA2); // VK_LCONTROL
-        if ((e.Modifiers & Keys.Shift)   != 0) vks.Add(0xA0); // VK_LSHIFT
-        if ((e.Modifiers & Keys.Alt)     != 0) vks.Add(0xA4); // VK_LMENU
+        if (_winKeyDown)                        vks.Add(_winVk);  // Win key first (before Ctrl/Shift/Alt)
+        if ((e.Modifiers & Keys.Control) != 0) vks.Add(0xA2);    // VK_LCONTROL
+        if ((e.Modifiers & Keys.Shift)   != 0) vks.Add(0xA0);    // VK_LSHIFT
+        if ((e.Modifiers & Keys.Alt)     != 0) vks.Add(0xA4);    // VK_LMENU
         vks.Add((ushort)e.KeyCode);
         return [.. vks];
     }
 
-    private static string BuildDisplayText(KeyEventArgs e)
+    private string BuildDisplayText(KeyEventArgs e)
     {
         // Build a combined Keys value (modifier flags OR'd with the key code).
         // KeysConverter produces human-readable labels: "Ctrl+F5", "Alt+Home", "Shift+F1".
         var combined = e.Modifiers | e.KeyCode;
         var converter = new KeysConverter();
-        return converter.ConvertToString(combined) ?? combined.ToString();
+        string text = converter.ConvertToString(combined) ?? combined.ToString();
+        if (_winKeyDown)
+            text = "Win+" + text;
+        return text;
     }
 }
