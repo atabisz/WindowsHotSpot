@@ -12,7 +12,13 @@ namespace WindowsHotSpot.Config;
 internal enum HotCorner { TopLeft, TopRight, BottomLeft, BottomRight }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-internal enum CornerAction { Disabled, TaskView, ShowDesktop, ActionCenter }
+internal enum CornerAction { Disabled, TaskView, ShowDesktop, ActionCenter, Custom }
+
+internal sealed record CustomShortcut(ushort[] VirtualKeys, string DisplayText)
+{
+    // Parameterless constructor required by System.Text.Json for deserialisation.
+    public CustomShortcut() : this([], string.Empty) { }
+}
 
 internal sealed class AppSettings
 {
@@ -49,4 +55,8 @@ internal sealed class MonitorCornerConfig
     // Reuses DefaultCornerActions() helper to stay consistent with AppSettings defaults.
     public Dictionary<HotCorner, CornerAction> CornerActions { get; set; }
         = AppSettings.DefaultCornerActions();
+
+    // Custom shortcut data for corners assigned CornerAction.Custom.
+    // Missing key = no custom shortcut defined (Dispatch will no-op silently).
+    public Dictionary<HotCorner, CustomShortcut> CustomShortcuts { get; set; } = new();
 }
