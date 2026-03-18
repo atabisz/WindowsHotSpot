@@ -11,7 +11,7 @@
 - [x] **CRNA-02**: User can assign Win+Tab (Task View) to any corner
 - [x] **CRNA-03**: User can assign Show Desktop (Win+D) to any corner
 - [x] **CRNA-04**: User can assign Action Center (Win+A) to any corner
-- [ ] **CRNA-05**: User can record a custom keystroke for any corner (click-to-record; Escape cancels)
+- [x] **CRNA-05**: User can record a custom keystroke for any corner (click-to-record; Escape cancels)
 - [x] **CRNA-06**: A corner set to disabled triggers no action when dwelled
 
 ### Multi-Monitor
@@ -61,7 +61,7 @@
 | MMON-02 | Phase 3 | Complete |
 | MMON-03 | Phase 3 | Complete |
 | MMON-04 | Phase 3 | Complete |
-| CRNA-05 | Phase 4 | Pending |
+| CRNA-05 | Phase 4 | Complete |
 | UI-01 | Phase 4 | Pending |
 | UI-02 | Phase 4 | Pending |
 
