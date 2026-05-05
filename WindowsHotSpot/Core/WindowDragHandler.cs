@@ -143,7 +143,10 @@ internal sealed class WindowDragHandler : IDisposable
 
         // Step 4: Snapshot window's current screen position for absolute-delta math
         if (!NativeMethods.GetWindowRect(rootHwnd, out var rect))
+        {
+            if (!_settings.WindowDragPassThrough) _suppressNextClick = true;
             return;
+        }
 
         // Step 5: Commit drag state
         _dragTarget      = rootHwnd;
