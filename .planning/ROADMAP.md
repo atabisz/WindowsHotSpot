@@ -50,7 +50,7 @@ See: `.planning/milestones/v1.2-ROADMAP.md`
 **Plans**: 1 plan
 
 Plans:
-- [ ] 05-01-PLAN.md — Add SuppressionPredicate property and restructure HookCallback
+- [~] 05-01-PLAN.md — Add SuppressionPredicate property and restructure HookCallback (Task 1 done, awaiting checkpoint verification)
 
 ### Phase 6: WindowDragHandler
 **Goal**: Users can hold Ctrl+Alt and drag any non-maximized window to move it, with smooth real-time tracking, clean release, and AltGr protection
@@ -82,7 +82,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 5. Hook Suppression Infrastructure | 0/1 | Not started | - |
+| 5. Hook Suppression Infrastructure | 0/1 | In progress (checkpoint) | - |
 | 6. WindowDragHandler | 0/? | Not started | - |
 | 7. Wiring | 0/? | Not started | - |
 

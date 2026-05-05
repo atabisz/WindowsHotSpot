@@ -5,11 +5,11 @@ milestone_name: Window Drag Anywhere
 status: planning
 stopped_at: ""
 last_updated: "2026-05-05"
-last_activity: "2026-05-05 — Milestone v1.4 started; defining requirements and roadmap"
+last_activity: "2026-05-05 — Roadmap created: 3 phases (5-7), 12 requirements mapped"
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
-  total_plans: 0
+  total_plans: 1
   completed_plans: 0
   percent: 0
 ---
@@ -25,10 +25,14 @@ See: .planning/PROJECT.md (updated 2026-05-05 for v1.4)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-05-05 — Milestone v1.4 started
+Phase: Phase 5 — Hook Suppression Infrastructure
+Plan: 05-01 (checkpoint:human-verify — awaiting verification of Task 2)
+Status: In progress — Task 1 committed, awaiting human checkpoint at Task 2
+Last activity: 2026-05-05 — Phase 5, Plan 01, Task 1 complete
+
+```
+Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (0/3 phases)
+```
 
 ## Performance Metrics
 
@@ -54,6 +58,11 @@ Last activity: 2026-05-05 — Milestone v1.4 started
 
 All decisions logged in PROJECT.md Key Decisions table.
 
+**Phase 5, Plan 01 decisions:**
+- SuppressionPredicate uses `?.Invoke(msg) == true` null-conditional — null short-circuits to false, preserving pre-Phase-5 behavior without explicit null check
+- MouseButtonChanged fires BEFORE SuppressionPredicate is consulted so consumer state is current when predicate runs (Pitfall 2 avoidance)
+- SuppressionPredicate consulted only for WM_LBUTTONDOWN/WM_LBUTTONUP — WM_MOUSEMOVE and right-button paths are explicitly excluded (HOOK-02)
+
 ### Blockers/Concerns
 
 - `Screen.DeviceName` stability as monitor identity key is medium-confidence — validate empirically in next monitor-touching feature (driver reinstall, sleep/wake, RDP)
@@ -61,5 +70,5 @@ All decisions logged in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-05-05
-Stopped at: Milestone v1.4 started — roadmap in progress
-Resume file: None
+Stopped at: 05-01-PLAN.md Task 2 checkpoint:human-verify — awaiting code review and tray app smoke test
+Resume file: .planning/phases/05-hook-suppression-infrastructure/05-01-PLAN.md
