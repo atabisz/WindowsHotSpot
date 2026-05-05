@@ -35,6 +35,7 @@ internal sealed class AppSettings
     public bool StartWithWindows { get; set; } = false;
     public bool SameOnAllMonitors { get; set; } = false;
     public bool WindowDragPassThrough { get; set; } = false;
+    public int ScrollResizeStep { get; set; } = 20;  // px per scroll notch (RESIZE-03)
 
     // Per-monitor corner config keyed by Screen.DeviceName.
     // Missing key = use global CornerActions fallback.

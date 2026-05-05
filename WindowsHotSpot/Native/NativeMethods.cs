@@ -66,6 +66,9 @@ internal static class NativeMethods
     // System metrics indices for double-click detection
     public const int SM_CXDOUBLECLK = 36;
     public const int SM_CYDOUBLECLK = 37;
+    // System metrics indices for minimum window tracking size (RESIZE-04)
+    public const int SM_CXMINTRACK  = 34;   // minimum tracking width
+    public const int SM_CYMINTRACK  = 35;   // minimum tracking height
 
     // Delegate for low-level mouse hook callback
     public delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
