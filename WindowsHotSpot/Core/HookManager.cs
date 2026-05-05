@@ -53,6 +53,12 @@ internal sealed class HookManager : IDisposable
     /// </summary>
     public Func<int, bool>? SuppressionPredicate { get; set; }
 
+    /// <summary>
+    /// Optional predicate consulted for WM_MOUSEWHEEL only. Return true to suppress the event.
+    /// MouseWheeled fires BEFORE this predicate so consumers process the event first.
+    /// </summary>
+    public Func<int, bool>? WheelSuppressionPredicate { get; set; }
+
     public HookManager()
     {
         _hookCallback = HookCallback;
@@ -135,7 +141,8 @@ internal sealed class HookManager : IDisposable
                     var hookStruct = Marshal.PtrToStructure<NativeMethods.MSLLHOOKSTRUCT>(lParam);
                     int delta = (short)(hookStruct.mouseData >> 16);   // HIWORD as signed short
                     MouseWheeled?.Invoke(delta, hookStruct.pt);
-                    // WM_MOUSEWHEEL is NEVER suppressed — always falls through to CallNextHookEx
+                    if (WheelSuppressionPredicate?.Invoke(msg) == true)
+                        return new IntPtr(1);
                 }
             }
             catch
@@ -157,5 +164,6 @@ internal sealed class HookManager : IDisposable
             _hookId = IntPtr.Zero;
         }
         SuppressionPredicate = null;
+        WheelSuppressionPredicate = null;
     }
 }

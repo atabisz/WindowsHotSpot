@@ -46,6 +46,9 @@ internal sealed class ScrollResizeHandler : IDisposable
             throw new Win32Exception(Marshal.GetLastWin32Error(), "Failed to install keyboard hook.");
     }
 
+    /// <summary>Registered as HookManager.WheelSuppressionPredicate. Suppresses WM_MOUSEWHEEL when Ctrl+Alt is held.</summary>
+    public bool ShouldSuppressWheel(int msg) => _lCtrlDown && _lAltDown;
+
     /// <summary>Called by HookManager.MouseWheeled. Resizes the window under the cursor when Ctrl+Alt is held.</summary>
     public void OnMouseWheeled(int delta, Point cursorPos)
     {

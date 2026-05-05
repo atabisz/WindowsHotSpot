@@ -87,6 +87,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
 
         _scrollResizeHandler = new ScrollResizeHandler(_configManager.Settings);
         _hookManager.MouseWheeled += _scrollResizeHandler.OnMouseWheeled;
+        _hookManager.WheelSuppressionPredicate = _scrollResizeHandler.ShouldSuppressWheel;
         _scrollResizeHandler.Install();
 
         _alwaysOnTopHandler = new AlwaysOnTopHandler(_configManager.Settings, _trayIcon);
@@ -206,6 +207,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _windowDragHandler.Dispose();
 
         _hookManager.MouseWheeled -= _scrollResizeHandler.OnMouseWheeled;
+        _hookManager.WheelSuppressionPredicate = null;
         _scrollResizeHandler.Dispose();
 
         _hookManager.MouseButtonChanged -= _alwaysOnTopHandler.OnMouseButtonChanged;
