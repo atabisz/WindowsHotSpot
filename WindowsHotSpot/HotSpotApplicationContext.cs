@@ -25,6 +25,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
     private readonly ContextMenuStrip _contextMenu;
     private readonly IpcWindow _ipcWindow;
     private bool _disposed;
+    private readonly Action _onSettingsChanged;
 
     public HotSpotApplicationContext()
     {
@@ -84,7 +85,8 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _windowDragHandler.Install();
 
         // Live settings propagation: rebuild detector pool when settings change (SETT-05, MMON-01)
-        _configManager.SettingsChanged += () => _cornerRouter.Rebuild(_configManager.Settings);
+        _onSettingsChanged = () => _cornerRouter.Rebuild(_configManager.Settings);
+        _configManager.SettingsChanged += _onSettingsChanged;
 
         // Monitor plug/unplug: rebuild detector pool to pick up the new display topology (MMON-02).
         // CRITICAL: static event -- must unsubscribe in DisposeComponents() to prevent memory leak.
@@ -199,6 +201,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         }
 
         _hookManager.Dispose();
+        _configManager.SettingsChanged -= _onSettingsChanged;
         _cornerRouter.Dispose();
 
         _trayIcon.Visible = false;
