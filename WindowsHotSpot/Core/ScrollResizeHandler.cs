@@ -100,6 +100,20 @@ internal sealed class ScrollResizeHandler : IDisposable
         int newLeft = cursorPos.X - (int)(fx * nw);
         int newTop  = cursorPos.Y - (int)(fy * nh);
 
+        // Clamp each edge independently to the screen bounds so growing stops
+        // at the monitor boundary rather than extending off-screen.
+        var screen = System.Windows.Forms.Screen.FromPoint(cursorPos);
+        var sb = screen.Bounds;
+        int newRight  = newLeft + nw;
+        int newBottom = newTop  + nh;
+        if (newLeft   < sb.Left)   { newLeft   = sb.Left;              nw = newRight  - newLeft; }
+        if (newTop    < sb.Top)    { newTop    = sb.Top;               nh = newBottom - newTop;  }
+        if (newRight  > sb.Right)  { newRight  = sb.Right;             nw = newRight  - newLeft; }
+        if (newBottom > sb.Bottom) { newBottom = sb.Bottom;            nh = newBottom - newTop;  }
+        // Re-apply minimum size after clamping (screen clamp may have shrunk below minimum)
+        nw = Math.Max(nw, minW);
+        nh = Math.Max(nh, minH);
+
         const uint SWP_FLAGS =
             NativeMethods.SWP_NOZORDER |
             NativeMethods.SWP_NOACTIVATE |
