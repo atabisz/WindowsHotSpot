@@ -43,6 +43,7 @@ internal sealed class SettingsForm : Form
     public int SelectedDwellDelay => (int)_dwellDelayInput.Value;
     public bool SelectedStartWithWindows => _startupCheckBox.Checked;
     public bool SelectedSameOnAllMonitors => _sameOnAllMonitorsCheckBox?.Checked ?? false;
+    public bool SelectedWindowDragPassThrough => _windowDragPassThroughCheckBox.Checked;
 
     // ── State ─────────────────────────────────────────────────────────────
     private readonly Screen[] _screens;
@@ -57,6 +58,7 @@ internal sealed class SettingsForm : Form
     private readonly NumericUpDown _zoneSizeInput;
     private readonly NumericUpDown _dwellDelayInput;
     private readonly CheckBox _startupCheckBox;
+    private readonly CheckBox _windowDragPassThroughCheckBox;
     private readonly Button _saveButton;
     private readonly Button _cancelButton;
 
@@ -285,8 +287,28 @@ internal sealed class SettingsForm : Form
 
         systemGroup.Controls.Add(_startupCheckBox);
 
+        // ── Window Dragging group ─────────────────────────────────────────────
+        int windowDragGroupTop = systemGroupTop + 56;
+
+        var windowDragGroup = new GroupBox
+        {
+            Text = "Window Dragging",
+            Location = new Point(12, windowDragGroupTop),
+            Size = new Size(396, 48),
+        };
+
+        _windowDragPassThroughCheckBox = new CheckBox
+        {
+            Text = "Pass through clicks when no window is draggable",
+            Location = new Point(12, 18),
+            AutoSize = true,
+            Checked = settings.WindowDragPassThrough,
+        };
+
+        windowDragGroup.Controls.Add(_windowDragPassThroughCheckBox);
+
         // ── Buttons ───────────────────────────────────────────────────────
-        int buttonPanelTop = systemGroupTop + 56;
+        int buttonPanelTop = windowDragGroupTop + 56;
 
         var buttonPanel = new FlowLayoutPanel
         {
@@ -328,6 +350,7 @@ internal sealed class SettingsForm : Form
             winKeyNote,
             detectionGroup,
             systemGroup,
+            windowDragGroup,
             buttonPanel,
         ]);
 
