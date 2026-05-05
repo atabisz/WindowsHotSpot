@@ -2,7 +2,7 @@
 
 ## What This Is
 
-WindowsHotSpot is a Windows system tray app that fires a configurable action when the mouse dwells in a screen corner. Each corner on each monitor can independently trigger Win+Tab (Task View), Show Desktop, Action Center, a recorded custom keystroke, or be disabled. It runs silently in the background with no taskbar button, configured via a tray icon menu.
+WindowsHotSpot is a Windows system tray app that fires a configurable action when the mouse dwells in a screen corner, and lets users move any window by holding Ctrl+Alt and dragging anywhere on it. Each corner on each monitor can independently trigger Win+Tab (Task View), Show Desktop, Action Center, a recorded custom keystroke, or be disabled. Window drag works on any restored (non-maximized, non-elevated) window without needing to grab the title bar. It runs silently in the background with no taskbar button, configured via a tray icon menu.
 
 ## Core Value
 
@@ -26,14 +26,15 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 - ✓ Settings UI redesign: 2×2 corner layout + monitor selector + Same-on-all-monitors toggle — v1.2
 - ✓ Config schema migration from v1.x to v1.2 with zero data loss — v1.2
 - ✓ Live monitor hot-plug: adding/removing monitors updates corners without restart — v1.2
+- ✓ Ctrl+Alt+drag moves topmost non-maximized, non-elevated window under cursor without grabbing title bar — v1.4
+- ✓ Drag suppressed for maximized windows; AltGr (RCtrl+LAlt) does not trigger drag — v1.4
+- ✓ Click suppressed (not forwarded to target app) while dragging — v1.4
+- ✓ `HookManager` supports hook suppression (return 1 vs call-through) via `SuppressionPredicate` — v1.4
+- ✓ `WindowDragHandler` wired into `HotSpotApplicationContext` as permanent `readonly` field alongside `CornerRouter` — v1.4
 
 ### Active
 
-- [ ] Ctrl+Alt+drag moves topmost window under cursor without grabbing title bar — v1.4
-- [ ] Drag suppressed for maximized windows — v1.4
-- [ ] Click suppressed (not forwarded to target app) while dragging — v1.4
-- [ ] `HookManager` supports hook suppression (return 1 vs call-through) — v1.4
-- [ ] `WindowDragHandler` wired into `HotSpotApplicationContext` alongside `CornerRouter` — v1.4
+(none — planning next milestone)
 
 ### Out of Scope
 
@@ -45,21 +46,11 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 - Right-click or middle-click drag — left-button only for simplicity
 - Resize-by-drag — separate Win32 concern; different UX pattern
 
-## Current Milestone: v1.4 Window Drag Anywhere
-
-**Goal:** Let users move any window by holding Ctrl+Alt and dragging anywhere on it, without needing to grab the title bar.
-
-**Target features:**
-- Ctrl+Alt+left-click-drag moves the topmost window under the cursor
-- Maximized windows are skipped (drag only applies to restored windows)
-- Click is suppressed (not forwarded to target app while in drag mode)
-- `HookManager` gains hook suppression support
-- New `WindowDragHandler` class wired into `HotSpotApplicationContext`
-
 ## Context
 
 - C# .NET 10 WinForms, single STA thread
 - Global low-level mouse hook (WH_MOUSE_LL) fires on UI thread via message loop
+- Global low-level keyboard hook (WH_KEYBOARD_LL) in WindowDragHandler tracks LCtrl+LAlt state
 - SendInput for key combos: press-all/release-reverse atomic pattern; cbSize must include MOUSEINPUT union (40 bytes)
 - Config at `AppContext.BaseDirectory` (works with single-file publish)
 - HKCU Run key uses `Environment.ProcessPath`
@@ -69,8 +60,12 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 - Per-monitor config keyed by `Screen.DeviceName`; missing key defaults to all-corners disabled
 - `CornerRouter` owns detector pool; `Rebuild()` recreates on settings change or `DisplaySettingsChanged`
 - `KeyRecorderPanel` uses `WH_KEYBOARD_LL` to capture Win key before OS intercepts it
+- `WindowDragHandler` uses `WindowFromPoint` → `GetAncestor(GA_ROOT)` → `GetWindowPlacement` → elevation check → `SetWindowPos(SWP_ASYNCWINDOWPOS)` pipeline
+- UIPI constraint: drag is skipped for elevated (admin) windows; `IsElevatedProcess` check via `OpenProcessToken/GetTokenInformation` gates `BeginDragAttempt`
+- SAS constraint: `GetKeyState` self-heal on each `BeginDragAttempt` prevents modifier-stuck-true lockup after Ctrl+Alt+Del
 
 **Shipped v1.2:** ~1,963 C# source LOC. 3 phases, 11 plans over 7 days.
+**Shipped v1.4:** ~2,400 C# source LOC (+449 LOC). 3 phases, 6 plans, single session.
 
 ## Constraints
 
@@ -103,6 +98,16 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 | WH_KEYBOARD_LL in KeyRecorderPanel for Win key | PreviewKeyDown never fires for Win key; OS intercepts before WinForms | ✓ Good |
 | ProcessCmdKey returns false (not true) for Escape-while-recording | false propagates to child KeyRecorderPanel; true would consume it at form level | ✓ Good |
 | Same-on-all-monitors toggle propagates one config to all screens on save | Avoids repeated data entry on symmetric multi-monitor setups | ✓ Good |
+| SuppressionPredicate as `Func<int, bool>?` on HookManager | Consumer registers inline; null short-circuits to false with `?.Invoke == true` — no branch overhead | ✓ Good |
+| MouseButtonChanged fires BEFORE SuppressionPredicate is consulted | Consumer state must be current when predicate runs — event-before-predicate ordering eliminates race | ✓ Good |
+| WH_KEYBOARD_LL owned by WindowDragHandler (not HookManager) | Keyboard hook is drag-specific; separating concerns avoids polluting HookManager with drag state | ✓ Good |
+| Absolute-delta SetWindowPos: `newX = _windowOrigin.Left + (pt.X - _dragStartCursor.X)` | Eliminates accumulated drift from per-frame delta approach | ✓ Good |
+| SWP_ASYNCWINDOWPOS in SetWindowPos flags | Prevents blocking hook callback if target app's message pump is slow | ✓ Good |
+| LLKHF_INJECTED guard on VK_LCONTROL | AltGr sends a fake VK_LCONTROL before VK_RMENU — injected bit distinguishes it cleanly | ✓ Good |
+| _suppressNextClick cleared on WM_LBUTTONUP (not WM_LBUTTONDOWN) | Full button pair (down+up) must be suppressed; clearing on down left orphaned LBUTTONUP reaching target | ✓ Good |
+| Maximized window path: no _suppressNextClick | DRAG-06 requires click pass-through on maximized windows — setting suppression would break that | ✓ Good |
+| GetKeyState self-heal on each BeginDragAttempt | SAS (Ctrl+Alt+Del) swallows key-up events; physical key state check self-heals stuck modifier state | ✓ Good |
+| IsElevatedProcess check before committing drag state | UIPI blocks SetWindowPos cross-elevation; detecting upfront lets click pass through cleanly | ✓ Good |
 
 ## Evolution
 
@@ -122,4 +127,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-05 — v1.4 milestone started*
+*Last updated: 2026-05-05 — v1.4 milestone complete*

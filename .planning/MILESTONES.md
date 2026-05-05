@@ -1,5 +1,22 @@
 # Milestones
 
+## v1.4 Window Drag Anywhere (Shipped: 2026-05-05)
+
+**Phases completed:** 3 phases (05–07), 6 plans
+**Git range:** `f7e96f3` (feat(05-01)) → `7ae45d8` (fix: self-heal)
+**Timeline:** 2026-05-05 (single session)
+**LOC:** +449 / -15 across 6 `.cs` files
+
+**Key accomplishments:**
+1. `HookManager` gains `SuppressionPredicate` API — consumers swallow `WM_LBUTTONDOWN/UP` without modifying hook internals
+2. `WindowDragHandler.cs` (~260 LOC) — LCtrl+LAlt drag with AltGr guard, maximized-window skip, real-time absolute-delta tracking, cursor feedback
+3. `WindowDragPassThrough` setting — controls click pass-through on non-draggable surfaces
+4. Elevated window detection — UIPI-blocked targets skipped cleanly; clicks pass through normally
+5. SAS self-heal — `GetKeyState` reconciliation prevents lockup after Ctrl+Alt+Del
+6. `WindowDragHandler` promoted to permanent `readonly` field in `HotSpotApplicationContext`
+
+---
+
 ## v1.2 Per-Corner Actions & Multi-Monitor (Shipped: 2026-03-18)
 
 **Phases completed:** 3 phases (02–04), 11 plans

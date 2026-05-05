@@ -1,13 +1,14 @@
 # WindowsHotSpot
 
-Hot corner trigger for Windows Task View. Move your mouse to a configured screen corner, hold it briefly, and Task View opens — on any connected monitor.
+Hot corners and window drag for Windows. Move your mouse to a configured screen corner to trigger an action — or hold Ctrl+Alt and drag any window to move it without grabbing the title bar.
 
 ## Features
 
-- Configurable corner (Top-Left, Top-Right, Bottom-Left, Bottom-Right)
+- **Hot corners** — configurable action per corner per monitor: Win+Tab (Task View), Show Desktop, Action Center, custom keystroke, or disabled
+- **Window drag anywhere** — hold Ctrl+Alt and left-click-drag anywhere on a window to move it (no title bar required)
 - Configurable zone size and dwell delay
-- Drag suppression — dragging a window into the corner does not trigger
-- Multi-monitor aware — works correctly across monitors at different DPI scaling
+- Drag suppression — dragging a window into the corner does not trigger the corner action
+- Multi-monitor aware — independent corner config per monitor; works across monitors at different DPI scaling
 - System tray icon — no taskbar button
 - Settings dialog with immediate effect (no restart required)
 - Start with Windows option
@@ -30,18 +31,33 @@ If you're not comfortable dismissing those warnings, download the source and bui
 
 The app starts in the system tray. Right-click the tray icon to access:
 
-- **Settings** — configure corner, zone size, dwell delay, and startup behavior
+- **Settings** — configure corners, zone size, dwell delay, startup behavior, and window drag options
 - **About** — version info
 - **Quit** — exit the application
+
+### Hot corners
+
+Move the cursor to a configured corner and hold it there for the dwell delay. The configured action fires.
+
+### Window drag anywhere
+
+Hold **Left Ctrl + Left Alt**, then left-click and drag anywhere on any restored (non-maximized) window to move it. The initiating click is not forwarded to the application — the window just moves.
+
+- Maximized windows are skipped — the click passes through normally
+- Elevated (admin) windows are skipped — UIPI prevents cross-privilege window moves
+- AltGr (Right Ctrl + Left Alt) does not trigger drag
+- Releasing Ctrl or Alt mid-drag cancels the drag and leaves the window at its current position
 
 ### Settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| Corner | Top-Left | Which screen corner triggers Task View |
-| Zone size | 10 px | Size of the detection area in the corner |
-| Dwell delay | 300 ms | How long the cursor must stay in the zone before triggering |
+| Zone size | 10 px | Size of the corner detection area |
+| Dwell delay | 300 ms | How long the cursor must stay in the corner before triggering |
 | Start with Windows | Off | Launch automatically at login |
+| Pass through clicks when no window is draggable | Off | When Ctrl+Alt+click lands on a non-draggable surface, pass the click through instead of swallowing it |
+
+Per-monitor corner configuration is available in Settings — select a monitor, configure its four corners independently, or use "Same on all monitors".
 
 Settings are saved to `settings.json` next to the executable and take effect immediately on Save.
 
@@ -84,17 +100,20 @@ The installer `AppVersion` is patched automatically from the csproj — no manua
 ```
 WindowsHotSpot/
 ├── Native/
-│   └── NativeMethods.cs       # P/Invoke: WH_MOUSE_LL hook, SendInput
+│   └── NativeMethods.cs       # P/Invoke: WH_MOUSE_LL, WH_KEYBOARD_LL, SetWindowPos, etc.
 ├── Core/
-│   ├── HookManager.cs         # Global mouse hook (installs/uninstalls WH_MOUSE_LL)
+│   ├── HookManager.cs         # Global mouse hook (WH_MOUSE_LL) with suppression predicate
 │   ├── CornerDetector.cs      # Dwell state machine, drag suppression, multi-monitor
-│   └── ActionTrigger.cs       # Sends Win+Tab via SendInput
+│   ├── CornerRouter.cs        # Per-(monitor, corner) detector pool; rebuilt on settings change
+│   ├── WindowDragHandler.cs   # Ctrl+Alt drag: WH_KEYBOARD_LL + SetWindowPos
+│   └── ActionDispatcher.cs    # Dispatches CornerAction to SendInput
 ├── Config/
-│   ├── AppSettings.cs         # Settings model (corner, zone, delay, startup)
+│   ├── AppSettings.cs         # Settings model
 │   ├── ConfigManager.cs       # JSON persistence, SettingsChanged event
 │   └── StartupManager.cs      # HKCU Run registry key
 ├── UI/
-│   └── SettingsForm.cs        # Settings dialog
+│   ├── SettingsForm.cs        # Settings dialog
+│   └── KeyRecorderPanel.cs    # Hotkey recorder
 ├── HotSpotApplicationContext.cs  # App entry point (tray icon, no taskbar button)
 ├── Program.cs
 ├── app.manifest               # Per-Monitor V2 DPI awareness declaration
@@ -108,13 +127,16 @@ build.ps1                      # Build script: publish + installer
 
 ## Technical notes
 
-- Uses `WH_MOUSE_LL` (low-level global mouse hook) via P/Invoke — the only reliable way to detect mouse position across all applications
-- Hook callback is kept minimal (coordinate read + bounds check only) to avoid Windows silently removing the hook due to timeout
-- Hook delegate is pinned in a class field to prevent garbage collection
-- Coordinates from the hook (`MSLLHOOKSTRUCT.pt`) are in physical pixels; `Screen.AllScreens` bounds match when Per-Monitor V2 DPI awareness is declared in the manifest
-- `AppContext.BaseDirectory` is used for the settings file path (not `Assembly.Location`, which returns an empty string for single-file published executables)
+- Uses `WH_MOUSE_LL` (low-level global mouse hook) for corner detection and `WH_KEYBOARD_LL` for Ctrl+Alt modifier tracking — both run on the UI thread via the Windows message loop
+- Hook callbacks are kept minimal to avoid Windows silently removing them due to timeout (< 300 ms rule)
+- Hook delegates are pinned in class fields to prevent garbage collection
+- Coordinates from `WH_MOUSE_LL` (`MSLLHOOKSTRUCT.pt`) are in physical pixels; `Screen.AllScreens` bounds match when Per-Monitor V2 DPI awareness is declared in the manifest
+- `AppContext.BaseDirectory` is used for the settings file path (`Assembly.Location` returns empty for single-file published executables)
+- Window drag uses `WindowFromPoint` → `GetAncestor(GA_ROOT)` → elevation check → `SetWindowPos(SWP_ASYNCWINDOWPOS)` to move windows without blocking the hook callback
+- AltGr protection: AltGr synthesises a fake `VK_LCONTROL` event with `LLKHF_INJECTED` set — the keyboard hook skips injected LCtrl events
 
 ## Known limitations
 
-- When an elevated (admin) application is in the foreground, `SendInput` for Win+Tab may be blocked by UIPI. Task View is processed by the Windows shell (Explorer) at medium integrity, so in practice this rarely causes issues, but it is a Windows security boundary.
-- Multiple simultaneous hot corners are not supported in v1.
+- Elevated (admin) windows cannot be dragged — UIPI prevents `SetWindowPos` from a non-elevated process. The click passes through normally.
+- When an elevated application is in the foreground, `SendInput` for corner actions may be blocked by UIPI. Task View is processed by Explorer at medium integrity, so in practice corner actions rarely hit this.
+- Multiple simultaneous hot corners are not supported.

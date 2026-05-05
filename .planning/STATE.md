@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Window Drag Anywhere
-status: complete
+status: archived
 stopped_at: ""
 last_updated: "2026-05-05"
-last_activity: "2026-05-05 — Phase 7 complete: WindowDragHandler promoted to permanent readonly wiring (1/1 plans)"
+last_activity: "2026-05-05 — v1.4 milestone archived; tagged v1.4"
 progress:
   total_phases: 3
   completed_phases: 3
@@ -18,20 +18,18 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-05 for v1.4)
+See: .planning/PROJECT.md (updated 2026-05-05 after v1.4 milestone)
 
 **Core value:** The mouse hot corner fires the right action reliably every time, on any screen, with zero friction.
-**Current focus:** v1.4 Window Drag Anywhere — Ctrl+Alt+drag to move any window without title bar
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: Phase 7 — Wiring
-Plan: COMPLETE
-Status: All 3 phases complete — v1.4 Window Drag Anywhere shipped
-Last activity: 2026-05-05 — Phase 7 complete (1/1 plans)
+Milestone: v1.4 — ARCHIVED 2026-05-05
+Status: Between milestones — v1.4 complete and tagged
 
 ```
-Progress: [████████████████████] 100% (3/3 phases)
+Progress: [████████████████████] 100% (v1.4 archived)
 ```
 
 ## Performance Metrics
@@ -58,16 +56,11 @@ Progress: [████████████████████] 100% (3
 
 All decisions logged in PROJECT.md Key Decisions table.
 
-**Phase 5, Plan 01 decisions:**
-- SuppressionPredicate uses `?.Invoke(msg) == true` null-conditional — null short-circuits to false, preserving pre-Phase-5 behavior without explicit null check
-- MouseButtonChanged fires BEFORE SuppressionPredicate is consulted so consumer state is current when predicate runs (Pitfall 2 avoidance)
-- SuppressionPredicate consulted only for WM_LBUTTONDOWN/WM_LBUTTONUP — WM_MOUSEMOVE and right-button paths are explicitly excluded (HOOK-02)
-
 ### Blockers/Concerns
 
 - `Screen.DeviceName` stability as monitor identity key is medium-confidence — validate empirically in next monitor-touching feature (driver reinstall, sleep/wake, RDP)
 
 ## Session Continuity
 
-Last session: 2026-05-05 — Phase 7 complete, v1.4 milestone complete
-Stopped at: Milestone complete
+Last session: 2026-05-05 — v1.4 milestone archived, tagged v1.4
+Stopped at: Between milestones — run /gsd-new-milestone to start next cycle
