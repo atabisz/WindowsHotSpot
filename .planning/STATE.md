@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Window Interactions
-status: planning
+status: in-progress
 stopped_at: ""
 last_updated: "2026-05-05"
-last_activity: "2026-05-05 — Roadmap created; ready to begin Phase 8"
+last_activity: "2026-05-05 — Phase 9 Plan 01 complete: ScrollResizeHandler implemented"
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 2
+  completed_plans: 1
+  percent: 17
 ---
 
 # State: WindowsHotSpot
@@ -25,13 +25,13 @@ See: .planning/PROJECT.md (updated 2026-05-05 for v1.5)
 
 ## Current Position
 
-Phase: Phase 8 — Hook Infrastructure (not started)
-Plan: —
-Status: Roadmap approved; ready to plan Phase 8
-Last activity: 2026-05-05 — Roadmap created; ready to begin Phase 8
+Phase: Phase 9 — Scroll Resize (in progress)
+Plan: 09-02 (next)
+Status: 09-01 complete; ready for 09-02 (SettingsForm wiring + HotSpotApplicationContext)
+Last activity: 2026-05-05 — Phase 9 Plan 01 complete: ScrollResizeHandler implemented
 
 ```
-Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (0/3 phases)
+Progress: [███░░░░░░░░░░░░░░░░░] ~17% (1/6 plans in phase 9-10)
 ```
 
 ## Performance Metrics
@@ -58,11 +58,17 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (0/3
 
 All decisions logged in PROJECT.md Key Decisions table.
 
+**Phase 9 Plan 01:**
+- Mirrored WindowDragHandler exactly for ScrollResizeHandler keyboard hook pattern (GC-pin, Install/Dispose, self-heal, AltGr guard)
+- No CancelOnRelease in ScrollResizeHandler — no persistent drag state to cancel
+- SWP_ASYNCWINDOWPOS without SWP_NOSIZE — resize operation passes new cx/cy dimensions
+- Zero-size window guard (w==0 || h==0) placed before fx/fy computation (T-09-04 division-by-zero)
+
 ### Blockers/Concerns
 
 - `Screen.DeviceName` stability as monitor identity key is medium-confidence — validate empirically in next monitor-touching feature (driver reinstall, sleep/wake, RDP)
 
 ## Session Continuity
 
-Last session: 2026-05-05 — Roadmap created for v1.5
-Stopped at: Phase 8 ready to plan
+Last session: 2026-05-05 — Phase 9 Plan 01 executed: ScrollResizeHandler + NativeMethods constants + AppSettings.ScrollResizeStep
+Stopped at: Phase 9 Plan 02 (wiring)

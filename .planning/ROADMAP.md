@@ -70,7 +70,10 @@ See: `.planning/milestones/v1.4-ROADMAP.md`
   2. The Settings dialog exposes a "Scroll resize step" field (default 20px) and the value persists across app restarts
   3. Scrolling over a maximized window or an elevated (admin) window does nothing — no resize, no error
   4. AltGr (RightCtrl+LeftAlt) does not trigger resize — only physical LCtrl+LAlt activates it
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [x] 09-01-PLAN.md — NativeMethods constants + AppSettings.ScrollResizeStep + ScrollResizeHandler class
+- [ ] 09-02-PLAN.md — SettingsForm Window Interactions group + HotSpotApplicationContext wiring
 **UI hint**: yes
 
 ### Phase 10: Always-on-Top Toggle
@@ -98,9 +101,9 @@ See: `.planning/milestones/v1.4-ROADMAP.md`
 | 6. WindowDragHandler | v1.4 | 4/4 | Complete | 2026-05-05 |
 | 7. Wiring | v1.4 | 1/1 | Complete | 2026-05-05 |
 | 8. Hook Infrastructure | v1.5 | 0/? | Not started | - |
-| 9. Scroll Resize | v1.5 | 0/? | Not started | - |
+| 9. Scroll Resize | v1.5 | 1/2 | In Progress | - |
 | 10. Always-on-Top Toggle | v1.5 | 0/? | Not started | - |
 
 ---
 
-*Last updated: 2026-05-05 — v1.5 milestone roadmap created*
+*Last updated: 2026-05-06 — Phase 9 planned (2 plans)*

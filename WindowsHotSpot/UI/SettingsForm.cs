@@ -44,6 +44,7 @@ internal sealed class SettingsForm : Form
     public bool SelectedStartWithWindows => _startupCheckBox.Checked;
     public bool SelectedSameOnAllMonitors => _sameOnAllMonitorsCheckBox?.Checked ?? false;
     public bool SelectedWindowDragPassThrough => _windowDragPassThroughCheckBox.Checked;
+    public int SelectedScrollResizeStep => (int)_scrollResizeStepInput.Value;
 
     // ── State ─────────────────────────────────────────────────────────────
     private readonly Screen[] _screens;
@@ -59,6 +60,7 @@ internal sealed class SettingsForm : Form
     private readonly NumericUpDown _dwellDelayInput;
     private readonly CheckBox _startupCheckBox;
     private readonly CheckBox _windowDragPassThroughCheckBox;
+    private readonly NumericUpDown _scrollResizeStepInput;
     private readonly Button _saveButton;
     private readonly Button _cancelButton;
 
@@ -307,8 +309,35 @@ internal sealed class SettingsForm : Form
 
         windowDragGroup.Controls.Add(_windowDragPassThroughCheckBox);
 
+        // ── Window Interactions group ─────────────────────────────────────────
+        int windowInteractionsGroupTop = windowDragGroupTop + 56;
+
+        var windowInteractionsGroup = new GroupBox
+        {
+            Text = "Window Interactions",
+            Location = new Point(12, windowInteractionsGroupTop),
+            Size = new Size(396, 48),
+        };
+
+        var scrollStepLabel = MakeLabel("Scroll resize step:", 12, 24);
+
+        _scrollResizeStepInput = new NumericUpDown
+        {
+            Minimum   = 1,
+            Maximum   = 200,
+            Increment = 5,
+            Value     = Math.Clamp(settings.ScrollResizeStep, 1, 200),
+            Location  = new Point(136, 21),
+            Width     = 65,
+        };
+
+        var scrollStepUnitLabel = MakeLabel("px / notch", 209, 24);
+
+        windowInteractionsGroup.Controls.AddRange(
+            [scrollStepLabel, _scrollResizeStepInput, scrollStepUnitLabel]);
+
         // ── Buttons ───────────────────────────────────────────────────────
-        int buttonPanelTop = windowDragGroupTop + 56;
+        int buttonPanelTop = windowInteractionsGroupTop + 56;
 
         var buttonPanel = new FlowLayoutPanel
         {
@@ -351,6 +380,7 @@ internal sealed class SettingsForm : Form
             detectionGroup,
             systemGroup,
             windowDragGroup,
+            windowInteractionsGroup,
             buttonPanel,
         ]);
 
