@@ -43,7 +43,7 @@ See: `.planning/milestones/v1.4-ROADMAP.md`
 ### v1.5 Window Interactions
 
 - [ ] **Phase 8: Hook Infrastructure** - Add WM_MOUSEWHEEL and WM_LBUTTONDBLCLK to HookManager
-- [ ] **Phase 9: Scroll Resize** - Implement Ctrl+Alt scroll-to-resize with configurable step size
+- [x] **Phase 9: Scroll Resize** - Implement Ctrl+Alt scroll-to-resize with configurable step size
 - [ ] **Phase 10: Always-on-Top Toggle** - Implement Ctrl+Alt double-click AOT toggle with tray feedback
 
 ---
@@ -73,7 +73,7 @@ See: `.planning/milestones/v1.4-ROADMAP.md`
 **Plans**: 2 plans
 Plans:
 - [x] 09-01-PLAN.md — NativeMethods constants + AppSettings.ScrollResizeStep + ScrollResizeHandler class
-- [ ] 09-02-PLAN.md — SettingsForm Window Interactions group + HotSpotApplicationContext wiring
+- [x] 09-02-PLAN.md — SettingsForm Window Interactions group + HotSpotApplicationContext wiring
 **UI hint**: yes
 
 ### Phase 10: Always-on-Top Toggle
@@ -101,9 +101,9 @@ Plans:
 | 6. WindowDragHandler | v1.4 | 4/4 | Complete | 2026-05-05 |
 | 7. Wiring | v1.4 | 1/1 | Complete | 2026-05-05 |
 | 8. Hook Infrastructure | v1.5 | 0/? | Not started | - |
-| 9. Scroll Resize | v1.5 | 1/2 | In Progress | - |
+| 9. Scroll Resize | v1.5 | 2/2 | Complete | 2026-05-05 |
 | 10. Always-on-Top Toggle | v1.5 | 0/? | Not started | - |
 
 ---
 
-*Last updated: 2026-05-06 — Phase 9 planned (2 plans)*
+*Last updated: 2026-05-05 — Phase 9 complete (2/2 plans)*
