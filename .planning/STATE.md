@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Window Drag Anywhere
-status: in-progress
+status: complete
 stopped_at: ""
 last_updated: "2026-05-05"
-last_activity: "2026-05-05 — Phase 6 complete: WindowDragHandler verified (4/4 plans, checkpoint approved)"
+last_activity: "2026-05-05 — Phase 7 complete: WindowDragHandler promoted to permanent readonly wiring (1/1 plans)"
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 67
+  completed_phases: 3
+  total_plans: 6
+  completed_plans: 6
+  percent: 100
 ---
 
 # State: WindowsHotSpot
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-05-05 for v1.4)
 ## Current Position
 
 Phase: Phase 7 — Wiring
-Plan: ready to begin
-Status: Phase 6 complete (4/4 plans), Phase 7 ready to begin
-Last activity: 2026-05-05 — Phase 6 complete, checkpoint approved
+Plan: COMPLETE
+Status: All 3 phases complete — v1.4 Window Drag Anywhere shipped
+Last activity: 2026-05-05 — Phase 7 complete (1/1 plans)
 
 ```
-Progress: [██████░░░░░░░░░░░░░░] 33% (1/3 phases)
+Progress: [████████████████████] 100% (3/3 phases)
 ```
 
 ## Performance Metrics
@@ -69,6 +69,5 @@ All decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-05-05 — Phase 5 Plan 01 complete, checkpoint approved
-Stopped at: Phase 5 complete — ready to begin Phase 6 (WindowDragHandler)
-Resume file: .planning/phases/06-window-drag-handler/ (not yet created)
+Last session: 2026-05-05 — Phase 7 complete, v1.4 milestone complete
+Stopped at: Milestone complete

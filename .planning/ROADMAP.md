@@ -32,7 +32,7 @@ See: `.planning/milestones/v1.2-ROADMAP.md`
 
 - [x] **Phase 5: Hook Suppression Infrastructure** — Add event suppression to HookManager
 - [x] **Phase 6: WindowDragHandler** — Core drag logic with modifier guard and maximized-window protection
-- [ ] **Phase 7: Wiring** — Wire WindowDragHandler into HotSpotApplicationContext and dispose cleanly
+- [x] **Phase 7: Wiring** — Wire WindowDragHandler into HotSpotApplicationContext and dispose cleanly
 
 ---
 
@@ -79,7 +79,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. WindowDragHandler is instantiated in HotSpotApplicationContext and subscribed to HookManager events at application startup, alongside CornerRouter
   2. When the application exits (tray Quit or system shutdown), WindowDragHandler.Dispose() is called and all hook subscriptions and unmanaged resources are released without error
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [x] 07-01-PLAN.md — Promote WindowDragHandler to permanent readonly wiring (COMPLETE 2026-05-05)
 
 ---
 
@@ -89,8 +92,8 @@ Plans:
 |-------|----------------|--------|-----------|
 | 5. Hook Suppression Infrastructure | 1/1 | Complete | 2026-05-05 |
 | 6. WindowDragHandler | 4/4 | Complete | 2026-05-05 |
-| 7. Wiring | 0/? | Not started | - |
+| 7. Wiring | 1/1 | Complete | 2026-05-05 |
 
 ---
 
-*Last updated: 2026-05-05 — Phase 6 complete (4/4 plans), Phase 7 ready*
+*Last updated: 2026-05-05 — Phase 7 complete (1/1 plans), v1.4 milestone complete*
