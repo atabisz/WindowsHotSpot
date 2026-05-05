@@ -30,7 +30,7 @@ See: `.planning/milestones/v1.2-ROADMAP.md`
 
 ### v1.4 Window Drag Anywhere
 
-- [ ] **Phase 5: Hook Suppression Infrastructure** — Add event suppression to HookManager
+- [x] **Phase 5: Hook Suppression Infrastructure** — Add event suppression to HookManager
 - [ ] **Phase 6: WindowDragHandler** — Core drag logic with modifier guard and maximized-window protection
 - [ ] **Phase 7: Wiring** — Wire WindowDragHandler into HotSpotApplicationContext and dispose cleanly
 
@@ -50,7 +50,7 @@ See: `.planning/milestones/v1.2-ROADMAP.md`
 **Plans**: 1 plan
 
 Plans:
-- [~] 05-01-PLAN.md — Add SuppressionPredicate property and restructure HookCallback (Task 1 done, awaiting checkpoint verification)
+- [x] 05-01-PLAN.md — Add SuppressionPredicate property and restructure HookCallback (COMPLETE, checkpoint approved 2026-05-05)
 
 ### Phase 6: WindowDragHandler
 **Goal**: Users can hold Ctrl+Alt and drag any non-maximized window to move it, with smooth real-time tracking, clean release, and AltGr protection
@@ -82,10 +82,10 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 5. Hook Suppression Infrastructure | 0/1 | In progress (checkpoint) | - |
+| 5. Hook Suppression Infrastructure | 1/1 | Complete | 2026-05-05 |
 | 6. WindowDragHandler | 0/? | Not started | - |
 | 7. Wiring | 0/? | Not started | - |
 
 ---
 
-*Last updated: 2026-05-05 — Phase 5 planned (1 plan)*
+*Last updated: 2026-05-05 — Phase 5 complete (1/1 plans); Phase 6 ready to begin*

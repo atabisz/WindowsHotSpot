@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Window Drag Anywhere
-status: planning
+status: in-progress
 stopped_at: ""
 last_updated: "2026-05-05"
-last_activity: "2026-05-05 — Roadmap created: 3 phases (5-7), 12 requirements mapped"
+last_activity: "2026-05-05 — Phase 5 Plan 01 complete: SuppressionPredicate added to HookManager, checkpoint approved"
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 1
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 33
 ---
 
 # State: WindowsHotSpot
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-05-05 for v1.4)
 ## Current Position
 
 Phase: Phase 5 — Hook Suppression Infrastructure
-Plan: 05-01 (checkpoint:human-verify — awaiting verification of Task 2)
-Status: In progress — Task 1 committed, awaiting human checkpoint at Task 2
-Last activity: 2026-05-05 — Phase 5, Plan 01, Task 1 complete
+Plan: 05-01 COMPLETE — advancing to Phase 6
+Status: Phase 5 complete (1/1 plans), Phase 6 ready to begin
+Last activity: 2026-05-05 — Phase 5 Plan 01 complete, checkpoint approved
 
 ```
-Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (0/3 phases)
+Progress: [██████░░░░░░░░░░░░░░] 33% (1/3 phases)
 ```
 
 ## Performance Metrics
@@ -69,6 +69,6 @@ All decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-05-05
-Stopped at: 05-01-PLAN.md Task 2 checkpoint:human-verify — awaiting code review and tray app smoke test
-Resume file: .planning/phases/05-hook-suppression-infrastructure/05-01-PLAN.md
+Last session: 2026-05-05 — Phase 5 Plan 01 complete, checkpoint approved
+Stopped at: Phase 5 complete — ready to begin Phase 6 (WindowDragHandler)
+Resume file: .planning/phases/06-window-drag-handler/ (not yet created)

@@ -50,7 +50,7 @@ completed: 2026-05-05
 - **Duration:** 8 min
 - **Started:** 2026-05-05T02:19:00Z
 - **Completed:** 2026-05-05T02:27:30Z
-- **Tasks:** 1 of 2 (Task 2 is checkpoint:human-verify — awaiting user verification)
+- **Tasks:** 2 of 2 (Task 2 checkpoint:human-verify — approved by user 2026-05-05)
 - **Files modified:** 1
 
 ## Accomplishments
@@ -66,8 +66,9 @@ completed: 2026-05-05
 Each task was committed atomically:
 
 1. **Task 1: Add SuppressionPredicate and restructure HookCallback** - `f7e96f3` (feat)
+2. **Task 2: Manual smoke verification** - checkpoint:human-verify, approved by user (no code commit)
 
-**Plan metadata:** (pending after checkpoint verification)
+**Plan metadata:** (docs commit — this summary)
 
 ## Files Created/Modified
 - `WindowsHotSpot/Core/HookManager.cs` - Added SuppressionPredicate property; restructured HookCallback with split button branches and event-before-predicate ordering
@@ -91,7 +92,8 @@ None - no external service configuration required.
 
 ## Next Phase Readiness
 - HookManager.SuppressionPredicate is ready for Phase 6 to wire `_hookManager.SuppressionPredicate = ShouldSuppress` with no further modification to HookManager.cs
-- Awaiting human checkpoint verification (Task 2): code review confirmation and tray app smoke test
+- Human checkpoint passed: code review confirmed structure and ordering, tray app runs normally without errors
+- No blockers
 
 ---
 *Phase: 05-hook-suppression-infrastructure*
