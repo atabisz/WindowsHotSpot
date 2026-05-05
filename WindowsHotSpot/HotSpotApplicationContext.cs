@@ -21,6 +21,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
     private readonly HookManager _hookManager;
     private readonly CornerRouter _cornerRouter;
     private readonly WindowDragHandler _windowDragHandler;
+    private readonly ScrollResizeHandler _scrollResizeHandler;
     private readonly NotifyIcon _trayIcon;
     private readonly ContextMenuStrip _contextMenu;
     private readonly IpcWindow _ipcWindow;
@@ -83,6 +84,10 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _hookManager.SuppressionPredicate = _windowDragHandler.ShouldSuppress;
         _windowDragHandler.Install();
 
+        _scrollResizeHandler = new ScrollResizeHandler(_configManager.Settings);
+        _hookManager.MouseWheeled += _scrollResizeHandler.OnMouseWheeled;
+        _scrollResizeHandler.Install();
+
         // Live settings propagation: rebuild detector pool when settings change (SETT-05, MMON-01)
         _onSettingsChanged = () => _cornerRouter.Rebuild(_configManager.Settings);
         _configManager.SettingsChanged += _onSettingsChanged;
@@ -130,6 +135,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
             _configManager.Settings.DwellDelayMs = form.SelectedDwellDelay;
             _configManager.Settings.StartWithWindows = form.SelectedStartWithWindows;
             _configManager.Settings.WindowDragPassThrough = form.SelectedWindowDragPassThrough;
+            _configManager.Settings.ScrollResizeStep = form.SelectedScrollResizeStep;
             StartupManager.SetEnabled(form.SelectedStartWithWindows);
 
             // Apply per-monitor corner configs (including custom shortcuts).
@@ -193,6 +199,9 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _hookManager.MouseButtonChanged -= _windowDragHandler.OnMouseButtonChanged;
         _hookManager.SuppressionPredicate = null;
         _windowDragHandler.Dispose();
+
+        _hookManager.MouseWheeled -= _scrollResizeHandler.OnMouseWheeled;
+        _scrollResizeHandler.Dispose();
 
         _hookManager.Dispose();
         _configManager.SettingsChanged -= _onSettingsChanged;
