@@ -34,6 +34,7 @@ internal sealed class AppSettings
     public int DwellDelayMs { get; set; } = 150;
     public bool StartWithWindows { get; set; } = false;
     public bool SameOnAllMonitors { get; set; } = false;
+    public bool WindowDragPassThrough { get; set; } = false;
 
     // Per-monitor corner config keyed by Screen.DeviceName.
     // Missing key = use global CornerActions fallback.

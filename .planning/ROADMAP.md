@@ -64,8 +64,13 @@ Plans:
   5. Clicking on a maximized window while holding LCtrl+LAlt does not start a drag — the click passes through to the application normally
   6. Holding RCtrl+LAlt (AltGr) does not trigger drag — only the LCtrl+LAlt combination activates it
   7. If Ctrl or Alt is released during an active drag, the drag is cancelled and the window remains at its current (mid-drag) position
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 4 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Add P/Invoke declarations, structs, and constants to NativeMethods.cs (Wave 1)
+- [ ] 06-02-PLAN.md — Add WindowDragPassThrough to AppSettings and "Window Dragging" section to SettingsForm (Wave 1, parallel)
+- [ ] 06-03-PLAN.md — Create WindowDragHandler.cs with complete drag implementation (Wave 2)
+- [ ] 06-04-PLAN.md — Temporary wiring smoke test and manual verification checkpoint (Wave 3)
 
 ### Phase 7: Wiring
 **Goal**: WindowDragHandler is a first-class component of HotSpotApplicationContext — created, connected, and disposed alongside CornerRouter with no resource leaks
@@ -83,9 +88,9 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 5. Hook Suppression Infrastructure | 1/1 | Complete | 2026-05-05 |
-| 6. WindowDragHandler | 0/? | Not started | - |
+| 6. WindowDragHandler | 0/4 | Not started | - |
 | 7. Wiring | 0/? | Not started | - |
 
 ---
 
-*Last updated: 2026-05-05 — Phase 5 complete (1/1 plans); Phase 6 ready to begin*
+*Last updated: 2026-05-05 — Phase 6 planned (4 plans in 3 waves)*
