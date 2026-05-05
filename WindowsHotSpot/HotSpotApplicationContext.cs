@@ -20,6 +20,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
     private readonly ConfigManager _configManager;
     private readonly HookManager _hookManager;
     private readonly CornerRouter _cornerRouter;
+    private WindowDragHandler? _windowDragHandler;   // TODO(Phase 7): move to permanent wiring
     private readonly NotifyIcon _trayIcon;
     private readonly ContextMenuStrip _contextMenu;
     private readonly IpcWindow _ipcWindow;
@@ -73,6 +74,13 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
 
         _hookManager.MouseMoved += _cornerRouter.OnMouseMoved;
         _hookManager.MouseButtonChanged += _cornerRouter.OnMouseButtonChanged;
+
+        // TODO(Phase 7): move to permanent wiring
+        _windowDragHandler = new WindowDragHandler(_configManager.Settings);
+        _hookManager.MouseMoved += _windowDragHandler.OnMouseMoved;
+        _hookManager.MouseButtonChanged += _windowDragHandler.OnMouseButtonChanged;
+        _hookManager.SuppressionPredicate = _windowDragHandler.ShouldSuppress;
+        _windowDragHandler.Install();
 
         // Live settings propagation: rebuild detector pool when settings change (SETT-05, MMON-01)
         _configManager.SettingsChanged += () => _cornerRouter.Rebuild(_configManager.Settings);
@@ -174,6 +182,16 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
 
         _hookManager.MouseMoved -= _cornerRouter.OnMouseMoved;
         _hookManager.MouseButtonChanged -= _cornerRouter.OnMouseButtonChanged;
+
+        // TODO(Phase 7): move to permanent wiring
+        if (_windowDragHandler != null)
+        {
+            _hookManager.MouseMoved -= _windowDragHandler.OnMouseMoved;
+            _hookManager.MouseButtonChanged -= _windowDragHandler.OnMouseButtonChanged;
+            _hookManager.SuppressionPredicate = null;
+            _windowDragHandler.Dispose();
+            _windowDragHandler = null;
+        }
 
         _hookManager.Dispose();
         _cornerRouter.Dispose();
