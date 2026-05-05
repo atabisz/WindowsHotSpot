@@ -102,8 +102,43 @@ internal sealed class WindowDragHandler : IDisposable
         NativeMethods.SetWindowPos(_dragTarget, IntPtr.Zero, newX, newY, 0, 0, SWP_FLAGS);
     }
 
+    // Returns true if the key (VK_* constant) is physically held down right now.
+    // Bit 15 of GetKeyState return value is the key-down flag.
+    private static bool IsPhysicallyDown(int vk) => (NativeMethods.GetKeyState(vk) & 0x8000) != 0;
+
+    // Returns true if the window's owning process is running elevated (admin).
+    // Drag is blocked against elevated windows — UIPI prevents SetWindowPos cross-elevation.
+    private static bool IsElevatedProcess(IntPtr hwnd)
+    {
+        NativeMethods.GetWindowThreadProcessId(hwnd, out uint pid);
+        if (pid == 0) return false;
+
+        var hProcess = NativeMethods.OpenProcess(NativeMethods.PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+        if (hProcess == IntPtr.Zero) return true;  // can't open → assume elevated, bail out safely
+
+        try
+        {
+            if (!NativeMethods.OpenProcessToken(hProcess, NativeMethods.TOKEN_QUERY, out var hToken))
+                return true;
+
+            try
+            {
+                bool ok = NativeMethods.GetTokenInformation(hToken, NativeMethods.TokenElevation,
+                    out uint elevation, sizeof(uint), out _);
+                return ok && elevation != 0;
+            }
+            finally { NativeMethods.CloseHandle(hToken); }
+        }
+        finally { NativeMethods.CloseHandle(hProcess); }
+    }
+
     private void BeginDragAttempt()
     {
+        // Self-heal tracked state against physical key state. Ctrl+Alt+Del (SAS) swallows
+        // key-up events before the hook sees them, leaving _lCtrlDown/_lAltDown stuck true.
+        _lCtrlDown = _lCtrlDown && IsPhysicallyDown((int)NativeMethods.VK_LCONTROL);
+        _lAltDown  = _lAltDown  && IsPhysicallyDown((int)NativeMethods.VK_LMENU);
+
         if (!_lCtrlDown || !_lAltDown) return;
 
         var cursorPos = System.Windows.Forms.Cursor.Position;
@@ -141,14 +176,18 @@ internal sealed class WindowDragHandler : IDisposable
             return;
         }
 
-        // Step 4: Snapshot window's current screen position for absolute-delta math
+        // Step 4: Reject elevated windows — UIPI blocks SetWindowPos cross-elevation (DRAG-07)
+        if (IsElevatedProcess(rootHwnd))
+            return;  // click passes through; no _suppressNextClick (elevated app handles it normally)
+
+        // Step 5: Snapshot window's current screen position for absolute-delta math
         if (!NativeMethods.GetWindowRect(rootHwnd, out var rect))
         {
             if (!_settings.WindowDragPassThrough) _suppressNextClick = true;
             return;
         }
 
-        // Step 5: Commit drag state
+        // Step 6: Commit drag state
         _dragTarget      = rootHwnd;
         _dragStartCursor = pt;
         _windowOrigin    = rect;

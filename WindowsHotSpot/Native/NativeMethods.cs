@@ -42,6 +42,9 @@ internal static class NativeMethods
     // KBDLLHOOKSTRUCT.flags bit: event was injected (AltGr fake LCtrl guard — GUARD-01)
     public const uint LLKHF_INJECTED = 0x10;
 
+    // OpenProcess access right — sufficient to query basic process info without elevation
+    public const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+
     // GetAncestor flags
     public const uint GA_ROOT = 2;
 
@@ -196,6 +199,28 @@ internal static class NativeMethods
     }
 
     // Window dragging APIs
+    [DllImport("user32.dll")]
+    public static extern short GetKeyState(int nVirtKey);
+
+    [DllImport("user32.dll")]
+    public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern IntPtr OpenProcess(uint dwDesiredAccess, bool bInheritHandle, uint dwProcessId);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool CloseHandle(IntPtr hObject);
+
+    [DllImport("advapi32.dll", SetLastError = true)]
+    public static extern bool OpenProcessToken(IntPtr ProcessHandle, uint DesiredAccess, out IntPtr TokenHandle);
+
+    [DllImport("advapi32.dll", SetLastError = true)]
+    public static extern bool GetTokenInformation(IntPtr TokenHandle, uint TokenInformationClass,
+        out uint TokenInformation, uint TokenInformationLength, out uint ReturnLength);
+
+    public const uint TOKEN_QUERY              = 0x0008;
+    public const uint TokenElevation           = 20;
+
     [DllImport("user32.dll")]
     public static extern IntPtr WindowFromPoint(POINT Point);
 
