@@ -33,6 +33,31 @@ internal static class NativeMethods
     public const ushort VK_D          = 0x44;   // Win+D → Show Desktop (Windows 11: hides all windows)
     public const ushort VK_A          = 0x41;   // Win+A → Action Center / Quick Settings (Windows 11)
 
+    // Virtual key codes for left/right modifier detection (WH_KEYBOARD_LL)
+    public const uint VK_LCONTROL = 0xA2;
+    public const uint VK_RCONTROL = 0xA3;
+    public const uint VK_LMENU    = 0xA4;
+    public const uint VK_RMENU    = 0xA5;
+
+    // KBDLLHOOKSTRUCT.flags bit: event was injected (AltGr fake LCtrl guard — GUARD-01)
+    public const uint LLKHF_INJECTED = 0x10;
+
+    // GetAncestor flags
+    public const uint GA_ROOT = 2;
+
+    // SetWindowPos flags
+    public const uint SWP_NOSIZE         = 0x0001;
+    public const uint SWP_NOZORDER       = 0x0004;
+    public const uint SWP_NOACTIVATE     = 0x0010;
+    public const uint SWP_ASYNCWINDOWPOS = 0x4000;
+
+    // WINDOWPLACEMENT.showCmd values
+    public const uint SW_SHOWMAXIMIZED = 3;
+
+    // System cursor identifiers (MAKEINTRESOURCE values — shared resources, never call DestroyCursor)
+    public static readonly IntPtr IDC_ARROW   = new IntPtr(32512);
+    public static readonly IntPtr IDC_SIZEALL = new IntPtr(32646);
+
     // Delegate for low-level mouse hook callback
     public delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
 
@@ -67,6 +92,27 @@ internal static class NativeMethods
         public uint   flags;
         public uint   time;
         public IntPtr dwExtraInfo;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RECT
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct WINDOWPLACEMENT
+    {
+        public uint  length;        // must be set to Marshal.SizeOf<WINDOWPLACEMENT>() before call
+        public uint  flags;
+        public uint  showCmd;       // SW_SHOWMAXIMIZED = 3 when window is maximized
+        public POINT ptMinPosition;
+        public POINT ptMaxPosition;
+        public RECT  rcNormalPosition;
+        public RECT  rcDevice;      // Windows 10+
     }
 
     // SendInput structs
@@ -148,4 +194,28 @@ internal static class NativeMethods
         public int    cbData;   // byte count of lpData (0 — we send no payload)
         public IntPtr lpData;   // pointer to data (IntPtr.Zero)
     }
+
+    // Window dragging APIs
+    [DllImport("user32.dll")]
+    public static extern IntPtr WindowFromPoint(POINT Point);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetAncestor(IntPtr hwnd, uint gaFlags);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool SetWindowPos(
+        IntPtr hWnd, IntPtr hWndInsertAfter,
+        int X, int Y, int cx, int cy, uint uFlags);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr LoadCursor(IntPtr hInstance, IntPtr lpCursorName);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr SetCursor(IntPtr hCursor);
 }
