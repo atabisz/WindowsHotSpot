@@ -168,12 +168,7 @@ internal sealed class WindowDragHandler : IDisposable
     private void CancelDragIfActive()
     {
         // Window stays at current (mid-drag) position — no position reset
-        if (_isDragging)
-        {
-            _isDragging = false;
-            _dragTarget = IntPtr.Zero;
-            NativeMethods.SetCursor(_arrowCursor);
-        }
+        EndDrag();
     }
 
     private IntPtr KeyboardCallback(int nCode, IntPtr wParam, IntPtr lParam)
