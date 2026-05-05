@@ -44,6 +44,9 @@ internal sealed class HookManager : IDisposable
     /// <summary>Installs the global low-level mouse hook. Throws Win32Exception on failure.</summary>
     public void Install()
     {
+        if (_hookId != IntPtr.Zero)
+            throw new InvalidOperationException("Hook is already installed. Call Dispose() before re-installing.");
+
         using var process = System.Diagnostics.Process.GetCurrentProcess();
         using var module = process.MainModule!;
         _hookId = NativeMethods.SetWindowsHookEx(
@@ -63,24 +66,33 @@ internal sealed class HookManager : IDisposable
     {
         if (nCode >= 0)
         {
-            int msg = (int)wParam;
-            if (msg == NativeMethods.WM_MOUSEMOVE)
+            try
             {
-                var hookStruct = Marshal.PtrToStructure<NativeMethods.MSLLHOOKSTRUCT>(lParam);
-                MouseMoved?.Invoke(hookStruct.pt);
-                // WM_MOUSEMOVE: SuppressionPredicate is NEVER consulted (HOOK-02)
+                int msg = (int)wParam;
+                if (msg == NativeMethods.WM_MOUSEMOVE)
+                {
+                    var hookStruct = Marshal.PtrToStructure<NativeMethods.MSLLHOOKSTRUCT>(lParam);
+                    MouseMoved?.Invoke(hookStruct.pt);
+                    // WM_MOUSEMOVE: SuppressionPredicate is NEVER consulted (HOOK-02)
+                }
+                else if (msg == NativeMethods.WM_LBUTTONDOWN || msg == NativeMethods.WM_LBUTTONUP)
+                {
+                    // Fire event FIRST: consumer's event handler updates drag state before the predicate
+                    // runs, so ShouldSuppress() sees current state for the initiating click.
+                    MouseButtonChanged?.Invoke(msg == NativeMethods.WM_LBUTTONDOWN);
+                    if (SuppressionPredicate?.Invoke(msg) == true)
+                        return new IntPtr(1); // consumed — target window does not receive this event
+                }
+                else if (msg == NativeMethods.WM_RBUTTONDOWN || msg == NativeMethods.WM_RBUTTONUP)
+                {
+                    MouseButtonChanged?.Invoke(msg == NativeMethods.WM_RBUTTONDOWN);
+                    // Right-button: SuppressionPredicate NEVER consulted (HOOK-02)
+                }
             }
-            else if (msg == NativeMethods.WM_LBUTTONDOWN || msg == NativeMethods.WM_LBUTTONUP)
+            catch
             {
-                // Fire event FIRST so consumer state is updated before predicate runs (Pitfall 2)
-                MouseButtonChanged?.Invoke(msg == NativeMethods.WM_LBUTTONDOWN);
-                if (SuppressionPredicate?.Invoke(msg) == true)
-                    return new IntPtr(1); // consumed — target window does not receive this event
-            }
-            else if (msg == NativeMethods.WM_RBUTTONDOWN || msg == NativeMethods.WM_RBUTTONUP)
-            {
-                MouseButtonChanged?.Invoke(msg == NativeMethods.WM_RBUTTONDOWN);
-                // Right-button: SuppressionPredicate NEVER consulted (HOOK-02)
+                // Do not let managed exceptions escape into the Win32 hook chain.
+                // Fail safe: fall through to CallNextHookEx below.
             }
         }
         return NativeMethods.CallNextHookEx(_hookId, nCode, wParam, lParam);
@@ -90,8 +102,11 @@ internal sealed class HookManager : IDisposable
     {
         if (_hookId != IntPtr.Zero)
         {
-            NativeMethods.UnhookWindowsHookEx(_hookId);
+            bool ok = NativeMethods.UnhookWindowsHookEx(_hookId);
+            System.Diagnostics.Debug.Assert(ok,
+                $"UnhookWindowsHookEx failed: {Marshal.GetLastWin32Error()}");
             _hookId = IntPtr.Zero;
         }
+        SuppressionPredicate = null;
     }
 }
