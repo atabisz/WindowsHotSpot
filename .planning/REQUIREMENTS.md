@@ -40,16 +40,16 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HOOK-03 | TBD | Pending |
-| HOOK-04 | TBD | Pending |
-| RESIZE-01 | TBD | Pending |
-| RESIZE-02 | TBD | Pending |
-| RESIZE-03 | TBD | Pending |
-| RESIZE-04 | TBD | Pending |
-| RESIZE-05 | TBD | Pending |
-| RESIZE-06 | TBD | Pending |
-| RESIZE-07 | TBD | Pending |
-| AOT-01 | TBD | Pending |
-| AOT-02 | TBD | Pending |
-| AOT-03 | TBD | Pending |
-| AOT-04 | TBD | Pending |
+| HOOK-03 | Phase 8 | Pending |
+| HOOK-04 | Phase 8 | Pending |
+| RESIZE-01 | Phase 9 | Pending |
+| RESIZE-02 | Phase 9 | Pending |
+| RESIZE-03 | Phase 9 | Pending |
+| RESIZE-04 | Phase 9 | Pending |
+| RESIZE-05 | Phase 9 | Pending |
+| RESIZE-06 | Phase 9 | Pending |
+| RESIZE-07 | Phase 9 | Pending |
+| AOT-01 | Phase 10 | Pending |
+| AOT-02 | Phase 10 | Pending |
+| AOT-03 | Phase 10 | Pending |
+| AOT-04 | Phase 10 | Pending |

@@ -5,9 +5,9 @@ milestone_name: Window Interactions
 status: planning
 stopped_at: ""
 last_updated: "2026-05-05"
-last_activity: "2026-05-05 — Milestone v1.5 started"
+last_activity: "2026-05-05 — Roadmap created; ready to begin Phase 8"
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -25,13 +25,13 @@ See: .planning/PROJECT.md (updated 2026-05-05 for v1.5)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Phase 8 — Hook Infrastructure (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-05-05 — Milestone v1.5 started
+Status: Roadmap approved; ready to plan Phase 8
+Last activity: 2026-05-05 — Roadmap created; ready to begin Phase 8
 
 ```
-Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (0/? phases)
+Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (0/3 phases)
 ```
 
 ## Performance Metrics
@@ -64,5 +64,5 @@ All decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-05-05 — v1.5 milestone started
-Stopped at: Requirements defined, roadmap pending
+Last session: 2026-05-05 — Roadmap created for v1.5
+Stopped at: Phase 8 ready to plan
