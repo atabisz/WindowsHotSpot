@@ -242,7 +242,7 @@ internal sealed class SettingsForm : Form
             Minimum = 1,
             Maximum = 50,
             Increment = 1,
-            Value = settings.ZoneSize,
+            Value = Math.Clamp(settings.ZoneSize, 1, 50),
             Location = new Point(130, 21),
             Width = 65,
         };
@@ -254,7 +254,7 @@ internal sealed class SettingsForm : Form
             Minimum = 50,
             Maximum = 2000,
             Increment = 50,
-            Value = settings.DwellDelayMs,
+            Value = Math.Clamp(settings.DwellDelayMs, 50, 2000),
             Location = new Point(130, 51),
             Width = 65,
         };
