@@ -1,35 +1,37 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: Window Drag Anywhere
-status: archived
+milestone: v1.5
+milestone_name: Window Interactions
+status: planning
 stopped_at: ""
 last_updated: "2026-05-05"
-last_activity: "2026-05-05 — v1.4 milestone archived; tagged v1.4"
+last_activity: "2026-05-05 — Milestone v1.5 started"
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # State: WindowsHotSpot
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-05 after v1.4 milestone)
+See: .planning/PROJECT.md (updated 2026-05-05 for v1.5)
 
 **Core value:** The mouse hot corner fires the right action reliably every time, on any screen, with zero friction.
-**Current focus:** Planning next milestone
+**Current focus:** v1.5 Window Interactions — scroll-to-resize and always-on-top toggle
 
 ## Current Position
 
-Milestone: v1.4 — ARCHIVED 2026-05-05
-Status: Between milestones — v1.4 complete and tagged
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-05 — Milestone v1.5 started
 
 ```
-Progress: [████████████████████] 100% (v1.4 archived)
+Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (0/? phases)
 ```
 
 ## Performance Metrics
@@ -62,5 +64,5 @@ All decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-05-05 — v1.4 milestone archived, tagged v1.4
-Stopped at: Between milestones — run /gsd-new-milestone to start next cycle
+Last session: 2026-05-05 — v1.5 milestone started
+Stopped at: Requirements defined, roadmap pending

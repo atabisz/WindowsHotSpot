@@ -34,7 +34,10 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 
 ### Active
 
-(none — planning next milestone)
+- [ ] Ctrl+Alt+scroll wheel resizes the window under the cursor (symmetric, cursor-anchored) — v1.5
+- [ ] Scroll resize step size configurable in Settings — v1.5
+- [ ] Ctrl+Alt+double-click toggles always-on-top for the window under the cursor — v1.5
+- [ ] Tray tooltip confirms always-on-top state change ("Pinned" / "Unpinned") — v1.5
 
 ### Out of Scope
 
@@ -126,5 +129,13 @@ This document evolves at phase transitions and milestone boundaries.
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
+## Current Milestone: v1.5 Window Interactions
+
+**Goal:** Extend Ctrl+Alt window interactions with scroll-to-resize and always-on-top toggle, both using the same modifier activation as drag.
+
+**Target features:**
+- Ctrl+Alt+scroll wheel resizes window under cursor — up grows, down shrinks, symmetric around cursor position, step configurable in Settings
+- Ctrl+Alt+double-click toggles always-on-top — brief tray tooltip confirms "Pinned" / "Unpinned"
+
 ---
-*Last updated: 2026-05-05 — v1.4 milestone complete*
+*Last updated: 2026-05-05 — v1.5 milestone started*
