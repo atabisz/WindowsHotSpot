@@ -22,6 +22,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
     private readonly CornerRouter _cornerRouter;
     private readonly WindowDragHandler _windowDragHandler;
     private readonly ScrollResizeHandler _scrollResizeHandler;
+    private readonly AlwaysOnTopHandler _alwaysOnTopHandler;
     private readonly NotifyIcon _trayIcon;
     private readonly ContextMenuStrip _contextMenu;
     private readonly IpcWindow _ipcWindow;
@@ -87,6 +88,10 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _scrollResizeHandler = new ScrollResizeHandler(_configManager.Settings);
         _hookManager.MouseWheeled += _scrollResizeHandler.OnMouseWheeled;
         _scrollResizeHandler.Install();
+
+        _alwaysOnTopHandler = new AlwaysOnTopHandler(_configManager.Settings, _trayIcon);
+        _hookManager.MouseButtonChanged += _alwaysOnTopHandler.OnMouseButtonChanged;
+        _alwaysOnTopHandler.Install();
 
         // Live settings propagation: rebuild detector pool when settings change (SETT-05, MMON-01)
         _onSettingsChanged = () => _cornerRouter.Rebuild(_configManager.Settings);
@@ -202,6 +207,9 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
 
         _hookManager.MouseWheeled -= _scrollResizeHandler.OnMouseWheeled;
         _scrollResizeHandler.Dispose();
+
+        _hookManager.MouseButtonChanged -= _alwaysOnTopHandler.OnMouseButtonChanged;
+        _alwaysOnTopHandler.Dispose();
 
         _hookManager.Dispose();
         _configManager.SettingsChanged -= _onSettingsChanged;
