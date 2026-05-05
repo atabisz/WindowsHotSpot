@@ -24,6 +24,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
     private readonly NotifyIcon _trayIcon;
     private readonly ContextMenuStrip _contextMenu;
     private readonly IpcWindow _ipcWindow;
+    private bool _disposed;
 
     public HotSpotApplicationContext()
     {
@@ -175,6 +176,9 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
 
     private void DisposeComponents()
     {
+        if (_disposed) return;
+        _disposed = true;
+
         _ipcWindow.ShowSettingsRequested -= ShowSettingsWindow;
         _ipcWindow.Dispose();
 
