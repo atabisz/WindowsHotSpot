@@ -77,7 +77,8 @@ internal sealed class WindowDragHandler : IDisposable
         // and WindowDragPassThrough=false (default). _suppressNextClick is set by BeginDragAttempt.
         if (_suppressNextClick)
         {
-            _suppressNextClick = false;  // one-shot: only suppress the initiating click pair
+            if (msg == NativeMethods.WM_LBUTTONUP)
+                _suppressNextClick = false;  // clear after the full pair is suppressed
             return true;
         }
         return false;
