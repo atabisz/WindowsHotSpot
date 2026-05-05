@@ -14,10 +14,10 @@
 
 ### Always-on-Top Toggle
 
-- [ ] **AOT-01**: User can Ctrl+Alt+double-click a window to toggle its always-on-top state
-- [ ] **AOT-02**: A tray balloon tooltip briefly appears confirming the state change: "WindowsHotSpot: Pinned on top" or "WindowsHotSpot: Unpinned"
-- [ ] **AOT-03**: Always-on-top toggle is skipped for elevated (admin) windows — UIPI constraint
-- [ ] **AOT-04**: AltGr (RCtrl+LAlt) does not trigger the toggle — only LCtrl+LAlt activates it
+- [x] **AOT-01**: User can Ctrl+Alt+double-click a window to toggle its always-on-top state
+- [x] **AOT-02**: A tray balloon tooltip briefly appears confirming the state change: "WindowsHotSpot: Pinned on top" or "WindowsHotSpot: Unpinned"
+- [x] **AOT-03**: Always-on-top toggle is skipped for elevated (admin) windows — UIPI constraint
+- [x] **AOT-04**: AltGr (RCtrl+LAlt) does not trigger the toggle — only LCtrl+LAlt activates it
 
 ### Hook Infrastructure
 
@@ -49,7 +49,7 @@
 | RESIZE-05 | Phase 9 | Pending |
 | RESIZE-06 | Phase 9 | Pending |
 | RESIZE-07 | Phase 9 | Pending |
-| AOT-01 | Phase 10 | Pending |
-| AOT-02 | Phase 10 | Pending |
-| AOT-03 | Phase 10 | Pending |
-| AOT-04 | Phase 10 | Pending |
+| AOT-01 | Phase 10 | Complete |
+| AOT-02 | Phase 10 | Complete |
+| AOT-03 | Phase 10 | Complete |
+| AOT-04 | Phase 10 | Complete |

@@ -4,14 +4,14 @@ milestone: v1.5
 milestone_name: Window Interactions
 status: in-progress
 stopped_at: ""
-last_updated: "2026-05-05"
-last_activity: "2026-05-05 — Phase 10 Plan 01 complete: AlwaysOnTopHandler implemented, NativeMethods extended"
+last_updated: "2026-05-06"
+last_activity: "2026-05-06 — Phase 10 Plan 02 complete: AlwaysOnTopHandler wired into HotSpotApplicationContext"
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 3
-  percent: 50
+  completed_plans: 4
+  percent: 67
 ---
 
 # State: WindowsHotSpot
@@ -25,13 +25,13 @@ See: .planning/PROJECT.md (updated 2026-05-05 for v1.5)
 
 ## Current Position
 
-Phase: Phase 10 — Always-on-Top (in progress)
-Plan: 10-01 (complete)
-Status: 10-01 complete; AlwaysOnTopHandler implemented and built; awaiting 10-02 wiring
-Last activity: 2026-05-05 — Phase 10 Plan 01 complete: AlwaysOnTopHandler implemented, NativeMethods extended
+Phase: Phase 10 — Always-on-Top (complete)
+Plan: 10-02 (complete)
+Status: Phase 10 complete; AlwaysOnTopHandler wired, build passes (0 errors, 0 warnings); v1.5 Phase 10 done
+Last activity: 2026-05-06 — Phase 10 Plan 02 complete: AlwaysOnTopHandler wired into HotSpotApplicationContext
 
 ```
-Progress: [██████████░░░░░░░░░░] ~50% (3/6 plans in phase 9-10)
+Progress: [█████████████░░░░░░░] ~67% (4/6 plans in phase 9-10)
 ```
 
 ## Performance Metrics
@@ -75,11 +75,15 @@ All decisions logged in PROJECT.md Key Decisions table.
 - SWP_FLAGS: SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE — position/size preserved, no focus steal
 - Verbatim copy of keyboard hook lifecycle from ScrollResizeHandler — consistent handler pattern
 
+**Phase 10 Plan 02:**
+- Unsubscribe MouseButtonChanged before Dispose() in DisposeComponents — mitigates T-10-05 (event on half-disposed object)
+- _configManager.Settings and _trayIcon both constructed before AOT wiring block — no lifetime hazard (T-10-06)
+
 ### Blockers/Concerns
 
 - `Screen.DeviceName` stability as monitor identity key is medium-confidence — validate empirically in next monitor-touching feature (driver reinstall, sleep/wake, RDP)
 
 ## Session Continuity
 
-Last session: 2026-05-05 — Phase 10 Plan 01 executed: AlwaysOnTopHandler + NativeMethods extensions
-Stopped at: Phase 10 Plan 02 (wire AlwaysOnTopHandler into HotSpotApplicationContext)
+Last session: 2026-05-06 — Phase 10 Plan 02 executed: AlwaysOnTopHandler wired into HotSpotApplicationContext
+Stopped at: Phase 10 complete — v1.5 Always-on-Top feature done; no pending plans

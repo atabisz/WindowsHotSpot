@@ -121,10 +121,14 @@ internal sealed class AlwaysOnTopHandler : IDisposable
             0, 0, 0, 0,
             SWP_FLAGS);
 
-        // AOT-02: balloon feedback
+        // AOT-02: balloon feedback — title uses the target window's name
+        var sb = new System.Text.StringBuilder(256);
+        int titleLen = NativeMethods.GetWindowText(rootHwnd, sb, sb.Capacity);
+        string windowTitle = titleLen > 0 ? sb.ToString() : "Window";
+
         _trayIcon.ShowBalloonTip(
             2000,
-            "WindowsHotSpot",
+            windowTitle,
             isTopmost ? "Unpinned" : "Pinned on top",
             ToolTipIcon.Info);
     }

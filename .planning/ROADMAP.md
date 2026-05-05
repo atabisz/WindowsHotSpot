@@ -44,7 +44,7 @@ See: `.planning/milestones/v1.4-ROADMAP.md`
 
 - [ ] **Phase 8: Hook Infrastructure** - Add WM_MOUSEWHEEL and WM_LBUTTONDBLCLK to HookManager
 - [x] **Phase 9: Scroll Resize** - Implement Ctrl+Alt scroll-to-resize with configurable step size
-- [ ] **Phase 10: Always-on-Top Toggle** - Implement Ctrl+Alt double-click AOT toggle with tray feedback
+- [x] **Phase 10: Always-on-Top Toggle** - Implement Ctrl+Alt double-click AOT toggle with tray feedback
 
 ---
 
@@ -85,7 +85,10 @@ Plans:
   2. A tray balloon tooltip appears briefly after each toggle confirming "WindowsHotSpot: Pinned on top" or "WindowsHotSpot: Unpinned"
   3. Double-clicking an elevated (admin) window does nothing — no toggle, no tooltip, no error
   4. AltGr (RightCtrl+LeftAlt) does not trigger the toggle — only physical LCtrl+LAlt activates it
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [x] 10-01-PLAN.md — NativeMethods additions + AlwaysOnTopHandler class
+- [x] 10-02-PLAN.md — HotSpotApplicationContext wiring + build + smoke test
 
 ---
 
@@ -102,8 +105,8 @@ Plans:
 | 7. Wiring | v1.4 | 1/1 | Complete | 2026-05-05 |
 | 8. Hook Infrastructure | v1.5 | 0/? | Not started | - |
 | 9. Scroll Resize | v1.5 | 2/2 | Complete | 2026-05-05 |
-| 10. Always-on-Top Toggle | v1.5 | 0/? | Not started | - |
+| 10. Always-on-Top Toggle | v1.5 | 2/2 | Complete | 2026-05-06 |
 
 ---
 
-*Last updated: 2026-05-05 — Phase 9 complete (2/2 plans)*
+*Last updated: 2026-05-06 — Phase 10 complete (2/2 plans); v1.5 Always-on-Top feature done*
