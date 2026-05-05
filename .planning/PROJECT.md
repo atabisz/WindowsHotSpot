@@ -29,7 +29,11 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 
 ### Active
 
-(None — all v1.2 requirements complete. Define next milestone requirements via `/gsd:new-milestone`.)
+- [ ] Ctrl+Alt+drag moves topmost window under cursor without grabbing title bar — v1.4
+- [ ] Drag suppressed for maximized windows — v1.4
+- [ ] Click suppressed (not forwarded to target app) while dragging — v1.4
+- [ ] `HookManager` supports hook suppression (return 1 vs call-through) — v1.4
+- [ ] `WindowDragHandler` wired into `HotSpotApplicationContext` alongside `CornerRouter` — v1.4
 
 ### Out of Scope
 
@@ -38,6 +42,19 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 - Launch application action — transforms the tool into a general launcher — different product
 - Per-app profiles — different product category
 - EDID monitor naming — complex SetupAPI; "Display 1 (Primary)" label is sufficient
+- Right-click or middle-click drag — left-button only for simplicity
+- Resize-by-drag — separate Win32 concern; different UX pattern
+
+## Current Milestone: v1.4 Window Drag Anywhere
+
+**Goal:** Let users move any window by holding Ctrl+Alt and dragging anywhere on it, without needing to grab the title bar.
+
+**Target features:**
+- Ctrl+Alt+left-click-drag moves the topmost window under the cursor
+- Maximized windows are skipped (drag only applies to restored windows)
+- Click is suppressed (not forwarded to target app while in drag mode)
+- `HookManager` gains hook suppression support
+- New `WindowDragHandler` class wired into `HotSpotApplicationContext`
 
 ## Context
 
@@ -87,5 +104,22 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 | ProcessCmdKey returns false (not true) for Escape-while-recording | false propagates to child KeyRecorderPanel; true would consume it at form level | ✓ Good |
 | Same-on-all-monitors toggle propagates one config to all screens on save | Avoids repeated data entry on symmetric multi-monitor setups | ✓ Good |
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-03-18 after v1.2 milestone*
+*Last updated: 2026-05-05 — v1.4 milestone started*

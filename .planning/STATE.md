@@ -1,33 +1,34 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: Per-Corner Actions & Multi-Monitor
-status: archived
-stopped_at: v1.2 milestone archived 2026-03-18 — ready for next milestone
-last_updated: "2026-03-18"
-last_activity: "2026-03-18 — v1.2 milestone archived; 13/13 requirements validated; retrospective written; ROADMAP.md collapsed; REQUIREMENTS.md archived"
+milestone: v1.4
+milestone_name: Window Drag Anywhere
+status: planning
+stopped_at: ""
+last_updated: "2026-05-05"
+last_activity: "2026-05-05 — Milestone v1.4 started; defining requirements and roadmap"
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # State: WindowsHotSpot
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-18 after v1.2)
+See: .planning/PROJECT.md (updated 2026-05-05 for v1.4)
 
 **Core value:** The mouse hot corner fires the right action reliably every time, on any screen, with zero friction.
-**Current focus:** Planning next milestone — run `/gsd:new-milestone`
+**Current focus:** v1.4 Window Drag Anywhere — Ctrl+Alt+drag to move any window without title bar
 
 ## Current Position
 
-Phase: — (between milestones)
-Status: v1.2 archived 2026-03-18
-Last activity: v1.2 milestone archived; 13/13 requirements validated; retrospective written
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-05 — Milestone v1.4 started
 
 ## Performance Metrics
 
@@ -59,6 +60,6 @@ All decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-03-18
-Stopped at: v1.2 milestone archived — ready for next milestone
+Last session: 2026-05-05
+Stopped at: Milestone v1.4 started — roadmap in progress
 Resume file: None

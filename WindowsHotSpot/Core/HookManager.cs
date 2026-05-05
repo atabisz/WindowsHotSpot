@@ -23,6 +23,19 @@ internal sealed class HookManager : IDisposable
     /// <summary>Fired on button down (true) or button up (false) for left and right buttons.</summary>
     public event Action<bool>? MouseButtonChanged;
 
+    /// <summary>
+    /// Optional predicate consulted for WM_LBUTTONDOWN and WM_LBUTTONUP only.
+    /// Return true to suppress the event (hook proc returns 1; target window does not receive it).
+    /// Return false or leave null to pass the event through normally.
+    /// WM_MOUSEMOVE is never suppressed regardless of this predicate (HOOK-02).
+    /// IMPORTANT: This predicate is called on the UI thread inside the hook callback.
+    /// It must return immediately — any I/O or blocking will silently kill the hook (Pitfall 1).
+    /// IMPORTANT: MouseButtonChanged fires BEFORE this predicate is consulted.
+    /// The consumer's event handler runs first, updating consumer state, so the predicate
+    /// can make the correct suppress/pass decision based on freshly updated state.
+    /// </summary>
+    public Func<int, bool>? SuppressionPredicate { get; set; }
+
     public HookManager()
     {
         _hookCallback = HookCallback;
@@ -55,14 +68,19 @@ internal sealed class HookManager : IDisposable
             {
                 var hookStruct = Marshal.PtrToStructure<NativeMethods.MSLLHOOKSTRUCT>(lParam);
                 MouseMoved?.Invoke(hookStruct.pt);
+                // WM_MOUSEMOVE: SuppressionPredicate is NEVER consulted (HOOK-02)
             }
-            else if (msg == NativeMethods.WM_LBUTTONDOWN || msg == NativeMethods.WM_RBUTTONDOWN)
+            else if (msg == NativeMethods.WM_LBUTTONDOWN || msg == NativeMethods.WM_LBUTTONUP)
             {
-                MouseButtonChanged?.Invoke(true);
+                // Fire event FIRST so consumer state is updated before predicate runs (Pitfall 2)
+                MouseButtonChanged?.Invoke(msg == NativeMethods.WM_LBUTTONDOWN);
+                if (SuppressionPredicate?.Invoke(msg) == true)
+                    return new IntPtr(1); // consumed — target window does not receive this event
             }
-            else if (msg == NativeMethods.WM_LBUTTONUP || msg == NativeMethods.WM_RBUTTONUP)
+            else if (msg == NativeMethods.WM_RBUTTONDOWN || msg == NativeMethods.WM_RBUTTONUP)
             {
-                MouseButtonChanged?.Invoke(false);
+                MouseButtonChanged?.Invoke(msg == NativeMethods.WM_RBUTTONDOWN);
+                // Right-button: SuppressionPredicate NEVER consulted (HOOK-02)
             }
         }
         return NativeMethods.CallNextHookEx(_hookId, nCode, wParam, lParam);
