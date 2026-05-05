@@ -31,7 +31,7 @@ See: `.planning/milestones/v1.2-ROADMAP.md`
 ### v1.4 Window Drag Anywhere
 
 - [x] **Phase 5: Hook Suppression Infrastructure** — Add event suppression to HookManager
-- [ ] **Phase 6: WindowDragHandler** — Core drag logic with modifier guard and maximized-window protection
+- [x] **Phase 6: WindowDragHandler** — Core drag logic with modifier guard and maximized-window protection
 - [ ] **Phase 7: Wiring** — Wire WindowDragHandler into HotSpotApplicationContext and dispose cleanly
 
 ---
@@ -67,10 +67,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Add P/Invoke declarations, structs, and constants to NativeMethods.cs (Wave 1)
-- [ ] 06-02-PLAN.md — Add WindowDragPassThrough to AppSettings and "Window Dragging" section to SettingsForm (Wave 1, parallel)
-- [ ] 06-03-PLAN.md — Create WindowDragHandler.cs with complete drag implementation (Wave 2)
-- [ ] 06-04-PLAN.md — Temporary wiring smoke test and manual verification checkpoint (Wave 3)
+- [x] 06-01-PLAN.md — Add P/Invoke declarations, structs, and constants to NativeMethods.cs (Wave 1)
+- [x] 06-02-PLAN.md — Add WindowDragPassThrough to AppSettings and "Window Dragging" section to SettingsForm (Wave 1, parallel)
+- [x] 06-03-PLAN.md — Create WindowDragHandler.cs with complete drag implementation (Wave 2)
+- [x] 06-04-PLAN.md — Temporary wiring smoke test and manual verification checkpoint (Wave 3, checkpoint approved 2026-05-05)
 
 ### Phase 7: Wiring
 **Goal**: WindowDragHandler is a first-class component of HotSpotApplicationContext — created, connected, and disposed alongside CornerRouter with no resource leaks
@@ -88,9 +88,9 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 5. Hook Suppression Infrastructure | 1/1 | Complete | 2026-05-05 |
-| 6. WindowDragHandler | 0/4 | Not started | - |
+| 6. WindowDragHandler | 4/4 | Complete | 2026-05-05 |
 | 7. Wiring | 0/? | Not started | - |
 
 ---
 
-*Last updated: 2026-05-05 — Phase 6 planned (4 plans in 3 waves)*
+*Last updated: 2026-05-05 — Phase 6 complete (4/4 plans), Phase 7 ready*

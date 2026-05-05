@@ -5,13 +5,13 @@ milestone_name: Window Drag Anywhere
 status: in-progress
 stopped_at: ""
 last_updated: "2026-05-05"
-last_activity: "2026-05-05 — Phase 5 Plan 01 complete: SuppressionPredicate added to HookManager, checkpoint approved"
+last_activity: "2026-05-05 — Phase 6 complete: WindowDragHandler verified (4/4 plans, checkpoint approved)"
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 1
-  completed_plans: 1
-  percent: 33
+  completed_phases: 2
+  total_plans: 5
+  completed_plans: 5
+  percent: 67
 ---
 
 # State: WindowsHotSpot
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-05-05 for v1.4)
 
 ## Current Position
 
-Phase: Phase 5 — Hook Suppression Infrastructure
-Plan: 05-01 COMPLETE — advancing to Phase 6
-Status: Phase 5 complete (1/1 plans), Phase 6 ready to begin
-Last activity: 2026-05-05 — Phase 5 Plan 01 complete, checkpoint approved
+Phase: Phase 7 — Wiring
+Plan: ready to begin
+Status: Phase 6 complete (4/4 plans), Phase 7 ready to begin
+Last activity: 2026-05-05 — Phase 6 complete, checkpoint approved
 
 ```
 Progress: [██████░░░░░░░░░░░░░░] 33% (1/3 phases)
