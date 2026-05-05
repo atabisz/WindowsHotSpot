@@ -17,11 +17,28 @@ internal sealed class HookManager : IDisposable
     // while the hook is installed. A local variable or lambda would be collected.
     private readonly NativeMethods.LowLevelMouseProc _hookCallback;
 
+    private uint  _lastLButtonDownTime;
+    private Point _lastLButtonDownPt;
+
     /// <summary>Fired on WM_MOUSEMOVE with the current cursor position in physical pixels.</summary>
     public event Action<Point>? MouseMoved;
 
     /// <summary>Fired on button down (true) or button up (false) for left and right buttons.</summary>
     public event Action<bool>? MouseButtonChanged;
+
+    /// <summary>
+    /// Fired on WM_MOUSEWHEEL with the signed wheel delta (multiples of WHEEL_DELTA = 120;
+    /// positive = scroll up / grow, negative = scroll down / shrink) and cursor position in physical pixels.
+    /// Consumers are responsible for gating on modifier state.
+    /// </summary>
+    public event Action<int, Point>? MouseWheeled;
+
+    /// <summary>
+    /// Fired when two consecutive WM_LBUTTONDOWN events are detected within
+    /// GetDoubleClickTime() milliseconds and GetSystemMetrics(SM_CXDOUBLECLK/SM_CYDOUBLECLK) pixels.
+    /// Consumers are responsible for gating on modifier state.
+    /// </summary>
+    public event Action<Point>? MouseDoubleClicked;
 
     /// <summary>
     /// Optional predicate consulted for WM_LBUTTONDOWN and WM_LBUTTONUP only.
@@ -79,14 +96,46 @@ internal sealed class HookManager : IDisposable
                 {
                     // Fire event FIRST: consumer's event handler updates drag state before the predicate
                     // runs, so ShouldSuppress() sees current state for the initiating click.
-                    MouseButtonChanged?.Invoke(msg == NativeMethods.WM_LBUTTONDOWN);
+                    bool isDown = msg == NativeMethods.WM_LBUTTONDOWN;
+                    MouseButtonChanged?.Invoke(isDown);
                     if (SuppressionPredicate?.Invoke(msg) == true)
                         return new IntPtr(1); // consumed — target window does not receive this event
+
+                    if (isDown)
+                    {
+                        var hookStruct = Marshal.PtrToStructure<NativeMethods.MSLLHOOKSTRUCT>(lParam);
+                        uint timeDelta  = (uint)(hookStruct.time - _lastLButtonDownTime);
+                        int  dx         = hookStruct.pt.X - _lastLButtonDownPt.X;
+                        int  dy         = hookStruct.pt.Y - _lastLButtonDownPt.Y;
+                        bool withinTime = timeDelta <= NativeMethods.GetDoubleClickTime();
+                        bool withinDist = Math.Abs(dx) <= NativeMethods.GetSystemMetrics(NativeMethods.SM_CXDOUBLECLK)
+                                       && Math.Abs(dy) <= NativeMethods.GetSystemMetrics(NativeMethods.SM_CYDOUBLECLK);
+
+                        if (withinTime && withinDist)
+                        {
+                            MouseDoubleClicked?.Invoke(hookStruct.pt);
+                            // Reset: prevent triple-click from re-firing
+                            _lastLButtonDownTime = 0;
+                            _lastLButtonDownPt   = default;
+                        }
+                        else
+                        {
+                            _lastLButtonDownTime = hookStruct.time;
+                            _lastLButtonDownPt   = hookStruct.pt;
+                        }
+                    }
                 }
                 else if (msg == NativeMethods.WM_RBUTTONDOWN || msg == NativeMethods.WM_RBUTTONUP)
                 {
                     MouseButtonChanged?.Invoke(msg == NativeMethods.WM_RBUTTONDOWN);
                     // Right-button: SuppressionPredicate NEVER consulted (HOOK-02)
+                }
+                else if (msg == NativeMethods.WM_MOUSEWHEEL)
+                {
+                    var hookStruct = Marshal.PtrToStructure<NativeMethods.MSLLHOOKSTRUCT>(lParam);
+                    int delta = (short)(hookStruct.mouseData >> 16);   // HIWORD as signed short
+                    MouseWheeled?.Invoke(delta, hookStruct.pt);
+                    // WM_MOUSEWHEEL is NEVER suppressed — always falls through to CallNextHookEx
                 }
             }
             catch

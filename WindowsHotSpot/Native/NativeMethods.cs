@@ -18,11 +18,13 @@ internal static class NativeMethods
     public const int WM_SYSKEYUP   = 0x0105;
 
     // Mouse messages
-    public const int WM_MOUSEMOVE   = 0x0200;
-    public const int WM_LBUTTONDOWN = 0x0201;
-    public const int WM_LBUTTONUP   = 0x0202;
-    public const int WM_RBUTTONDOWN = 0x0204;
-    public const int WM_RBUTTONUP   = 0x0205;
+    public const int WM_MOUSEMOVE    = 0x0200;
+    public const int WM_LBUTTONDOWN  = 0x0201;
+    public const int WM_LBUTTONUP    = 0x0202;
+    public const int WM_LBUTTONDBLCLK = 0x0203;  // synthesized by window mgr — documents the message code; not seen in WH_MOUSE_LL
+    public const int WM_RBUTTONDOWN  = 0x0204;
+    public const int WM_RBUTTONUP    = 0x0205;
+    public const int WM_MOUSEWHEEL   = 0x020A;
 
     // Input constants
     public const uint INPUT_KEYBOARD  = 1;
@@ -60,6 +62,10 @@ internal static class NativeMethods
     // System cursor identifiers (MAKEINTRESOURCE values — shared resources, never call DestroyCursor)
     public static readonly IntPtr IDC_ARROW   = new IntPtr(32512);
     public static readonly IntPtr IDC_SIZEALL = new IntPtr(32646);
+
+    // System metrics indices for double-click detection
+    public const int SM_CXDOUBLECLK = 36;
+    public const int SM_CYDOUBLECLK = 37;
 
     // Delegate for low-level mouse hook callback
     public delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
@@ -243,4 +249,10 @@ internal static class NativeMethods
 
     [DllImport("user32.dll")]
     public static extern IntPtr SetCursor(IntPtr hCursor);
+
+    [DllImport("user32.dll")]
+    public static extern uint GetDoubleClickTime();
+
+    [DllImport("user32.dll")]
+    public static extern int GetSystemMetrics(int nIndex);
 }
