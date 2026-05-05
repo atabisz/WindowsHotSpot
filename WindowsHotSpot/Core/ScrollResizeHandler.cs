@@ -103,7 +103,7 @@ internal sealed class ScrollResizeHandler : IDisposable
         // Clamp each edge independently to the screen bounds so growing stops
         // at the monitor boundary rather than extending off-screen.
         var screen = System.Windows.Forms.Screen.FromPoint(cursorPos);
-        var sb = screen.Bounds;
+        var sb = screen.WorkingArea;
         int newRight  = newLeft + nw;
         int newBottom = newTop  + nh;
         if (newLeft   < sb.Left)   { newLeft   = sb.Left;              nw = newRight  - newLeft; }
