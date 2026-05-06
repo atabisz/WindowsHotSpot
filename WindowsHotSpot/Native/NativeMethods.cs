@@ -40,6 +40,7 @@ internal static class NativeMethods
     public const uint VK_RCONTROL = 0xA3;
     public const uint VK_LMENU    = 0xA4;
     public const uint VK_RMENU    = 0xA5;
+    public const uint VK_LSHIFT   = 0xA0;
 
     // KBDLLHOOKSTRUCT.flags bit: event was injected (AltGr fake LCtrl guard — GUARD-01)
     public const uint LLKHF_INJECTED = 0x10;
@@ -64,6 +65,9 @@ internal static class NativeMethods
     // GetWindowLong index and extended style flags
     public const int  GWL_EXSTYLE   = -20;
     public const uint WS_EX_TOPMOST = 0x00000008;
+    public const uint WS_EX_LAYERED = 0x00080000;
+    public const uint LWA_COLORKEY  = 0x00000001;
+    public const uint LWA_ALPHA     = 0x00000002;
 
     // WINDOWPLACEMENT.showCmd values
     public const uint SW_SHOWMAXIMIZED = 3;
@@ -255,6 +259,17 @@ internal static class NativeMethods
 
     [DllImport("user32.dll")]
     public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool SetLayeredWindowAttributes(
+        IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool GetLayeredWindowAttributes(
+        IntPtr hwnd, out uint pcrKey, out byte pbAlpha, out uint pdwFlags);
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);

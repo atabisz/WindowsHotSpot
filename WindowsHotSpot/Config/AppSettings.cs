@@ -36,6 +36,7 @@ internal sealed class AppSettings
     public bool SameOnAllMonitors { get; set; } = false;
     public bool WindowDragPassThrough { get; set; } = false;
     public int ScrollResizeStep { get; set; } = 20;  // px per scroll notch (RESIZE-03)
+    public int TransparencyStep { get; set; } = 10;  // alpha units per scroll notch (TRNSP-04)
 
     // Per-monitor corner config keyed by Screen.DeviceName.
     // Missing key = use global CornerActions fallback.
