@@ -1,6 +1,6 @@
 # WindowsHotSpot
 
-Hot corners and window interactions for Windows. Move your mouse to a configured screen corner to trigger an action, drag any window without grabbing the title bar, resize windows with the scroll wheel, or pin windows always-on-top — all with a single Ctrl+Alt modifier.
+Hot corners and window interactions for Windows. Move your mouse to a configured screen corner to trigger an action, drag any window without grabbing the title bar, resize windows with the scroll wheel, pin windows always-on-top, or adjust window transparency — all with a single Ctrl+Alt modifier.
 
 ## Features
 
@@ -8,6 +8,7 @@ Hot corners and window interactions for Windows. Move your mouse to a configured
 - **Window drag anywhere** — hold Ctrl+Alt and left-click-drag anywhere on a window to move it (no title bar required)
 - **Scroll resize** — hold Ctrl+Alt and scroll to resize the window under the cursor, anchored to the cursor position
 - **Always-on-top toggle** — hold Ctrl+Alt and double-click a window to pin or unpin it on top; tray balloon confirms the action
+- **Window transparency** — hold Ctrl+Alt+Shift and scroll to adjust the transparency of the window under the cursor
 - Configurable zone size and dwell delay
 - Drag suppression — dragging a window into the corner does not trigger the corner action
 - Multi-monitor aware — independent corner config per monitor; works across monitors at different DPI scaling
@@ -66,6 +67,15 @@ Hold **Left Ctrl + Left Alt** and double-click any window to toggle its always-o
 - AltGr and maximized/elevated windows are skipped
 - The double-click timing uses the system double-click interval (`GetDoubleClickTime`)
 
+### Window transparency
+
+Hold **Left Ctrl + Left Alt + Left Shift** and scroll the mouse wheel over any window to adjust its transparency. Scroll down to make the window more transparent; scroll up to restore opacity.
+
+- Alpha is clamped to a minimum of ~10% opacity so windows can never become invisible
+- Existing window layering (e.g. color-key windows) is preserved
+- AltGr and elevated windows are skipped
+- The transparency step size is configurable in Settings
+
 ### Settings
 
 | Setting | Default | Description |
@@ -76,6 +86,7 @@ Hold **Left Ctrl + Left Alt** and double-click any window to toggle its always-o
 | Bring window to front when dragging starts | On | Raise the target window to the foreground at the start of a drag |
 | Pass through clicks when no window is draggable | Off | When Ctrl+Alt+click lands on a non-draggable surface, pass the click through instead of swallowing it |
 | Scroll resize step | 20 px | How many pixels to grow/shrink the window per scroll notch |
+| Transparency step | 10 α | How much to adjust window opacity per scroll notch (alpha units, 1–50) |
 
 Per-monitor corner configuration is available in Settings — select a monitor, configure its four corners independently, or use "Same on all monitors".
 
@@ -126,8 +137,9 @@ WindowsHotSpot/
 │   ├── CornerDetector.cs      # Dwell state machine, drag suppression, multi-monitor
 │   ├── CornerRouter.cs        # Per-(monitor, corner) detector pool; rebuilt on settings change
 │   ├── WindowDragHandler.cs   # Ctrl+Alt drag: WH_KEYBOARD_LL + SetWindowPos
-│   ├── ScrollResizeHandler.cs # Ctrl+Alt+scroll resize: cursor-anchored, edge-clamped
-│   ├── AlwaysOnTopHandler.cs  # Ctrl+Alt double-click: WS_EX_TOPMOST toggle + tray balloon
+│   ├── ScrollResizeHandler.cs        # Ctrl+Alt+scroll resize: cursor-anchored, edge-clamped
+│   ├── AlwaysOnTopHandler.cs         # Ctrl+Alt double-click: WS_EX_TOPMOST toggle + tray balloon
+│   ├── WindowTransparencyHandler.cs  # Ctrl+Alt+Shift+scroll: WS_EX_LAYERED alpha adjustment
 │   ├── ActionDispatcher.cs    # Dispatches CornerAction to SendInput
 │   └── ActionTrigger.cs       # Win+Tab SendInput helper (used by ActionDispatcher)
 ├── Config/
@@ -158,7 +170,8 @@ build.ps1                      # Build script: publish + installer
 - Window drag uses `WindowFromPoint` → `GetAncestor(GA_ROOT)` → elevation check → `SetWindowPos(SWP_ASYNCWINDOWPOS)` to move windows without blocking the hook callback
 - Scroll resize anchors the cursor at its fractional position within the window (`fx = (cursorX - left) / width`), then re-derives `newLeft` after resizing so the window grows/shrinks around the cursor; clamped per-edge to `Screen.WorkingArea`
 - Always-on-top double-click detection uses `GetDoubleClickTime()` and `SM_CXDOUBLECLK`/`SM_CYDOUBLECLK` polled live (not cached) so it respects runtime system setting changes
-- AltGr protection: AltGr synthesises a fake `VK_LCONTROL` event with `LLKHF_INJECTED` set — the keyboard hook skips injected LCtrl events; applies to drag, scroll resize, and AOT toggle
+- AltGr protection: AltGr synthesises a fake `VK_LCONTROL` event with `LLKHF_INJECTED` set — the keyboard hook skips injected LCtrl events; applies to drag, scroll resize, AOT toggle, and transparency
+- Window transparency uses `WS_EX_LAYERED` + `LWA_ALPHA` via `SetLayeredWindowAttributes`; existing layered-window flags (e.g. `LWA_COLORKEY`) are preserved by OR-ing with the existing flags before writing back; alpha is clamped to 25–255
 
 ## Known limitations
 

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-WindowsHotSpot is a Windows system tray app that fires a configurable action when the mouse dwells in a screen corner, and extends window management with three Ctrl+Alt gestures: drag anywhere to move, scroll wheel to resize, and double-click to toggle always-on-top. Each corner on each monitor can independently trigger Win+Tab (Task View), Show Desktop, Action Center, a recorded custom keystroke, or be disabled. All window interactions skip maximized and elevated (admin) windows. It runs silently in the background with no taskbar button, configured via a tray icon menu.
+WindowsHotSpot is a Windows system tray app that fires a configurable action when the mouse dwells in a screen corner, and extends window management with four Ctrl+Alt gestures: drag anywhere to move, scroll wheel to resize, double-click to toggle always-on-top, and Ctrl+Alt+Shift+scroll to adjust transparency. Each corner on each monitor can independently trigger Win+Tab (Task View), Show Desktop, Action Center, a recorded custom keystroke, or be disabled. All window interactions skip maximized and elevated (admin) windows. It runs silently in the background with no taskbar button, configured via a tray icon menu.
 
 ## Core Value
 
@@ -37,23 +37,18 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 - ✓ Tray balloon confirms state change using target window's title ("Notepad: Pinned on top") — v1.5
 - ✓ `HookManager` gains `MouseWheeled`, `MouseDoubleClicked`, `WheelSuppressionPredicate` — v1.5
 
+- ✓ Ctrl+Alt+Shift+scroll adjusts transparency of the window under the cursor — v1.6
+- ✓ Existing `WS_EX_LAYERED` flags on target window preserved (color key windows not broken) — v1.6
+- ✓ Elevated (admin) windows skipped cleanly — v1.6
+- ✓ `WindowTransparencyHandler` wired into `HotSpotApplicationContext` alongside existing handlers — v1.6
+
 ### Active
 
-- [ ] Ctrl+Alt+Shift+scroll adjusts transparency of the window under the cursor — v1.6
-- [ ] Existing `WS_EX_LAYERED` flags on target window preserved (color key windows not broken) — v1.6
-- [ ] Elevated (admin) windows skipped cleanly — v1.6
-- [ ] `WindowTransparencyHandler` wired into `HotSpotApplicationContext` alongside existing handlers — v1.6
+*(none — all requirements validated)*
 
-## Current Milestone: v1.6 Window Transparency
+## Current Milestone
 
-**Goal:** Let users adjust any window's transparency by holding Ctrl+Alt+Shift and scrolling the mouse wheel over it.
-
-**Target features:**
-- Ctrl+Alt+Shift+scroll sets `WS_EX_LAYERED` + `LWA_ALPHA` on the window under the cursor
-- Scroll up increases opacity, scroll down decreases it
-- Existing `WS_EX_LAYERED` flags preserved (color key windows not broken)
-- Elevated (admin) windows skipped — same UIPI guard as other handlers
-- AltGr does not trigger
+No active milestone. v1.6 Window Transparency shipped 2026-05-06.
 
 ### Out of Scope
 
@@ -69,7 +64,7 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 
 - C# .NET 10 WinForms, single STA thread
 - Global low-level mouse hook (WH_MOUSE_LL) fires on UI thread via message loop
-- Three WH_KEYBOARD_LL hooks: `WindowDragHandler`, `ScrollResizeHandler`, `AlwaysOnTopHandler` each own their modifier state
+- Four WH_KEYBOARD_LL hooks: `WindowDragHandler`, `ScrollResizeHandler`, `AlwaysOnTopHandler`, `WindowTransparencyHandler` each own their modifier state
 - `HookManager` events: `MouseMoved`, `MouseButtonChanged`, `MouseWheeled`, `MouseDoubleClicked`; predicates: `SuppressionPredicate`, `WheelSuppressionPredicate`
 - SendInput for key combos: press-all/release-reverse atomic pattern; cbSize must include MOUSEINPUT union (40 bytes)
 - Config at `AppContext.BaseDirectory` (works with single-file publish)
@@ -88,6 +83,7 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 **Shipped v1.2:** ~1,963 C# source LOC. 3 phases, 11 plans over 7 days.
 **Shipped v1.4:** ~2,400 C# source LOC (+449 LOC). 3 phases, 6 plans, single session.
 **Shipped v1.5:** ~2,837 C# source LOC (+437 LOC). 3 phases, 5 plans, single session.
+**Shipped v1.6:** ~3,168 C# source LOC (+331 LOC). 2 phases, 2 plans, single session.
 
 ## Constraints
 
@@ -136,7 +132,13 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 | Per-edge screen clamping in scroll resize | Whole-window clamp refuses resize when any edge is at boundary; per-edge allows partial grow | ✓ Good |
 | `GetWindowText` for AOT balloon title | Target app's name makes feedback immediately meaningful vs generic "WindowsHotSpot" | ✓ Good |
 | Three independent WH_KEYBOARD_LL hooks | Each handler owns modifier state; no cross-handler coupling; consistent with WH_KEYBOARD_LL-per-consumer pattern | ✓ Good |
-| `IsElevatedProcess` / `IsPhysicallyDown` duplicated across handlers | Pragmatic for v1.5; candidate for shared utility extraction in future refactor | ⚠️ Revisit |
+| `IsElevatedProcess` / `IsPhysicallyDown` duplicated across handlers | Pragmatic for v1.5/v1.6; candidate for shared utility extraction in future refactor | ⚠️ Revisit |
+| Clone `ScrollResizeHandler` for `WindowTransparencyHandler` | Proven pattern; consistent keyboard hook ownership model across all four handlers | ✓ Good |
+| No `!isInjected` guard on VK_LSHIFT in transparency handler | AltGr synthesizes fake LCtrl but not LShift; guard would be dead code | ✓ Good |
+| OR-lambda for `WheelSuppressionPredicate` | Field is single-slot (not event); OR-lambda is the only way to combine two handlers | ✓ Good |
+| `existingFlags \| LWA_ALPHA` in `SetLayeredWindowAttributes` | Preserves `LWA_COLORKEY` on color-key windows after transparency change | ✓ Good |
+| Alpha min = 25 | Prevents windows from becoming invisible and unrecoverable | ✓ Good |
+| `IsPhysicallyDown(VK_LSHIFT)` in `ScrollResizeHandler` gate | Live query at wheel-fire time — no Shift state tracking needed in resize handler | ✓ Good |
 
 ## Evolution
 
@@ -156,4 +158,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-06 — v1.5 Window Interactions shipped*
+*Last updated: 2026-05-06 — v1.6 Window Transparency shipped*
