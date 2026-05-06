@@ -2,7 +2,7 @@
 
 ## What This Is
 
-WindowsHotSpot is a Windows system tray app that fires a configurable action when the mouse dwells in a screen corner, and lets users move any window by holding Ctrl+Alt and dragging anywhere on it. Each corner on each monitor can independently trigger Win+Tab (Task View), Show Desktop, Action Center, a recorded custom keystroke, or be disabled. Window drag works on any restored (non-maximized, non-elevated) window without needing to grab the title bar. It runs silently in the background with no taskbar button, configured via a tray icon menu.
+WindowsHotSpot is a Windows system tray app that fires a configurable action when the mouse dwells in a screen corner, and extends window management with three Ctrl+Alt gestures: drag anywhere to move, scroll wheel to resize, and double-click to toggle always-on-top. Each corner on each monitor can independently trigger Win+Tab (Task View), Show Desktop, Action Center, a recorded custom keystroke, or be disabled. All window interactions skip maximized and elevated (admin) windows. It runs silently in the background with no taskbar button, configured via a tray icon menu.
 
 ## Core Value
 
@@ -31,13 +31,15 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 - ✓ Click suppressed (not forwarded to target app) while dragging — v1.4
 - ✓ `HookManager` supports hook suppression (return 1 vs call-through) via `SuppressionPredicate` — v1.4
 - ✓ `WindowDragHandler` wired into `HotSpotApplicationContext` as permanent `readonly` field alongside `CornerRouter` — v1.4
+- ✓ Ctrl+Alt+scroll wheel resizes the window under the cursor (symmetric, cursor-anchored, WorkingArea-clamped) — v1.5
+- ✓ Scroll resize step size configurable in Settings (default 20 px/notch) — v1.5
+- ✓ Ctrl+Alt+double-click toggles always-on-top for the window under the cursor — v1.5
+- ✓ Tray balloon confirms state change using target window's title ("Notepad: Pinned on top") — v1.5
+- ✓ `HookManager` gains `MouseWheeled`, `MouseDoubleClicked`, `WheelSuppressionPredicate` — v1.5
 
 ### Active
 
-- [ ] Ctrl+Alt+scroll wheel resizes the window under the cursor (symmetric, cursor-anchored) — v1.5
-- [ ] Scroll resize step size configurable in Settings — v1.5
-- [ ] Ctrl+Alt+double-click toggles always-on-top for the window under the cursor — v1.5
-- [ ] Tray tooltip confirms always-on-top state change ("Pinned" / "Unpinned") — v1.5
+(None — planning next milestone)
 
 ### Out of Scope
 
@@ -53,7 +55,8 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 
 - C# .NET 10 WinForms, single STA thread
 - Global low-level mouse hook (WH_MOUSE_LL) fires on UI thread via message loop
-- Global low-level keyboard hook (WH_KEYBOARD_LL) in WindowDragHandler tracks LCtrl+LAlt state
+- Three WH_KEYBOARD_LL hooks: `WindowDragHandler`, `ScrollResizeHandler`, `AlwaysOnTopHandler` each own their modifier state
+- `HookManager` events: `MouseMoved`, `MouseButtonChanged`, `MouseWheeled`, `MouseDoubleClicked`; predicates: `SuppressionPredicate`, `WheelSuppressionPredicate`
 - SendInput for key combos: press-all/release-reverse atomic pattern; cbSize must include MOUSEINPUT union (40 bytes)
 - Config at `AppContext.BaseDirectory` (works with single-file publish)
 - HKCU Run key uses `Environment.ProcessPath`
@@ -63,12 +66,14 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 - Per-monitor config keyed by `Screen.DeviceName`; missing key defaults to all-corners disabled
 - `CornerRouter` owns detector pool; `Rebuild()` recreates on settings change or `DisplaySettingsChanged`
 - `KeyRecorderPanel` uses `WH_KEYBOARD_LL` to capture Win key before OS intercepts it
-- `WindowDragHandler` uses `WindowFromPoint` → `GetAncestor(GA_ROOT)` → `GetWindowPlacement` → elevation check → `SetWindowPos(SWP_ASYNCWINDOWPOS)` pipeline
-- UIPI constraint: drag is skipped for elevated (admin) windows; `IsElevatedProcess` check via `OpenProcessToken/GetTokenInformation` gates `BeginDragAttempt`
-- SAS constraint: `GetKeyState` self-heal on each `BeginDragAttempt` prevents modifier-stuck-true lockup after Ctrl+Alt+Del
+- Window pipeline pattern: `WindowFromPoint` → `GetAncestor(GA_ROOT)` → `GetWindowPlacement` (skip maximized) → `IsElevatedProcess` (skip elevated) → action
+- UIPI constraint: all three window actions skip elevated windows; `IsElevatedProcess` via `OpenProcessToken/GetTokenInformation`
+- SAS constraint: `GetKeyState` self-heal on each action entry-point prevents modifier-stuck-true lockup after Ctrl+Alt+Del
+- Scroll resize: cursor-anchored `fx/fy` math; per-edge `Screen.WorkingArea` clamping; `WheelSuppressionPredicate` prevents console font zoom
 
 **Shipped v1.2:** ~1,963 C# source LOC. 3 phases, 11 plans over 7 days.
 **Shipped v1.4:** ~2,400 C# source LOC (+449 LOC). 3 phases, 6 plans, single session.
+**Shipped v1.5:** ~2,837 C# source LOC (+437 LOC). 3 phases, 5 plans, single session.
 
 ## Constraints
 
@@ -111,6 +116,13 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 | Maximized window path: no _suppressNextClick | DRAG-06 requires click pass-through on maximized windows — setting suppression would break that | ✓ Good |
 | GetKeyState self-heal on each BeginDragAttempt | SAS (Ctrl+Alt+Del) swallows key-up events; physical key state check self-heals stuck modifier state | ✓ Good |
 | IsElevatedProcess check before committing drag state | UIPI blocks SetWindowPos cross-elevation; detecting upfront lets click pass through cleanly | ✓ Good |
+| `WheelSuppressionPredicate` separate from `SuppressionPredicate` | Wheel suppression is consumer-gated (only when Ctrl+Alt held); button suppression is always-on during drag | ✓ Good |
+| AOT uses `MouseButtonChanged` not `MouseDoubleClicked` | Ctrl+Alt clicks are suppressed before the double-click detection block runs — `MouseDoubleClicked` never fires for Ctrl+Alt clicks | ✓ Good |
+| `Screen.WorkingArea` for scroll resize clamping | `Bounds` includes taskbar area; `WorkingArea` stops window at taskbar boundary | ✓ Good |
+| Per-edge screen clamping in scroll resize | Whole-window clamp refuses resize when any edge is at boundary; per-edge allows partial grow | ✓ Good |
+| `GetWindowText` for AOT balloon title | Target app's name makes feedback immediately meaningful vs generic "WindowsHotSpot" | ✓ Good |
+| Three independent WH_KEYBOARD_LL hooks | Each handler owns modifier state; no cross-handler coupling; consistent with WH_KEYBOARD_LL-per-consumer pattern | ✓ Good |
+| `IsElevatedProcess` / `IsPhysicallyDown` duplicated across handlers | Pragmatic for v1.5; candidate for shared utility extraction in future refactor | ⚠️ Revisit |
 
 ## Evolution
 
@@ -129,13 +141,5 @@ This document evolves at phase transitions and milestone boundaries.
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
-## Current Milestone: v1.5 Window Interactions
-
-**Goal:** Extend Ctrl+Alt window interactions with scroll-to-resize and always-on-top toggle, both using the same modifier activation as drag.
-
-**Target features:**
-- Ctrl+Alt+scroll wheel resizes window under cursor — up grows, down shrinks, symmetric around cursor position, step configurable in Settings
-- Ctrl+Alt+double-click toggles always-on-top — brief tray tooltip confirms "Pinned" / "Unpinned"
-
 ---
-*Last updated: 2026-05-05 — v1.5 milestone started*
+*Last updated: 2026-05-06 — v1.5 Window Interactions shipped*

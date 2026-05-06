@@ -1,5 +1,22 @@
 # Milestones
 
+## v1.5 Window Interactions (Shipped: 2026-05-06)
+
+**Phases completed:** 3 phases (08–10), 5 plans
+**Git range:** `23cb1a8` → `5b02d60`
+**Timeline:** 2026-05-06 (single session)
+**LOC:** +437 net, 2,837 total C# source LOC
+
+**Key accomplishments:**
+1. `HookManager` gains `MouseWheeled (Action<int,Point>?)` and `MouseDoubleClicked (Action<Point>?)` events; `WheelSuppressionPredicate` for consumer-gated wheel suppression
+2. `ScrollResizeHandler` — Ctrl+Alt+scroll resizes any window symmetrically around cursor, clamped to `SM_CXMINTRACK`/`SM_CYMINTRACK` and `Screen.WorkingArea` per-edge
+3. "Window Interactions" section in SettingsForm with configurable scroll resize step (default 20 px/notch)
+4. `AlwaysOnTopHandler` — Ctrl+Alt+double-click toggles `WS_EX_TOPMOST` via `SetWindowPos(HWND_TOPMOST/HWND_NOTOPMOST)`; tray balloon uses target window title
+5. All three Ctrl+Alt gestures (drag, resize, AOT) share AltGr guard, maximized skip, and UIPI elevated-window skip
+6. Post-ship: console font zoom suppressed; screen/taskbar edge clamping corrected
+
+---
+
 ## v1.4 Window Drag Anywhere (Shipped: 2026-05-05)
 
 **Phases completed:** 3 phases (05–07), 6 plans
