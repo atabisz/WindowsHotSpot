@@ -170,7 +170,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         var version = typeof(HotSpotApplicationContext).Assembly
             .GetName().Version?.ToString(3) ?? "unknown";
         MessageBox.Show(
-            $"WindowsHotSpot v{version}\n\nMacOS-style hot corners for Windows.\nMove your mouse to a configured screen corner to trigger an action.",
+            $"WindowsHotSpot v{version}\n\nLinux/macOS-style hot corners for Windows.\nMove your mouse to a configured screen corner to trigger an action.",
             "About WindowsHotSpot",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
