@@ -6,7 +6,7 @@
 - ✅ **v1.2 Per-Corner Actions & Multi-Monitor** — Phases 2-4 (shipped 2026-03-18)
 - ✅ **v1.4 Window Drag Anywhere** — Phases 5-7 (shipped 2026-05-05)
 - ✅ **v1.5 Window Interactions** — Phases 8-10 (shipped 2026-05-06)
-- 🔄 **v1.6 Window Transparency** — Phases 11-12 (active)
+- ✅ **v1.6 Window Transparency** — Phases 11-12 (shipped 2026-05-06)
 
 ## Phases
 
@@ -52,10 +52,10 @@ See: `.planning/milestones/v1.5-ROADMAP.md`
 
 </details>
 
-### v1.6 Window Transparency (Phases 11-12)
+### ✅ v1.6 Window Transparency (Phases 11-12) — SHIPPED 2026-05-06
 
 - [x] **Phase 11: WindowTransparencyHandler** - Core handler: modifier tracking, window pipeline, WS_EX_LAYERED/LWA_ALPHA, alpha clamp
-- [ ] **Phase 12: Wiring + Settings** - Wire handler into app context, add TransparencyStep to AppSettings and Settings UI
+- [x] **Phase 12: Wiring + Settings** - Wire handler into app context, add TransparencyStep to AppSettings and Settings UI
 
 ---
 
@@ -85,7 +85,7 @@ Plans:
   4. Closing the application disposes WindowTransparencyHandler cleanly with no hook leaks or exceptions on exit
 **Plans**: 1 plan
 Plans:
-- [ ] 12-01-PLAN.md — Wire WindowTransparencyHandler into HotSpotApplicationContext + add Transparency Step row to SettingsForm
+- [x] 12-01-PLAN.md — Wire WindowTransparencyHandler into HotSpotApplicationContext + add Transparency Step row to SettingsForm
 
 ---
 
@@ -104,8 +104,8 @@ Plans:
 | 9. Scroll Resize | v1.5 | 2/2 | Complete | 2026-05-06 |
 | 10. Always-on-Top Toggle | v1.5 | 2/2 | Complete | 2026-05-06 |
 | 11. WindowTransparencyHandler | v1.6 | 1/1 | Complete | 2026-05-06 |
-| 12. Wiring + Settings | v1.6 | 0/1 | Not started | - |
+| 12. Wiring + Settings | v1.6 | 1/1 | Complete | 2026-05-06 |
 
 ---
 
-*Last updated: 2026-05-06 — Phase 12 planned (1 plan)*
+*Last updated: 2026-05-06 — v1.6 Window Transparency shipped (Phases 11-12 complete)*
