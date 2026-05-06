@@ -54,7 +54,7 @@ See: `.planning/milestones/v1.5-ROADMAP.md`
 
 ### v1.6 Window Transparency (Phases 11-12)
 
-- [ ] **Phase 11: WindowTransparencyHandler** - Core handler: modifier tracking, window pipeline, WS_EX_LAYERED/LWA_ALPHA, alpha clamp
+- [x] **Phase 11: WindowTransparencyHandler** - Core handler: modifier tracking, window pipeline, WS_EX_LAYERED/LWA_ALPHA, alpha clamp
 - [ ] **Phase 12: Wiring + Settings** - Wire handler into app context, add TransparencyStep to AppSettings and Settings UI
 
 ---
@@ -72,7 +72,7 @@ See: `.planning/milestones/v1.5-ROADMAP.md`
   4. Scrolling over a maximized window or an elevated (admin) window is ignored and the scroll event passes through normally
 **Plans**: 1 plan
 Plans:
-- [ ] 11-01-PLAN.md — NativeMethods additions + AppSettings.TransparencyStep + WindowTransparencyHandler implementation
+- [x] 11-01-PLAN.md — NativeMethods additions + AppSettings.TransparencyStep + WindowTransparencyHandler implementation
 
 ### Phase 12: Wiring + Settings
 **Goal**: WindowTransparencyHandler is active in the running application and its step size is user-configurable
@@ -102,9 +102,9 @@ Plans:
 | 8. Hook Infrastructure | v1.5 | 1/1 | Complete | 2026-05-06 |
 | 9. Scroll Resize | v1.5 | 2/2 | Complete | 2026-05-06 |
 | 10. Always-on-Top Toggle | v1.5 | 2/2 | Complete | 2026-05-06 |
-| 11. WindowTransparencyHandler | v1.6 | 0/1 | In planning | - |
+| 11. WindowTransparencyHandler | v1.6 | 1/1 | Complete | 2026-05-06 |
 | 12. Wiring + Settings | v1.6 | 0/? | Not started | - |
 
 ---
 
-*Last updated: 2026-05-06 — Phase 11 planned (1 plan)*
+*Last updated: 2026-05-06 — Phase 11 complete (WindowTransparencyHandler)*

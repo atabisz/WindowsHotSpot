@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.5
-milestone_name: Window Interactions
-status: archived
+milestone: v1.6
+milestone_name: Window Transparency
+status: in-progress
 stopped_at: ""
 last_updated: "2026-05-06"
-last_activity: "2026-05-06 — v1.5 Window Interactions shipped and archived"
+last_activity: "2026-05-06 — Phase 11 Plan 01 executed: WindowTransparencyHandler implemented"
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_phases: 2
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 50
 ---
 
 # State: WindowsHotSpot
@@ -21,17 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-06 after v1.5 milestone)
 
 **Core value:** The mouse hot corner fires the right action reliably every time, on any screen, with zero friction.
-**Current focus:** v1.5 shipped — planning next milestone
+**Current focus:** v1.6 Window Transparency — Ctrl+Alt+Shift+scroll to set window opacity
 
 ## Current Position
 
-Phase: Phase 10 — Always-on-Top (complete)
-Plan: 10-02 (complete)
-Status: v1.5 milestone archived; git tag v1.5 created and pushed
-Last activity: 2026-05-06 — v1.5 Window Interactions shipped and archived
+Phase: 12 — (next phase)
+Plan: —
+Status: Phase 11 complete; ready for Phase 12
+Last activity: 2026-05-06 — Phase 11 Plan 01 complete
 
 ```
-Progress: [████████████████████] 100% (5/5 plans)
+Progress: [██████████░░░░░░░░░░] 50% (1/2 phases)
 ```
 
 ## Accumulated Context
@@ -55,12 +55,18 @@ All decisions logged in PROJECT.md Key Decisions table.
 - `_lastDownTime != 0` guard prevents single-click false trigger
 - `GetWindowText` for balloon title
 
+**Phase 11:**
+- `WindowTransparencyHandler` clones `ScrollResizeHandler` pattern exactly — same hook, different action
+- LWA_ALPHA OR'd with existingFlags to preserve LWA_COLORKEY on color-key windows (TRNSP-03)
+- VK_LSHIFT case has no `!isInjected` guard — AltGr does not synthesize LShift
+- Alpha clamped to 25-255 to prevent window becoming invisible (TRNSP-05)
+
 ### Blockers/Concerns
 
 - `Screen.DeviceName` stability as monitor identity key is medium-confidence — validate empirically in next monitor-touching feature
-- `IsElevatedProcess` / `IsPhysicallyDown` duplicated across three handlers — candidate for shared utility extraction
+- `IsElevatedProcess` / `IsPhysicallyDown` duplicated across three handlers — candidate for shared utility extraction (deferred to after Phase 12)
 
 ## Session Continuity
 
-Last session: 2026-05-06 — v1.5 archived, tagged v1.5, pushed to remote
-Stopped at: v1.5 complete — ready for `/gsd-new-milestone`
+Last session: 2026-05-06 — Phase 11 Plan 01 complete (WindowTransparencyHandler)
+Stopped at: Phase 11 complete — ready for Phase 12

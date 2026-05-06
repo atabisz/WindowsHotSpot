@@ -39,7 +39,21 @@ The mouse hot corner fires the right action reliably every time, on any screen, 
 
 ### Active
 
-(None — planning next milestone)
+- [ ] Ctrl+Alt+Shift+scroll adjusts transparency of the window under the cursor — v1.6
+- [ ] Existing `WS_EX_LAYERED` flags on target window preserved (color key windows not broken) — v1.6
+- [ ] Elevated (admin) windows skipped cleanly — v1.6
+- [ ] `WindowTransparencyHandler` wired into `HotSpotApplicationContext` alongside existing handlers — v1.6
+
+## Current Milestone: v1.6 Window Transparency
+
+**Goal:** Let users adjust any window's transparency by holding Ctrl+Alt+Shift and scrolling the mouse wheel over it.
+
+**Target features:**
+- Ctrl+Alt+Shift+scroll sets `WS_EX_LAYERED` + `LWA_ALPHA` on the window under the cursor
+- Scroll up increases opacity, scroll down decreases it
+- Existing `WS_EX_LAYERED` flags preserved (color key windows not broken)
+- Elevated (admin) windows skipped — same UIPI guard as other handlers
+- AltGr does not trigger
 
 ### Out of Scope
 
