@@ -141,6 +141,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
             _configManager.Settings.DwellDelayMs = form.SelectedDwellDelay;
             _configManager.Settings.StartWithWindows = form.SelectedStartWithWindows;
             _configManager.Settings.WindowDragPassThrough = form.SelectedWindowDragPassThrough;
+            _configManager.Settings.WindowDragBringToFront = form.SelectedWindowDragBringToFront;
             _configManager.Settings.ScrollResizeStep = form.SelectedScrollResizeStep;
             StartupManager.SetEnabled(form.SelectedStartWithWindows);
 

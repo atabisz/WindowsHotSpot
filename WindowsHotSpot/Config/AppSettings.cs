@@ -35,6 +35,7 @@ internal sealed class AppSettings
     public bool StartWithWindows { get; set; } = false;
     public bool SameOnAllMonitors { get; set; } = false;
     public bool WindowDragPassThrough { get; set; } = false;
+    public bool WindowDragBringToFront { get; set; } = true;
     public int ScrollResizeStep { get; set; } = 20;  // px per scroll notch (RESIZE-03)
     public int TransparencyStep { get; set; } = 10;  // alpha units per scroll notch (TRNSP-04)
 

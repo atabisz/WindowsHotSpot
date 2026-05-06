@@ -44,6 +44,7 @@ internal sealed class SettingsForm : Form
     public bool SelectedStartWithWindows => _startupCheckBox.Checked;
     public bool SelectedSameOnAllMonitors => _sameOnAllMonitorsCheckBox?.Checked ?? false;
     public bool SelectedWindowDragPassThrough => _windowDragPassThroughCheckBox.Checked;
+    public bool SelectedWindowDragBringToFront => _windowDragBringToFrontCheckBox.Checked;
     public int SelectedScrollResizeStep => (int)_scrollResizeStepInput.Value;
 
     // ── State ─────────────────────────────────────────────────────────────
@@ -60,6 +61,7 @@ internal sealed class SettingsForm : Form
     private readonly NumericUpDown _dwellDelayInput;
     private readonly CheckBox _startupCheckBox;
     private readonly CheckBox _windowDragPassThroughCheckBox;
+    private readonly CheckBox _windowDragBringToFrontCheckBox;
     private readonly NumericUpDown _scrollResizeStepInput;
     private readonly Button _saveButton;
     private readonly Button _cancelButton;
@@ -296,21 +298,30 @@ internal sealed class SettingsForm : Form
         {
             Text = "Window Dragging",
             Location = new Point(12, windowDragGroupTop),
-            Size = new Size(396, 48),
+            Size = new Size(396, 68),
+        };
+
+        _windowDragBringToFrontCheckBox = new CheckBox
+        {
+            Text = "Bring window to front when dragging starts",
+            Location = new Point(12, 18),
+            AutoSize = true,
+            Checked = settings.WindowDragBringToFront,
         };
 
         _windowDragPassThroughCheckBox = new CheckBox
         {
             Text = "Pass through clicks when no window is draggable",
-            Location = new Point(12, 18),
+            Location = new Point(12, 42),
             AutoSize = true,
             Checked = settings.WindowDragPassThrough,
         };
 
+        windowDragGroup.Controls.Add(_windowDragBringToFrontCheckBox);
         windowDragGroup.Controls.Add(_windowDragPassThroughCheckBox);
 
         // ── Window Interactions group ─────────────────────────────────────────
-        int windowInteractionsGroupTop = windowDragGroupTop + 56;
+        int windowInteractionsGroupTop = windowDragGroupTop + 76;
 
         var windowInteractionsGroup = new GroupBox
         {

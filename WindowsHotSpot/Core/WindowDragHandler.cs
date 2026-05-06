@@ -187,7 +187,11 @@ internal sealed class WindowDragHandler : IDisposable
             return;
         }
 
-        // Step 6: Commit drag state
+        // Step 6: Bring window to foreground before dragging (optional, DRAG-BF)
+        if (_settings.WindowDragBringToFront)
+            NativeMethods.SetForegroundWindow(rootHwnd);
+
+        // Step 7: Commit drag state
         _dragTarget      = rootHwnd;
         _dragStartCursor = pt;
         _windowOrigin    = rect;
