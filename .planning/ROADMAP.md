@@ -6,6 +6,7 @@
 - ✅ **v1.2 Per-Corner Actions & Multi-Monitor** — Phases 2-4 (shipped 2026-03-18)
 - ✅ **v1.4 Window Drag Anywhere** — Phases 5-7 (shipped 2026-05-05)
 - ✅ **v1.5 Window Interactions** — Phases 8-10 (shipped 2026-05-06)
+- 🔄 **v1.6 Window Transparency** — Phases 11-12 (active)
 
 ## Phases
 
@@ -51,9 +52,41 @@ See: `.planning/milestones/v1.5-ROADMAP.md`
 
 </details>
 
+### v1.6 Window Transparency (Phases 11-12)
+
+- [ ] **Phase 11: WindowTransparencyHandler** - Core handler: modifier tracking, window pipeline, WS_EX_LAYERED/LWA_ALPHA, alpha clamp
+- [ ] **Phase 12: Wiring + Settings** - Wire handler into app context, add TransparencyStep to AppSettings and Settings UI
+
 ---
 
 ## Phase Details
+
+### Phase 11: WindowTransparencyHandler
+**Goal**: The transparency adjustment gesture is fully implemented and self-contained
+**Depends on**: Phase 10 (HookManager with MouseWheeled and WheelSuppressionPredicate in place)
+**Requirements**: TRNSP-01, TRNSP-02, TRNSP-03, TRNSP-05, GUARD-01, GUARD-02, GUARD-03
+**Success Criteria** (what must be TRUE):
+  1. Holding LCtrl+LAlt+LShift and scrolling over a window changes its transparency; AltGr does not trigger
+  2. Scroll up increases opacity, scroll down decreases opacity; alpha is clamped to 25–255 with no value outside that range possible
+  3. A window that already has WS_EX_LAYERED set (e.g. a color-key window) retains its existing flags after transparency adjustment
+  4. Scrolling over a maximized window or an elevated (admin) window is ignored and the scroll event passes through normally
+**Plans**: 1 plan
+Plans:
+- [ ] 11-01-PLAN.md — NativeMethods additions + AppSettings.TransparencyStep + WindowTransparencyHandler implementation
+
+### Phase 12: Wiring + Settings
+**Goal**: WindowTransparencyHandler is active in the running application and its step size is user-configurable
+**Depends on**: Phase 11
+**Requirements**: TRNSP-04, WIRE-01, WIRE-02
+**Success Criteria** (what must be TRUE):
+  1. Transparency adjustment works in a running build — Ctrl+Alt+Shift+scroll changes window opacity without any manual wiring step
+  2. Settings form "Window Interactions" section exposes a transparency step size field (default 10, range 1–50)
+  3. Changing the step size in Settings and saving takes effect immediately for subsequent scroll gestures
+  4. Closing the application disposes WindowTransparencyHandler cleanly with no hook leaks or exceptions on exit
+**Plans**: TBD
+**UI hint**: yes
+
+---
 
 ## Progress Table
 
@@ -69,7 +102,9 @@ See: `.planning/milestones/v1.5-ROADMAP.md`
 | 8. Hook Infrastructure | v1.5 | 1/1 | Complete | 2026-05-06 |
 | 9. Scroll Resize | v1.5 | 2/2 | Complete | 2026-05-06 |
 | 10. Always-on-Top Toggle | v1.5 | 2/2 | Complete | 2026-05-06 |
+| 11. WindowTransparencyHandler | v1.6 | 0/1 | In planning | - |
+| 12. Wiring + Settings | v1.6 | 0/? | Not started | - |
 
 ---
 
-*Last updated: 2026-05-06 — v1.5 Window Interactions shipped (Phases 8-10, 5 plans)*
+*Last updated: 2026-05-06 — Phase 11 planned (1 plan)*
