@@ -83,8 +83,9 @@ Plans:
   2. Settings form "Window Interactions" section exposes a transparency step size field (default 10, range 1–50)
   3. Changing the step size in Settings and saving takes effect immediately for subsequent scroll gestures
   4. Closing the application disposes WindowTransparencyHandler cleanly with no hook leaks or exceptions on exit
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 1 plan
+Plans:
+- [ ] 12-01-PLAN.md — Wire WindowTransparencyHandler into HotSpotApplicationContext + add Transparency Step row to SettingsForm
 
 ---
 
@@ -103,8 +104,8 @@ Plans:
 | 9. Scroll Resize | v1.5 | 2/2 | Complete | 2026-05-06 |
 | 10. Always-on-Top Toggle | v1.5 | 2/2 | Complete | 2026-05-06 |
 | 11. WindowTransparencyHandler | v1.6 | 1/1 | Complete | 2026-05-06 |
-| 12. Wiring + Settings | v1.6 | 0/? | Not started | - |
+| 12. Wiring + Settings | v1.6 | 0/1 | Not started | - |
 
 ---
 
-*Last updated: 2026-05-06 — Phase 11 complete (WindowTransparencyHandler)*
+*Last updated: 2026-05-06 — Phase 12 planned (1 plan)*

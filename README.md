@@ -45,6 +45,7 @@ Move the cursor to a configured corner and hold it there for the dwell delay. Th
 
 Hold **Left Ctrl + Left Alt**, then left-click and drag anywhere on any restored (non-maximized) window to move it. The initiating click is not forwarded to the application — the window just moves.
 
+- The target window is brought to the foreground at the start of the drag (configurable)
 - Maximized windows are skipped — the click passes through normally
 - Elevated (admin) windows are skipped — UIPI prevents cross-privilege window moves
 - AltGr (Right Ctrl + Left Alt) does not trigger drag
@@ -72,6 +73,7 @@ Hold **Left Ctrl + Left Alt** and double-click any window to toggle its always-o
 | Zone size | 10 px | Size of the corner detection area |
 | Dwell delay | 300 ms | How long the cursor must stay in the corner before triggering |
 | Start with Windows | Off | Launch automatically at login |
+| Bring window to front when dragging starts | On | Raise the target window to the foreground at the start of a drag |
 | Pass through clicks when no window is draggable | Off | When Ctrl+Alt+click lands on a non-draggable surface, pass the click through instead of swallowing it |
 | Scroll resize step | 20 px | How many pixels to grow/shrink the window per scroll notch |
 
