@@ -46,8 +46,8 @@ internal sealed class ScrollResizeHandler : IDisposable
             throw new Win32Exception(Marshal.GetLastWin32Error(), "Failed to install keyboard hook.");
     }
 
-    /// <summary>Registered as HookManager.WheelSuppressionPredicate. Suppresses WM_MOUSEWHEEL when Ctrl+Alt is held.</summary>
-    public bool ShouldSuppressWheel(int msg) => _lCtrlDown && _lAltDown;
+    /// <summary>Registered as HookManager.WheelSuppressionPredicate. Suppresses WM_MOUSEWHEEL when Ctrl+Alt is held (but not Shift — that chord belongs to transparency).</summary>
+    public bool ShouldSuppressWheel(int msg) => _lCtrlDown && _lAltDown && !IsPhysicallyDown((int)NativeMethods.VK_LSHIFT);
 
     /// <summary>Called by HookManager.MouseWheeled. Resizes the window under the cursor when Ctrl+Alt is held.</summary>
     public void OnMouseWheeled(int delta, Point cursorPos)
@@ -56,7 +56,7 @@ internal sealed class ScrollResizeHandler : IDisposable
         _lCtrlDown = _lCtrlDown && IsPhysicallyDown((int)NativeMethods.VK_LCONTROL);
         _lAltDown  = _lAltDown  && IsPhysicallyDown((int)NativeMethods.VK_LMENU);
 
-        if (!_lCtrlDown || !_lAltDown) return;   // RESIZE-01 gate
+        if (!_lCtrlDown || !_lAltDown || IsPhysicallyDown((int)NativeMethods.VK_LSHIFT)) return;   // RESIZE-01 gate; LShift = transparency chord, not resize
 
         var pt = new NativeMethods.POINT { X = cursorPos.X, Y = cursorPos.Y };
 
