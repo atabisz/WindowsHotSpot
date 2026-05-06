@@ -188,23 +188,26 @@ internal sealed class WindowDragHandler : IDisposable
         }
 
         // Step 6: Bring window to foreground before dragging (optional, DRAG-BF).
-        // SetForegroundWindow only works when the calling process owns the foreground.
-        // AttachThreadInput temporarily grants that right by joining our thread to the
-        // target's input queue — the standard workaround for the foreground lock.
+        // The foreground lock prevents SetForegroundWindow from working unless the calling
+        // thread is attached to the thread that currently owns the foreground. Attach to the
+        // foreground window's thread (not the target's) to acquire that right.
         if (_settings.WindowDragBringToFront)
         {
-            uint targetTid = NativeMethods.GetWindowThreadProcessId(rootHwnd, out _);
-            uint ourTid    = NativeMethods.GetCurrentThreadId();
-            if (targetTid != 0 && targetTid != ourTid)
-            {
-                NativeMethods.AttachThreadInput(ourTid, targetTid, true);
-                NativeMethods.SetForegroundWindow(rootHwnd);
-                NativeMethods.AttachThreadInput(ourTid, targetTid, false);
-            }
-            else
-            {
-                NativeMethods.SetForegroundWindow(rootHwnd);
-            }
+            uint ourTid        = NativeMethods.GetCurrentThreadId();
+            var  fgHwnd        = NativeMethods.GetForegroundWindow();
+            uint fgTid         = NativeMethods.GetWindowThreadProcessId(fgHwnd, out _);
+            uint targetTid     = NativeMethods.GetWindowThreadProcessId(rootHwnd, out _);
+            bool attachedToFg  = fgTid != 0 && fgTid != ourTid;
+            bool attachedToTgt = targetTid != 0 && targetTid != ourTid && targetTid != fgTid;
+
+            if (attachedToFg)  NativeMethods.AttachThreadInput(ourTid, fgTid,     true);
+            if (attachedToTgt) NativeMethods.AttachThreadInput(ourTid, targetTid, true);
+
+            NativeMethods.SetForegroundWindow(rootHwnd);
+            NativeMethods.BringWindowToTop(rootHwnd);
+
+            if (attachedToTgt) NativeMethods.AttachThreadInput(ourTid, targetTid, false);
+            if (attachedToFg)  NativeMethods.AttachThreadInput(ourTid, fgTid,     false);
         }
 
         // Step 7: Commit drag state
