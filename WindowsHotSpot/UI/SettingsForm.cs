@@ -46,6 +46,7 @@ internal sealed class SettingsForm : Form
     public bool SelectedWindowDragPassThrough => _windowDragPassThroughCheckBox.Checked;
     public bool SelectedWindowDragBringToFront => _windowDragBringToFrontCheckBox.Checked;
     public int SelectedScrollResizeStep => (int)_scrollResizeStepInput.Value;
+    public int SelectedTransparencyStep => (int)_transparencyStepInput.Value;
 
     // ── State ─────────────────────────────────────────────────────────────
     private readonly Screen[] _screens;
@@ -63,6 +64,7 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox _windowDragPassThroughCheckBox;
     private readonly CheckBox _windowDragBringToFrontCheckBox;
     private readonly NumericUpDown _scrollResizeStepInput;
+    private readonly NumericUpDown _transparencyStepInput;
     private readonly Button _saveButton;
     private readonly Button _cancelButton;
 
@@ -327,7 +329,7 @@ internal sealed class SettingsForm : Form
         {
             Text = "Window Interactions",
             Location = new Point(12, windowInteractionsGroupTop),
-            Size = new Size(396, 48),
+            Size = new Size(396, 78),
         };
 
         var scrollStepLabel = MakeLabel("Scroll resize step:", 12, 24);
@@ -344,11 +346,28 @@ internal sealed class SettingsForm : Form
 
         var scrollStepUnitLabel = MakeLabel("px / notch", 209, 24);
 
+        var transparencyStepLabel = MakeLabel("Transparency step:", 12, 54);
+
+        _transparencyStepInput = new NumericUpDown
+        {
+            Minimum   = 1,
+            Maximum   = 50,
+            Increment = 1,
+            Value     = Math.Clamp(settings.TransparencyStep, 1, 50),
+            Location  = new Point(136, 51),
+            Width     = 65,
+        };
+
+        var transparencyStepUnitLabel = MakeLabel("α / notch", 209, 54);
+
         windowInteractionsGroup.Controls.AddRange(
-            [scrollStepLabel, _scrollResizeStepInput, scrollStepUnitLabel]);
+        [
+            scrollStepLabel, _scrollResizeStepInput, scrollStepUnitLabel,
+            transparencyStepLabel, _transparencyStepInput, transparencyStepUnitLabel,
+        ]);
 
         // ── Buttons ───────────────────────────────────────────────────────
-        int buttonPanelTop = windowInteractionsGroupTop + 56;
+        int buttonPanelTop = windowInteractionsGroupTop + 86;
 
         var buttonPanel = new FlowLayoutPanel
         {
