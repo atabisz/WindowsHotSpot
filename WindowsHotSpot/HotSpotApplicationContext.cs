@@ -22,6 +22,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
     private readonly CornerRouter _cornerRouter;
     private readonly WindowDragHandler _windowDragHandler;
     private readonly ScrollResizeHandler _scrollResizeHandler;
+    private readonly WindowTransparencyHandler _windowTransparencyHandler;
     private readonly AlwaysOnTopHandler _alwaysOnTopHandler;
     private readonly NotifyIcon _trayIcon;
     private readonly ContextMenuStrip _contextMenu;
@@ -87,8 +88,14 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
 
         _scrollResizeHandler = new ScrollResizeHandler(_configManager.Settings);
         _hookManager.MouseWheeled += _scrollResizeHandler.OnMouseWheeled;
-        _hookManager.WheelSuppressionPredicate = _scrollResizeHandler.ShouldSuppressWheel;
+
+        _windowTransparencyHandler = new WindowTransparencyHandler(_configManager.Settings);
+        _hookManager.MouseWheeled += _windowTransparencyHandler.OnMouseWheeled;
+        _hookManager.WheelSuppressionPredicate = msg =>
+            _scrollResizeHandler.ShouldSuppressWheel(msg) ||
+            _windowTransparencyHandler.ShouldSuppressWheel(msg);
         _scrollResizeHandler.Install();
+        _windowTransparencyHandler.Install();
 
         _alwaysOnTopHandler = new AlwaysOnTopHandler(_configManager.Settings, _trayIcon);
         _hookManager.MouseButtonChanged += _alwaysOnTopHandler.OnMouseButtonChanged;
@@ -143,6 +150,7 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
             _configManager.Settings.WindowDragPassThrough = form.SelectedWindowDragPassThrough;
             _configManager.Settings.WindowDragBringToFront = form.SelectedWindowDragBringToFront;
             _configManager.Settings.ScrollResizeStep = form.SelectedScrollResizeStep;
+            _configManager.Settings.TransparencyStep = form.SelectedTransparencyStep;
             StartupManager.SetEnabled(form.SelectedStartWithWindows);
 
             // Apply per-monitor corner configs (including custom shortcuts).
@@ -208,8 +216,10 @@ internal sealed class HotSpotApplicationContext : ApplicationContext
         _windowDragHandler.Dispose();
 
         _hookManager.MouseWheeled -= _scrollResizeHandler.OnMouseWheeled;
+        _hookManager.MouseWheeled -= _windowTransparencyHandler.OnMouseWheeled;
         _hookManager.WheelSuppressionPredicate = null;
         _scrollResizeHandler.Dispose();
+        _windowTransparencyHandler.Dispose();
 
         _hookManager.MouseButtonChanged -= _alwaysOnTopHandler.OnMouseButtonChanged;
         _alwaysOnTopHandler.Dispose();
