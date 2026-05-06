@@ -187,9 +187,25 @@ internal sealed class WindowDragHandler : IDisposable
             return;
         }
 
-        // Step 6: Bring window to foreground before dragging (optional, DRAG-BF)
+        // Step 6: Bring window to foreground before dragging (optional, DRAG-BF).
+        // SetForegroundWindow only works when the calling process owns the foreground.
+        // AttachThreadInput temporarily grants that right by joining our thread to the
+        // target's input queue — the standard workaround for the foreground lock.
         if (_settings.WindowDragBringToFront)
-            NativeMethods.SetForegroundWindow(rootHwnd);
+        {
+            uint targetTid = NativeMethods.GetWindowThreadProcessId(rootHwnd, out _);
+            uint ourTid    = NativeMethods.GetCurrentThreadId();
+            if (targetTid != 0 && targetTid != ourTid)
+            {
+                NativeMethods.AttachThreadInput(ourTid, targetTid, true);
+                NativeMethods.SetForegroundWindow(rootHwnd);
+                NativeMethods.AttachThreadInput(ourTid, targetTid, false);
+            }
+            else
+            {
+                NativeMethods.SetForegroundWindow(rootHwnd);
+            }
+        }
 
         // Step 7: Commit drag state
         _dragTarget      = rootHwnd;
